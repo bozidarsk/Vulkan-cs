@@ -22,11 +22,11 @@ public static class Json
 		public override nuint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 	}
 
-	public static string Serialize<T>(T value) => JsonSerializer.Serialize<T>(value, JsonHelper.SerializerOptions);
+	public static string Serialize<T>(T value) => JsonSerializer.Serialize<T>(value, Json.SerializerOptions);
 
-	static JsonHelper() 
+	static Json() 
 	{
-		JsonHelper.SerializerOptions = new() 
+		Json.SerializerOptions = new() 
 		{
 			IncludeFields = true,
 			IgnoreReadOnlyProperties = false,
@@ -35,8 +35,8 @@ public static class Json
 			WriteIndented = true
 		};
 
-		JsonHelper.SerializerOptions.Converters.Add(new IntPtrJsonConverter());
-		JsonHelper.SerializerOptions.Converters.Add(new UIntPtrJsonConverter());
-		JsonHelper.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+		Json.SerializerOptions.Converters.Add(new IntPtrJsonConverter());
+		Json.SerializerOptions.Converters.Add(new UIntPtrJsonConverter());
+		Json.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 	}
 }
