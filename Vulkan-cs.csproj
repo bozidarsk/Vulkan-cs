@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>$(DisableWarnings);CS8500</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,5 +14,15 @@
     <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(DefineConstants);LINUX</DefineConstants>
     <DefineConstants Condition="$([MSBuild]::IsOSPlatform('macOS'))">$(DefineConstants);MAC</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Vulkan/*.cs" />
+    <Compile Include="Vulkan/Helpers/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="GLFW/GLFW-cs.csproj" />
+  </ItemGroup>
 
 </Project>
