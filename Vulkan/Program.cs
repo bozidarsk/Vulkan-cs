@@ -566,12 +566,7 @@ public class Program : IDisposable
 		return shaderModuleCreateInfo.CreateShaderModule(device, allocator);
 	}
 
-	public void DeviceWaitIdle() 
-	{
-		vkDeviceWaitIdle((nint)device);
-
-		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(nint device);
-	}
+	public void DeviceWaitIdle() => device.WaitIdle();
 
 	public virtual void DrawFrame() 
 	{

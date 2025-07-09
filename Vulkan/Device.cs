@@ -18,6 +18,13 @@ public sealed class Device : IDisposable
 		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(nint device, uint queueFamilyIndex, uint queueIndex, out Queue queue);
 	}
 
+	public void WaitIdle() 
+	{
+		vkDeviceWaitIdle((nint)device);
+
+		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(nint device);
+	}
+
 	public static explicit operator nint (Device x) => x.device;
 
 	public void Dispose() 
