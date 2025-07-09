@@ -14,6 +14,18 @@ internal static class Constants
 	#endif
 	;
 
+	public const string GLFW_LIB = 
+	#if WINDOWS
+	"glfw3"
+	#elif LINUX
+	"glfw"
+	#elif MAC
+	#error Not implemented. (MAC)
+	#else
+	#error Unknown os.
+	#endif
+	;
+
 	public const string SHADERC_LIB = 
 	#if WINDOWS
 	#error Not implemented. (WINDOWS)

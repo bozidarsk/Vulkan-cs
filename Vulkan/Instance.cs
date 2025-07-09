@@ -39,7 +39,7 @@ public sealed class Instance : IDisposable
 
 		this.Surface = surface;
 
-		[DllImport(GLFW.Constants.GLFW_LIB)] static extern Result glfwCreateWindowSurface(nint instance, nint window, nint allocator, out Surface surface);
+		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(nint instance, nint window, nint allocator, out Surface surface);
 	}
 
 	public static explicit operator nint (Instance x) => x.instance;
