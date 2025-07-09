@@ -19,6 +19,8 @@ public static class Program
 		Vulkan.Program vk = new(window, in allocator);
 
 		window.OnKey += (s, e) => Console.WriteLine(e.Key);
+		// window.OnFramebufferSize += (s, e) => vk.RecreateSwapchain();
+
 		#if DEBUG
 		vk.OnDebugMessage += (s, e) => Console.WriteLine($"[{e.Severity}] {e.Type}: {e.MessageIdName}: {e.Message}");
 		#endif

@@ -568,6 +568,31 @@ public class Program : IDisposable
 
 	public void DeviceWaitIdle() => device.WaitIdle();
 
+	public void RecreateSwapchain() 
+	{
+		(int framebufferWidth, int framebufferHeight) = window.FramebufferSize;
+		while (framebufferWidth == 0 || framebufferHeight == 0) 
+		{
+			(framebufferWidth, framebufferHeight) = window.FramebufferSize;
+			GLFW.Input.WaitForEvents();
+		}
+
+		DeviceWaitIdle();
+
+		foreach (var x in framebuffers)
+			x.Dispose();
+
+		foreach (var x in imageViews)
+			x.Dispose();
+
+		swapchain.Dispose();
+
+		InitializeSwapchain();
+		InitializeImageViews();
+		InitializeFramebuffers();
+	}
+
+	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
 	public virtual void DrawFrame() 
 	{
 		inFlightFence[currentFrame].Wait();
