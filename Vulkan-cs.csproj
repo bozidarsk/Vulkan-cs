@@ -17,8 +17,7 @@
 
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="Vulkan/*.cs" />
-    <Compile Include="Vulkan/Helpers/*.cs" />
+    <Compile Include="Vulkan/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>

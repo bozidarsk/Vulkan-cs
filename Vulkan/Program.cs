@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
+using Vulkan.ShaderCompiler;
 using static Vulkan.Constants;
 
 namespace Vulkan;
@@ -548,11 +549,12 @@ public class Program : IDisposable
 	{
 		if (filename == null) throw new ArgumentNullException();
 
+		filename = Path.GetFullPath(filename);
 		byte[]? code;
 
 		if (!shaderCode.TryGetValue(filename, out code)) 
 		{
-			code = ShaderCompiler.Compile(filename, stage);
+			code = Compiler.Compile(filename, stage);
 			shaderCode.Add(filename, code!);
 		}
 
@@ -646,8 +648,8 @@ public class Program : IDisposable
 		InitializePipelineLayout();
 		InitializeRenderPass();
 		InitializePipeline(
-			("Shaders/default.vert", ShaderStage.Vertex),
-			("Shaders/default.frag", ShaderStage.Fragment)
+			("Shaders/default.vert.hlsl", ShaderStage.Vertex),
+			("Shaders/default.frag.hlsl", ShaderStage.Fragment)
 		);
 		InitializeFramebuffers();
 		InitializeCommandPool();
