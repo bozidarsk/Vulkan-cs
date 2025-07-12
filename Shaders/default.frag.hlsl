@@ -1,6 +1,6 @@
 #include <common.h>
 
-float4 main(Fragment input) : SV_TARGET 
+float4 main(Fragment input) 
 {
-	return 0.5.xxxx;
+	return input.color;
 }

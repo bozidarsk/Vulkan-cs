@@ -8,6 +8,17 @@ public readonly struct PhysicalDevice
 {
 	private readonly nint handle;
 
+	public PhysicalDeviceMemoryProperties MemoryProperties 
+	{
+		get 
+		{
+			vkGetPhysicalDeviceMemoryProperties(this, out PhysicalDeviceMemoryProperties properties);
+			return properties;
+
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceMemoryProperties(PhysicalDevice physicalDevice, out PhysicalDeviceMemoryProperties properties);
+		}
+	}
+
 	public PhysicalDeviceProperties Properties 
 	{
 		get 

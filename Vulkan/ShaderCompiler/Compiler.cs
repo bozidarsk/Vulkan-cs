@@ -21,7 +21,7 @@ public readonly struct Compiler : IDisposable
 		compiler ??= new Compiler();
 		options ??= new CompilerOptions() 
 		{
-			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan14),
+			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
 			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
 			IncludeDirectories = [ @"Shaders" ]
 		};
@@ -65,7 +65,7 @@ public readonly struct Compiler : IDisposable
 		using var compiler = new Compiler();
 		using var options = new CompilerOptions() 
 		{
-			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan14),
+			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
 			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
 			IncludeDirectories = [ @"Shaders" ]
 		};

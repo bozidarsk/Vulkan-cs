@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -8,6 +9,19 @@ namespace Vulkan;
 public readonly struct CommandBuffer 
 {
 	private readonly nint handle;
+
+	public void BindVertexBuffers(params Buffer[] buffers) 
+	{
+		vkCmdBindVertexBuffers(
+			this,
+			0,
+			(uint)buffers.Length,
+			buffers.Select(x => (nint)x).ToArray().AsPointer(),
+			buffers.Skip(1).Select(x => x.MemoryRequirements.Size).Prepend(default).ToArray().AsPointer()
+		);
+
+		[DllImport(VK_LIB)] static extern void vkCmdBindVertexBuffers(CommandBuffer commandBuffer, uint firstBinding, uint bindingCount, nint pBuffers, nint pOffsets);
+	}
 
 	public void Reset(CommandBufferResetFlags flags) 
 	{

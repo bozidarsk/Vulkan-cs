@@ -16,7 +16,7 @@ public static class Program
 		AllocationCallbacks? allocator = null;
 
 		Window window = new(1280, 720);
-		Vulkan.Program vk = new(window, in allocator);
+		Vulkan.Program vk = new(window, in allocator, new Vulkan.DefaultVertex());
 
 		window.OnKey += (s, e) => Console.WriteLine(e.Key);
 		// window.OnFramebufferSize += (s, e) => vk.RecreateSwapchain();

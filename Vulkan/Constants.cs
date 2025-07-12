@@ -41,5 +41,7 @@ internal static class Constants
 	public const int VK_MAX_EXTENSION_NAME_SIZE = 256;
 	public const int VK_MAX_DESCRIPTION_SIZE = 256;
 	public const int VK_MAX_PHYSICAL_DEVICE_NAME_SIZE = 256;
+	public const int VK_MAX_MEMORY_TYPES = 32;
+	public const int VK_MAX_MEMORY_HEAPS = 16;
 	public const int VK_UUID_SIZE = 16;
 }

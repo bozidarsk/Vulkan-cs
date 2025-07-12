@@ -1,0 +1,36 @@
+namespace Vulkan;
+
+[System.Flags]
+public enum BufferUsage : uint
+{
+	TransferSrc = 0x00000001,
+	TransferDst = 0x00000002,
+	UniformTexelBuffer = 0x00000004,
+	StorageTexelBuffer = 0x00000008,
+	UniformBuffer = 0x00000010,
+	StorageBuffer = 0x00000020,
+	IndexBuffer = 0x00000040,
+	VertexBuffer = 0x00000080,
+	IndirectBuffer = 0x00000100,
+	ShaderDeviceAddress = 0x00020000,
+	VideoDecodeSrcKhr = 0x00002000,
+	VideoDecodeDstKhr = 0x00004000,
+	TransformFeedbackBufferExt = 0x00000800,
+	TransformFeedbackCounterBufferExt = 0x00001000,
+	ConditionalRenderingExt = 0x00000200,
+	ExecutionGraphScratchAmdx = 0x02000000,
+	AccelerationStructureBuildInputReadOnlyKhr = 0x00080000,
+	AccelerationStructureStorageKhr = 0x00100000,
+	ShaderBindingTableKhr = 0x00000400,
+	VideoEncodeDstKhr = 0x00008000,
+	VideoEncodeSrcKhr = 0x00010000,
+	SamplerDescriptorBufferExt = 0x00200000,
+	ResourceDescriptorBufferExt = 0x00400000,
+	PushDescriptorsDescriptorBufferExt = 0x04000000,
+	MicromapBuildInputReadOnlyExt = 0x00800000,
+	MicromapStorageExt = 0x01000000,
+	TileMemoryQcom = 0x08000000,
+	RayTracingNv = ShaderBindingTableKhr,
+	ShaderDeviceAddressExt = ShaderDeviceAddress,
+	ShaderDeviceAddressKhr = ShaderDeviceAddress,
+}

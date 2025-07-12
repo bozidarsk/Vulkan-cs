@@ -35,6 +35,9 @@ public class Program : IDisposable
 	protected CommandBuffer[] commandBuffers;
 	protected Semaphore[] imageAvailableSemaphore, renderFinishedSemaphore;
 	protected Fence[] inFlightFence;
+	protected IVertex iVertex;
+	protected Buffer vertexBuffer;
+	protected DeviceMemory vertexBufferMemory;
 
 	protected Dictionary<string, byte[]> shaderCode = new();
 
@@ -302,8 +305,8 @@ public class Program : IDisposable
 			type: StructureType.PipelineVertexInputStateCreateInfo,
 			next: default,
 			flags: default,
-			vertexBindingDescriptions: null,
-			vertexAttributeDescriptions: null
+			vertexBindingDescriptions: [ iVertex.GetBindingDescription() ],
+			vertexAttributeDescriptions: iVertex.GetAttributeDescriptions()
 		);
 
 		var inputAssembly = new PipelineInputAssemblyStateCreateInfo(
@@ -458,6 +461,53 @@ public class Program : IDisposable
 		commandPool = commandPoolCreateInfo.CreateCommandPool(device, allocator);
 	}
 
+	protected virtual void InitializeVertexBuffer() 
+	{
+		using var vertexBufferCreateInfo = new BufferCreateInfo(
+			type: StructureType.BufferCreateInfo,
+			next: default,
+			flags: default,
+			size: (uint)iVertex.GetStride() * 3,
+			usage: BufferUsage.VertexBuffer,
+			sharingMode: SharingMode.Exclusive,
+			queueFamilyIndices: default
+		);
+
+		vertexBuffer = vertexBufferCreateInfo.CreateBuffer(device, allocator);
+
+		var vertexBufferAllocateInfo = new MemoryAllocateInfo(
+			type: StructureType.MemoryAllocateInfo,
+			next: default,
+			allocationSize: vertexBuffer.MemoryRequirements.Size,
+			memoryTypeIndex: findMemoryType(vertexBuffer.MemoryRequirements.MemoryType, MemoryProperty.HostVisible | MemoryProperty.HostCoherent)
+		);
+
+		vertexBufferMemory = vertexBufferAllocateInfo.CreateDeviceMemory(device, allocator);
+
+		vertexBuffer.Bind(vertexBufferMemory);
+
+		vertexBufferMemory.Write<DefaultVertex>(
+			[ new(Vector3.Up / 2f, (Color)Vector3.Up), new(Vector3.Left / 2f, (Color)Vector3.Right), new(Vector3.Down / 2f, (Color)Vector3.Forward) ],
+			default
+		);
+
+		uint findMemoryType(uint typeFilter, MemoryProperty properties) 
+		{
+			var memProperties = physicalDevice.MemoryProperties;
+			int i = 0;
+
+			foreach (var x in memProperties.MemoryTypes) 
+			{
+				if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
+					return (uint)i;
+
+				i++;
+			}
+
+			throw new VulkanException("Failed to find suitable memory type.");
+		}
+	}
+
 	protected virtual void InitializeCommandBuffers() 
 	{
 		var commandBufferAllocateInfo = new CommandBufferAllocateInfo(
@@ -538,6 +588,7 @@ public class Program : IDisposable
 		commandBuffers[currentFrame].Begin(beginInfo);
 		commandBuffers[currentFrame].BeginRenderPass(renderPassInfo, SubpassContents.Inline);
 		commandBuffers[currentFrame].BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
+		commandBuffers[currentFrame].BindVertexBuffers(vertexBuffer);
 		commandBuffers[currentFrame].SetViewports(viewport);
 		commandBuffers[currentFrame].SetScissors(scissor);
 		commandBuffers[currentFrame].Draw(3, 1, 0, 0);
@@ -653,6 +704,7 @@ public class Program : IDisposable
 		);
 		InitializeFramebuffers();
 		InitializeCommandPool();
+		InitializeVertexBuffer();
 		InitializeCommandBuffers();
 		InitializeSyncObjects();
 
@@ -682,6 +734,8 @@ public class Program : IDisposable
 			x.Dispose();
 
 		swapchain.Dispose();
+		vertexBuffer.Dispose();
+		vertexBufferMemory.Dispose();
 		device.Dispose();
 		debugUtilsMessenger.Dispose();
 		instance.Dispose();
@@ -690,10 +744,11 @@ public class Program : IDisposable
 	}
 
 	#pragma warning disable CS8618
-	public Program(GLFW.Window window, in AllocationCallbacks? allocator) 
+	public Program(GLFW.Window window, in AllocationCallbacks? allocator, IVertex iVertex) 
 	{
 		this.window = window;
 		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default;
+		this.iVertex = iVertex;
 
 		this.debugMessageCallback = (DebugUtilsMessageSeverity severity, DebugUtilsMessageType type, in DebugUtilsMessengerCallbackData data, nint userData) => 
 		{
