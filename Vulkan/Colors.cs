@@ -14,6 +14,20 @@ public struct Color
 	public static Color operator + (Color a, Color b) => new(a.r + b.r, a.g + b.g, a.b + b.b, a.a + b.a);
 	public static Color operator - (Color a, Color b) => new(a.r - b.r, a.g - b.g, a.b - b.b, a.a - b.a);
 
+	public static explicit operator Color (Vector2 a) => new(a.x, a.y, 0f, 0f);
+	public static explicit operator Color (Vector2Int a) => new((float)a.x, (float)a.y, 0f, 0f);
+	public static explicit operator Color (Vector3 a) => new(a.x, a.y, a.z, 0f);
+	public static explicit operator Color (Vector3Int a) => new((float)a.x, (float)a.y, (float)a.z, 0f);
+	public static explicit operator Color (Vector4 a) => new(a.x, a.y, a.z, a.w);
+	public static explicit operator Color (Vector4Int a) => new((float)a.x, (float)a.y, (float)a.z, (float)a.w);
+
+	public static explicit operator Vector2 (Color a) => new(a.r, a.g);
+	public static explicit operator Vector2Int (Color a) => new((int)a.r, (int)a.g);
+	public static explicit operator Vector3 (Color a) => new(a.r, a.g, a.b);
+	public static explicit operator Vector3Int (Color a) => new((int)a.r, (int)a.g, (int)a.b);
+	public static explicit operator Vector4 (Color a) => new(a.r, a.g, a.b, a.a);
+	public static explicit operator Vector4Int (Color a) => new((int)a.r, (int)a.g, (int)a.b, (int)a.a);
+
 	public override string ToString() => $"({r}, {g}, {b}, {a})";
 
 	public Color(float r, float g, float b, float a = 1f) => (this.r, this.g, this.b, this.a) = (r, g, b, a);
