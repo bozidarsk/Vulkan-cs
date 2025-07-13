@@ -9,10 +9,7 @@ internal static class Constants
 	{
 		get 
 		{
-			string x = Path.GetRelativePath(Directory.GetCurrentDirectory(), Path.Join(Path.GetDirectoryName(getPath()), "../Shaders"));
-			System.Console.WriteLine(x);
-
-			return x;
+			return Path.GetRelativePath(Directory.GetCurrentDirectory(), Path.Join(Path.GetDirectoryName(getPath()), "../Shaders"));
 
 			static string getPath([CallerFilePath] string path = "") => path;
 		}
