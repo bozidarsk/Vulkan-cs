@@ -23,7 +23,7 @@ public readonly struct Compiler : IDisposable
 		{
 			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
 			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
-			IncludeDirectories = [ @"Shaders" ]
+			IncludeDirectories = [ SHADER_INCLUDE_DIR ]
 		};
 
 		var c = (Compiler)compiler;
@@ -67,7 +67,7 @@ public readonly struct Compiler : IDisposable
 		{
 			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
 			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
-			IncludeDirectories = [ @"Shaders" ]
+			IncludeDirectories = [ SHADER_INCLUDE_DIR ]
 		};
 
 		var source = Preprocess(filename, stage, entryPoint, compiler, options);

@@ -1,7 +1,23 @@
+using System.IO;
+using System.Runtime.CompilerServices;
+
 namespace Vulkan;
 
 internal static class Constants 
 {
+	public static string SHADER_INCLUDE_DIR 
+	{
+		get 
+		{
+			string x = Path.GetRelativePath(Directory.GetCurrentDirectory(), Path.Join(Path.GetDirectoryName(getPath()), "../Shaders"));
+			System.Console.WriteLine(x);
+
+			return x;
+
+			static string getPath([CallerFilePath] string path = "") => path;
+		}
+	}
+
 	public const string VK_LIB = 
 	#if WINDOWS
 	#error Not implemented. (WINDOWS)

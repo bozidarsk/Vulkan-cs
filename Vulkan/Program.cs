@@ -699,8 +699,8 @@ public class Program : IDisposable
 		InitializePipelineLayout();
 		InitializeRenderPass();
 		InitializePipeline(
-			("Shaders/default.vert.hlsl", ShaderStage.Vertex),
-			("Shaders/default.frag.hlsl", ShaderStage.Fragment)
+			(Path.Join(SHADER_INCLUDE_DIR, "default.vert.hlsl"), ShaderStage.Vertex),
+			(Path.Join(SHADER_INCLUDE_DIR, "default.frag.hlsl"), ShaderStage.Fragment)
 		);
 		InitializeFramebuffers();
 		InitializeCommandPool();
