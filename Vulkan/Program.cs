@@ -13,6 +13,7 @@ public class Program : IDisposable
 {
 	protected readonly GLFW.Window window;
 	protected readonly Handle<AllocationCallbacks> allocator;
+	protected readonly IVertex vertexStructure;
 
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
 	protected Format swapchainImageFormat;
@@ -35,7 +36,6 @@ public class Program : IDisposable
 	protected CommandBuffer[] commandBuffers;
 	protected Semaphore[] imageAvailableSemaphore, renderFinishedSemaphore;
 	protected Fence[] inFlightFence;
-	protected IVertex iVertex;
 	protected Buffer vertexBuffer;
 	protected DeviceMemory vertexBufferMemory;
 
@@ -305,8 +305,8 @@ public class Program : IDisposable
 			type: StructureType.PipelineVertexInputStateCreateInfo,
 			next: default,
 			flags: default,
-			vertexBindingDescriptions: [ iVertex.GetBindingDescription() ],
-			vertexAttributeDescriptions: iVertex.GetAttributeDescriptions()
+			vertexBindingDescriptions: [ vertexStructure.BindingDescription ],
+			vertexAttributeDescriptions: vertexStructure.AttributeDescriptions
 		);
 
 		var inputAssembly = new PipelineInputAssemblyStateCreateInfo(
@@ -467,7 +467,7 @@ public class Program : IDisposable
 			type: StructureType.BufferCreateInfo,
 			next: default,
 			flags: default,
-			size: (uint)iVertex.GetStride() * 3,
+			size: (uint)vertexStructure.Stride * 3,
 			usage: BufferUsage.VertexBuffer,
 			sharingMode: SharingMode.Exclusive,
 			queueFamilyIndices: default
@@ -565,7 +565,7 @@ public class Program : IDisposable
 			clearValues: 
 			[
 				new(
-					color: new(float32: Color.Black, int32: default, uint32: default),
+					color: new(float32: Color.White * 0.1f, int32: default, uint32: default),
 					depthStencil: new(depth: 0f, stencil: 0)
 				)
 			]
@@ -744,11 +744,11 @@ public class Program : IDisposable
 	}
 
 	#pragma warning disable CS8618
-	public Program(GLFW.Window window, in AllocationCallbacks? allocator, IVertex iVertex) 
+	public Program(GLFW.Window window, in AllocationCallbacks? allocator, IVertex vertexStructure) 
 	{
 		this.window = window;
 		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default;
-		this.iVertex = iVertex;
+		this.vertexStructure = vertexStructure;
 
 		this.debugMessageCallback = (DebugUtilsMessageSeverity severity, DebugUtilsMessageType type, in DebugUtilsMessengerCallbackData data, nint userData) => 
 		{
