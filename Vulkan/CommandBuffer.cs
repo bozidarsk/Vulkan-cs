@@ -135,6 +135,11 @@ public readonly struct CommandBuffer
 		vkCmdSetCullModeEXT(this, mode);
 	}
 
+	public void SetFrontFace(FrontFace frontFace) 
+	{
+		vkCmdSetFrontFaceEXT(this, frontFace);
+	}
+
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
 	{
 		vkCmdDraw(this, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);

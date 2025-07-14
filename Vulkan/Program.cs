@@ -575,6 +575,7 @@ public class Program : IDisposable
 			cmd.SetVertexInput(x.BindingDescriptions, x.AttributeDescriptions);
 			cmd.BindIndexBuffer(x.IndexBuffer, x.IndexType);
 			cmd.SetCullMode(CullMode.None);
+			cmd.SetFrontFace(FrontFace.CounterClockwise);
 			cmd.DrawIndexed(x.IndexCount);
 		}
 
