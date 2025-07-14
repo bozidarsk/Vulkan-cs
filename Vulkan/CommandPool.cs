@@ -13,6 +13,16 @@ public sealed class CommandPool : IDisposable
 
 	public static explicit operator nint (CommandPool x) => x.commandPool;
 
+	public void FreeCommandBuffers(CommandBuffer[] buffers) 
+	{
+		if (buffers == null)
+			throw new ArgumentNullException();
+
+		vkFreeCommandBuffers((nint)device, commandPool, (uint)buffers.Length, buffers.AsPointer());
+
+		[DllImport(VK_LIB)] static extern void vkFreeCommandBuffers(nint device, nint commandPool, uint bufferCount, nint pBuffers);
+	}
+
 	public void Dispose() 
 	{
 		vkDestroyCommandPool((nint)device, commandPool, allocator);

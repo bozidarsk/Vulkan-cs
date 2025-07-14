@@ -13,7 +13,6 @@ public class Program : IDisposable
 {
 	protected readonly GLFW.Window window;
 	protected readonly Handle<AllocationCallbacks> allocator;
-	protected readonly IVertex vertexStructure;
 
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
 	protected Format swapchainImageFormat;
@@ -36,8 +35,7 @@ public class Program : IDisposable
 	protected CommandBuffer[] commandBuffers;
 	protected Semaphore[] imageAvailableSemaphore, renderFinishedSemaphore;
 	protected Fence[] inFlightFence;
-	protected Buffer vertexBuffer;
-	protected DeviceMemory vertexBufferMemory;
+	protected Queue graphicsQueue, presentationQueue;
 
 	protected Dictionary<string, byte[]> shaderCode = new();
 
@@ -77,6 +75,7 @@ public class Program : IDisposable
 		var extensions = new List<string>(GLFW.Program.RequiredInstanceExtensions!);
 		extensions.Add("VK_KHR_portability_enumeration");
 		extensions.Add("VK_EXT_debug_utils");
+		extensions.Add("VK_KHR_get_physical_device_properties2");
 
 		using var instanceCreateInfo = new InstanceCreateInfo(
 			type: StructureType.InstanceCreateInfo,
@@ -115,13 +114,29 @@ public class Program : IDisposable
 			queuePriorities: [ 1f ]
 		);
 
+		using var indexTypeUInt8Features = new Handle<PhysicalDeviceIndexTypeUInt8Features>(
+			new PhysicalDeviceIndexTypeUInt8Features(
+				type: StructureType.PhysicalDeviceIndexTypeUInt8Features,
+				next: default,
+				indexTypeUInt8: true
+			)
+		);
+
+		using var vertexInputDynamicStateFeatures = new Handle<PhysicalDeviceVertexInputDynamicStateFeatures>(
+			new PhysicalDeviceVertexInputDynamicStateFeatures(
+				type: StructureType.PhysicalDeviceVertexInputDynamicStateFeaturesExt,
+				next: indexTypeUInt8Features,
+				vertexInputDynamicState: true
+			)
+		);
+
 		using var deviceCreateInfo = new DeviceCreateInfo(
 			type: StructureType.DeviceCreateInfo,
-			next: default,
+			next: vertexInputDynamicStateFeatures,
 			flags: default,
 			queueCreateInfos: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? [ graphicsDeviceQueueCreateInfo, presentationDeviceQueueCreateInfo ] : [ graphicsDeviceQueueCreateInfo ],
 			enabledLayerNames: [ "VK_LAYER_KHRONOS_validation" ],
-			enabledExtensionNames: [ "VK_KHR_swapchain" ],
+			enabledExtensionNames: [ "VK_KHR_swapchain", "VK_EXT_vertex_input_dynamic_state", "VK_EXT_index_type_uint8" ],
 			enabledFeatures: physicalDevice.Features
 		);
 
@@ -305,8 +320,8 @@ public class Program : IDisposable
 			type: StructureType.PipelineVertexInputStateCreateInfo,
 			next: default,
 			flags: default,
-			vertexBindingDescriptions: [ vertexStructure.BindingDescription ],
-			vertexAttributeDescriptions: vertexStructure.AttributeDescriptions
+			vertexBindingDescriptions: null,
+			vertexAttributeDescriptions: null
 		);
 
 		var inputAssembly = new PipelineInputAssemblyStateCreateInfo(
@@ -349,7 +364,7 @@ public class Program : IDisposable
 			rasterizerDiscardEnable: false,
 			polygonMode: PolygonMode.Fill,
 			cullMode: CullMode.Back,
-			frontFace: FrontFace.Clockwise,
+			frontFace: FrontFace.CounterClockwise,
 			depthBiasEnable: false,
 			depthBiasConstantFactor: 0f,
 			depthBiasClamp: 0f,
@@ -395,7 +410,7 @@ public class Program : IDisposable
 			type: StructureType.PipelineDynamicStateCreateInfo,
 			next: default,
 			flags: default,
-			dynamicStates: [ DynamicState.Viewport, DynamicState.Scissor ]
+			dynamicStates: [ DynamicState.VertexInputExt, DynamicState.Viewport, DynamicState.Scissor ]
 		);
 
 		using var graphicsPipelineCreateInfo = new GraphicsPipelineCreateInfo(
@@ -461,53 +476,6 @@ public class Program : IDisposable
 		commandPool = commandPoolCreateInfo.CreateCommandPool(device, allocator);
 	}
 
-	protected virtual void InitializeVertexBuffer() 
-	{
-		using var vertexBufferCreateInfo = new BufferCreateInfo(
-			type: StructureType.BufferCreateInfo,
-			next: default,
-			flags: default,
-			size: (uint)vertexStructure.Stride * 3,
-			usage: BufferUsage.VertexBuffer,
-			sharingMode: SharingMode.Exclusive,
-			queueFamilyIndices: default
-		);
-
-		vertexBuffer = vertexBufferCreateInfo.CreateBuffer(device, allocator);
-
-		var vertexBufferAllocateInfo = new MemoryAllocateInfo(
-			type: StructureType.MemoryAllocateInfo,
-			next: default,
-			allocationSize: vertexBuffer.MemoryRequirements.Size,
-			memoryTypeIndex: findMemoryType(vertexBuffer.MemoryRequirements.MemoryType, MemoryProperty.HostVisible | MemoryProperty.HostCoherent)
-		);
-
-		vertexBufferMemory = vertexBufferAllocateInfo.CreateDeviceMemory(device, allocator);
-
-		vertexBuffer.Bind(vertexBufferMemory);
-
-		vertexBufferMemory.Write<DefaultVertex>(
-			[ new(Vector3.Up / 2f, (Color)Vector3.Up), new(Vector3.Left / 2f, (Color)Vector3.Right), new(Vector3.Down / 2f, (Color)Vector3.Forward) ],
-			default
-		);
-
-		uint findMemoryType(uint typeFilter, MemoryProperty properties) 
-		{
-			var memProperties = physicalDevice.MemoryProperties;
-			int i = 0;
-
-			foreach (var x in memProperties.MemoryTypes) 
-			{
-				if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
-					return (uint)i;
-
-				i++;
-			}
-
-			throw new VulkanException("Failed to find suitable memory type.");
-		}
-	}
-
 	protected virtual void InitializeCommandBuffers() 
 	{
 		var commandBufferAllocateInfo = new CommandBufferAllocateInfo(
@@ -547,12 +515,12 @@ public class Program : IDisposable
 		}
 	}
 
-	protected virtual void StartRenderPass(uint imageIndex) 
+	protected virtual void StartRenderPass(IEnumerable<RenderInfo> objects, uint imageIndex) 
 	{
 		using var beginInfo = new CommandBufferBeginInfo(
 			type: StructureType.CommandBufferBeginInfo,
 			next: default,
-			flags: default,
+			usage: default,
 			inheritanceInfo: null
 		);
 
@@ -565,7 +533,7 @@ public class Program : IDisposable
 			clearValues: 
 			[
 				new(
-					color: new(float32: Color.White * 0.1f, int32: default, uint32: default),
+					color: new(float32: Color.White * 0.02f, int32: default, uint32: default),
 					depthStencil: new(depth: 0f, stencil: 0)
 				)
 			]
@@ -585,15 +553,24 @@ public class Program : IDisposable
 			extent: extent
 		);
 
-		commandBuffers[currentFrame].Begin(beginInfo);
-		commandBuffers[currentFrame].BeginRenderPass(renderPassInfo, SubpassContents.Inline);
-		commandBuffers[currentFrame].BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
-		commandBuffers[currentFrame].BindVertexBuffers(vertexBuffer);
-		commandBuffers[currentFrame].SetViewports(viewport);
-		commandBuffers[currentFrame].SetScissors(scissor);
-		commandBuffers[currentFrame].Draw(3, 1, 0, 0);
-		commandBuffers[currentFrame].EndRenderPass();
-		commandBuffers[currentFrame].End();
+		var cmd = commandBuffers[currentFrame];
+
+		cmd.Begin(beginInfo);
+		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
+		cmd.BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
+		cmd.SetViewports(viewport);
+		cmd.SetScissors(scissor);
+
+		foreach (var x in objects) 
+		{
+			cmd.BindVertexBuffers(x.VertexBuffer);
+			cmd.SetVertexInput(instance, x.BindingDescriptions, x.AttributeDescriptions);
+			cmd.BindIndexBuffer(x.IndexBuffer, x.IndexType);
+			cmd.DrawIndexed(x.IndexCount);
+		}
+
+		cmd.EndRenderPass();
+		cmd.End();
 	}
 
 	protected ShaderModule CreateShaderModule(string filename, ShaderStage stage) 
@@ -617,6 +594,117 @@ public class Program : IDisposable
 		);
 
 		return shaderModuleCreateInfo.CreateShaderModule(device, allocator);
+	}
+
+	protected void CreateBuffer(DeviceSize size, BufferUsage usage, MemoryProperty properties, out Buffer buffer, out DeviceMemory memory) 
+	{
+		using var bufferCreateInfo = new BufferCreateInfo(
+			type: StructureType.BufferCreateInfo,
+			next: default,
+			flags: default,
+			size: size,
+			usage: usage,
+			sharingMode: SharingMode.Exclusive,
+			queueFamilyIndices: default
+		);
+
+		buffer = bufferCreateInfo.CreateBuffer(device, allocator);
+
+		var allocateInfo = new MemoryAllocateInfo(
+			type: StructureType.MemoryAllocateInfo,
+			next: default,
+			allocationSize: buffer.MemoryRequirements.Size,
+			memoryTypeIndex: findMemoryType(buffer.MemoryRequirements.MemoryType, properties)
+		);
+
+		memory = allocateInfo.CreateDeviceMemory(device, allocator);
+
+		buffer.Bind(memory);
+
+		uint findMemoryType(uint typeFilter, MemoryProperty properties) 
+		{
+			var memProperties = physicalDevice.MemoryProperties;
+			int i = 0;
+
+			foreach (var x in memProperties.MemoryTypes) 
+			{
+				if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
+					return (uint)i;
+
+				i++;
+			}
+
+			throw new VulkanException("Failed to find suitable memory type.");
+		}
+	}
+
+	protected void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
+	{
+		var allocateInfo = new CommandBufferAllocateInfo(
+			type: StructureType.CommandBufferAllocateInfo,
+			next: default,
+			commandPool: commandPool,
+			level: CommandBufferLevel.Primary,
+			commandBufferCount: 1
+		);
+
+		using var beginInfo = new CommandBufferBeginInfo(
+			type: StructureType.CommandBufferBeginInfo,
+			next: default,
+			usage: CommandBufferUsage.OneTimeSubmit,
+			inheritanceInfo: null
+		);
+
+		CommandBuffer[] commandBuffers = allocateInfo.CreateCommandBuffers(device);
+		var cmd = commandBuffers.Single();
+
+		cmd.Begin(beginInfo);
+		cmd.CopyBuffer(source, destination, size);
+		cmd.End();
+
+		using var submitInfo = new SubmitInfo(
+			type: StructureType.SubmitInfo,
+			next: default,
+			waitSemaphores: null,
+			waitDstStageMasks: null,
+			commandBuffers: commandBuffers,
+			signalSemaphores: null
+		);
+
+		graphicsQueue.Submit(null, submitInfo);
+		graphicsQueue.WaitIdle();
+
+		commandPool.FreeCommandBuffers(commandBuffers);
+	}
+
+	public void CreateVertexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
+	{
+		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
+
+		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
+		staggingMemory.Map(data, offset: 0, size: size);
+
+		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.VertexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
+
+		CopyBuffer(staggingBuffer, buffer, size);
+
+		staggingBuffer.Dispose();
+		staggingMemory.Dispose();
+	}
+
+	public void CreateIndexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
+	{
+		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
+
+		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
+		staggingMemory.Map(data, offset: 0, size: size);
+
+		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.IndexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
+
+		CopyBuffer(staggingBuffer, buffer, size);
+
+		staggingBuffer.Dispose();
+		staggingMemory.Dispose();
 	}
 
 	public void DeviceWaitIdle() => device.WaitIdle();
@@ -646,8 +734,11 @@ public class Program : IDisposable
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame() 
+	public virtual void DrawFrame(IEnumerable<RenderInfo> objects) 
 	{
+		if (objects == null)
+			throw new ArgumentNullException();
+
 		inFlightFence[currentFrame].Wait();
 		inFlightFence[currentFrame].Reset();
 
@@ -655,7 +746,7 @@ public class Program : IDisposable
 
 		commandBuffers[currentFrame].Reset(default);
 
-		StartRenderPass(imageIndex);
+		StartRenderPass(objects, imageIndex);
 
 		using var submitInfo = new SubmitInfo(
 			type: StructureType.SubmitInfo,
@@ -666,7 +757,6 @@ public class Program : IDisposable
 			signalSemaphores: [ renderFinishedSemaphore[imageIndex] ]
 		);
 
-		var graphicsQueue = device.GetQueue(graphicsQueueFamilyIndex, 0);
 		graphicsQueue.Submit(inFlightFence[currentFrame], submitInfo);
 
 		using var presentInfo = new PresentInfo(
@@ -678,7 +768,6 @@ public class Program : IDisposable
 			results: null
 		);
 
-		var presentationQueue = device.GetQueue(presentationQueueFamilyIndex, 0);
 		presentationQueue.Present(presentInfo);
 
 		if (++currentFrame >= maxFrames)
@@ -704,9 +793,11 @@ public class Program : IDisposable
 		);
 		InitializeFramebuffers();
 		InitializeCommandPool();
-		InitializeVertexBuffer();
 		InitializeCommandBuffers();
 		InitializeSyncObjects();
+
+		graphicsQueue = device.GetQueue(graphicsQueueFamilyIndex, 0);
+		presentationQueue = device.GetQueue(presentationQueueFamilyIndex, 0);
 
 		Console.WriteLine("Vulkan Initialized!");
 	}
@@ -734,8 +825,6 @@ public class Program : IDisposable
 			x.Dispose();
 
 		swapchain.Dispose();
-		vertexBuffer.Dispose();
-		vertexBufferMemory.Dispose();
 		device.Dispose();
 		debugUtilsMessenger.Dispose();
 		instance.Dispose();
@@ -744,11 +833,10 @@ public class Program : IDisposable
 	}
 
 	#pragma warning disable CS8618
-	public Program(GLFW.Window window, in AllocationCallbacks? allocator, IVertex vertexStructure) 
+	public Program(GLFW.Window window, in AllocationCallbacks? allocator) 
 	{
 		this.window = window;
 		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default;
-		this.vertexStructure = vertexStructure;
 
 		this.debugMessageCallback = (DebugUtilsMessageSeverity severity, DebugUtilsMessageType type, in DebugUtilsMessengerCallbackData data, nint userData) => 
 		{

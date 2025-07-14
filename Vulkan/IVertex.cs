@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public interface IVertex 
 {
-	int Stride { get; }
-	VertexInputBindingDescription BindingDescription { get; }
-	VertexInputAttributeDescription[] AttributeDescriptions { get; }
+	Vector3 Position { set; }
+	Vector2 UV { set; }
+	Vector3 Normal { set; }
 }

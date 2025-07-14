@@ -12,8 +12,8 @@ public sealed class DeviceMemory : IDisposable
 	private readonly nint deviceMemory;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public unsafe void Write<T>(T[] src, DeviceSize offset) => Write(ref MemoryMarshal.GetArrayDataReference((Array)src), offset, (ulong)sizeof(T) * (ulong)src.Length);
-	public unsafe void Write(ref byte src, DeviceSize offset, DeviceSize size) 
+	public void Map(Array src, DeviceSize offset, DeviceSize size) => Map(ref MemoryMarshal.GetArrayDataReference((Array)src), offset, size);
+	public unsafe void Map(ref byte src, DeviceSize offset, DeviceSize size) 
 	{
 		Result result;
 		void* dest = default;

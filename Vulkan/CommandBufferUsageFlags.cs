@@ -1,7 +1,7 @@
 namespace Vulkan;
 
 [System.Flags]
-public enum CommandBufferUsageFlags : uint
+public enum CommandBufferUsage : uint
 {
 	OneTimeSubmit = 0x00000001,
 	RenderPassContinue = 0x00000002,

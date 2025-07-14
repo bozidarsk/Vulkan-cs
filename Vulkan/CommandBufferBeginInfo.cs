@@ -6,7 +6,7 @@ public readonly struct CommandBufferBeginInfo : IDisposable
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
-	public readonly CommandBufferUsageFlags Flags;
+	public readonly CommandBufferUsage Usage;
 	private readonly Handle<CommandBufferInheritanceInfo> inheritanceInfo;
 
 	public CommandBufferInheritanceInfo InheritanceInfo => inheritanceInfo;
@@ -16,11 +16,11 @@ public readonly struct CommandBufferBeginInfo : IDisposable
 		inheritanceInfo.Dispose();
 	}
 
-	public CommandBufferBeginInfo(StructureType type, nint next, CommandBufferUsageFlags flags, CommandBufferInheritanceInfo? inheritanceInfo) 
+	public CommandBufferBeginInfo(StructureType type, nint next, CommandBufferUsage usage, CommandBufferInheritanceInfo? inheritanceInfo) 
 	{
 		this.Type = type;
 		this.Next = next;
-		this.Flags = flags;
+		this.Usage = usage;
 		this.inheritanceInfo = (inheritanceInfo is CommandBufferInheritanceInfo x) ? new(x) : default;
 	}
 }

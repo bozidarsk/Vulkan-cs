@@ -23,6 +23,34 @@ public readonly struct CommandBuffer
 		[DllImport(VK_LIB)] static extern void vkCmdBindVertexBuffers(CommandBuffer commandBuffer, uint firstBinding, uint bindingCount, nint pBuffers, nint pOffsets);
 	}
 
+	public void BindIndexBuffer(Buffer buffer, IndexType type) 
+	{
+		vkCmdBindIndexBuffer(
+			this,
+			(nint)buffer,
+			0,
+			type
+		);
+
+		[DllImport(VK_LIB)] static extern void vkCmdBindIndexBuffer(CommandBuffer commandBuffer, nint buffer, DeviceSize offset, IndexType type);
+	}
+
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
+	{
+		var region = new BufferCopy(sourceOffset: default, destinationOffset: default, size: size);
+
+		vkCmdCopyBuffer(this, (nint)source, (nint)destination, 1, in region);
+
+		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBuffer commandBuffer, nint source, nint destination, uint regionCount, in BufferCopy pRegions);
+	}
+
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, BufferCopy[] regions) 
+	{
+		vkCmdCopyBuffer(this, (nint)source, (nint)destination, (uint)regions.Length, regions.AsPointer());
+
+		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBuffer commandBuffer, nint source, nint destination, uint regionCount, nint pRegions);
+	}
+
 	public void Reset(CommandBufferResetFlags flags) 
 	{
 		Result result = vkResetCommandBuffer(this, flags);
@@ -87,11 +115,36 @@ public readonly struct CommandBuffer
 		[DllImport(VK_LIB)] static extern void vkCmdSetScissor(CommandBuffer commandBuffer, uint first, uint count, nint pViewports);
 	}
 
-	public void Draw(int vertextCount, int instanceCount, int firstVertex, int firstInstance) 
+	public void SetVertexInput(Instance instance, VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions) 
+	{
+		if (bindingDescriptions == null || attributeDescriptions == null)
+			throw new ArgumentNullException();
+
+		var func = Marshal.GetDelegateForFunctionPointer<SetVertexInputDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetVertexInputEXT"));
+
+		func(
+			this,
+			(uint)bindingDescriptions.Length,
+			bindingDescriptions.AsPointer(),
+			(uint)attributeDescriptions.Length,
+			attributeDescriptions.AsPointer()
+		);
+
+		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
+	}
+
+	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
 	{
 		vkCmdDraw(this, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
 
 		[DllImport(VK_LIB)] static extern void vkCmdDraw(CommandBuffer commandBuffer, uint vertextCount, uint instanceCount, uint firstVertex, uint firstInstance);
+	}
+
+	public void DrawIndexed(int indexCount, int instanceCount = 1, int firstIndex = 0, int vertexOffset = 0, int firstInstance = 0) 
+	{
+		vkCmdDrawIndexed(this, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
+
+		[DllImport(VK_LIB)] static extern void vkCmdDrawIndexed(CommandBuffer commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
 	}
 
 	public static bool operator == (CommandBuffer a, CommandBuffer b) => a.handle == b.handle;

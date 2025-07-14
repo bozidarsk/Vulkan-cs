@@ -4,21 +4,6 @@ using System.Runtime.InteropServices;
 namespace Vulkan;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate Result CreateDebugUtilsMessengerDelegate(
-	nint instance,
-	in DebugUtilsMessengerCreateInfo createInfo,
-	nint allocator,
-	out nint messenger
-);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void DestroyDebugUtilsMessengerDelegate(
-	nint instance,
-	nint messenger,
-	nint allocator
-);
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate bool DebugUtilsMessengerCallback(
 	DebugUtilsMessageSeverity messageSeverity,
 	DebugUtilsMessageType messageType,
