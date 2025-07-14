@@ -133,6 +133,14 @@ public readonly struct CommandBuffer
 		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
 	}
 
+	public void SetCullMode(Instance instance, CullMode mode) 
+	{
+		var func = Marshal.GetDelegateForFunctionPointer<SetCullModeDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetCullModeEXT"));
+		func(this, mode);
+
+		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
+	}
+
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
 	{
 		vkCmdDraw(this, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);

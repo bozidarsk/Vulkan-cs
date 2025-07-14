@@ -575,7 +575,7 @@ public enum StructureType : int
 	SurfaceFullScreenExclusiveWin32InfoExt = 1000255001,
 	HeadlessSurfaceCreateInfoExt = 1000256000,
 	PhysicalDeviceShaderAtomicFloatFeaturesExt = 1000260000,
-	PhysicalDeviceExtendedDynamicStateFeaturesExt = 1000267000,
+	PhysicalDeviceExtendedDynamicStateFeatures = 1000267000,
 	PhysicalDevicePipelineExecutablePropertiesFeatures = 1000269000,
 	PipelineInfo = 1000269001,
 	PipelineExecutableProperties = 1000269002,

@@ -114,10 +114,18 @@ public class Program : IDisposable
 			queuePriorities: [ 1f ]
 		);
 
+		using var extendedDynamicStateFeatures = new Handle<PhysicalDeviceExtendedDynamicStateFeatures>(
+			new PhysicalDeviceExtendedDynamicStateFeatures(
+				type: StructureType.PhysicalDeviceExtendedDynamicStateFeatures,
+				next: default,
+				extendedDynamicState: true
+			)
+		);
+
 		using var indexTypeUInt8Features = new Handle<PhysicalDeviceIndexTypeUInt8Features>(
 			new PhysicalDeviceIndexTypeUInt8Features(
 				type: StructureType.PhysicalDeviceIndexTypeUInt8Features,
-				next: default,
+				next: extendedDynamicStateFeatures,
 				indexTypeUInt8: true
 			)
 		);
@@ -136,7 +144,7 @@ public class Program : IDisposable
 			flags: default,
 			queueCreateInfos: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? [ graphicsDeviceQueueCreateInfo, presentationDeviceQueueCreateInfo ] : [ graphicsDeviceQueueCreateInfo ],
 			enabledLayerNames: [ "VK_LAYER_KHRONOS_validation" ],
-			enabledExtensionNames: [ "VK_KHR_swapchain", "VK_EXT_vertex_input_dynamic_state", "VK_EXT_index_type_uint8" ],
+			enabledExtensionNames: [ "VK_KHR_swapchain", "VK_EXT_vertex_input_dynamic_state", "VK_EXT_index_type_uint8", "VK_EXT_extended_dynamic_state" ],
 			enabledFeatures: physicalDevice.Features
 		);
 
@@ -410,7 +418,7 @@ public class Program : IDisposable
 			type: StructureType.PipelineDynamicStateCreateInfo,
 			next: default,
 			flags: default,
-			dynamicStates: [ DynamicState.VertexInputExt, DynamicState.Viewport, DynamicState.Scissor ]
+			dynamicStates: [ DynamicState.VertexInputExt, DynamicState.Viewport, DynamicState.Scissor, DynamicState.CullMode, DynamicState.FrontFace ]
 		);
 
 		using var graphicsPipelineCreateInfo = new GraphicsPipelineCreateInfo(
@@ -566,6 +574,7 @@ public class Program : IDisposable
 			cmd.BindVertexBuffers(x.VertexBuffer);
 			cmd.SetVertexInput(instance, x.BindingDescriptions, x.AttributeDescriptions);
 			cmd.BindIndexBuffer(x.IndexBuffer, x.IndexType);
+			cmd.SetCullMode(instance, CullMode.None);
 			cmd.DrawIndexed(x.IndexCount);
 		}
 

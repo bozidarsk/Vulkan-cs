@@ -25,3 +25,6 @@ internal delegate void SetVertexInputDelegate(
 	uint attributeDescriptionsCount,
 	nint attributeDescriptions
 );
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate void SetCullModeDelegate(CommandBuffer commandBuffer, CullMode mode);
