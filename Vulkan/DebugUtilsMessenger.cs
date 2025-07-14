@@ -1,7 +1,7 @@
 using System;
-using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
+using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
@@ -15,11 +15,7 @@ public sealed class DebugUtilsMessenger : IDisposable
 
 	public void Dispose() 
 	{
-		var func = Marshal.GetDelegateForFunctionPointer<DestroyDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr((nint)instance, "vkDestroyDebugUtilsMessengerEXT"));
-
-		func((nint)instance, debugUtilsMessenger, allocator);
-
-		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
+		vkDestroyDebugUtilsMessengerEXT((nint)instance, debugUtilsMessenger, allocator);
 	}
 
 	private DebugUtilsMessenger(Instance instance, nint debugUtilsMessenger) => (this.instance, this.debugUtilsMessenger) = (instance, debugUtilsMessenger);

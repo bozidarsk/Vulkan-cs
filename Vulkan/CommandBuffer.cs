@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
+using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
@@ -120,25 +121,18 @@ public readonly struct CommandBuffer
 		if (bindingDescriptions == null || attributeDescriptions == null)
 			throw new ArgumentNullException();
 
-		var func = Marshal.GetDelegateForFunctionPointer<SetVertexInputDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetVertexInputEXT"));
-
-		func(
+		vkCmdSetVertexInputEXT(
 			this,
 			(uint)bindingDescriptions.Length,
 			bindingDescriptions.AsPointer(),
 			(uint)attributeDescriptions.Length,
 			attributeDescriptions.AsPointer()
 		);
-
-		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
 	}
 
 	public void SetCullMode(Instance instance, CullMode mode) 
 	{
-		var func = Marshal.GetDelegateForFunctionPointer<SetCullModeDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetCullModeEXT"));
-		func(this, mode);
-
-		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
+		vkCmdSetCullModeEXT(this, mode);
 	}
 
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
