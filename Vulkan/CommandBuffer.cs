@@ -116,7 +116,7 @@ public readonly struct CommandBuffer
 		[DllImport(VK_LIB)] static extern void vkCmdSetScissor(CommandBuffer commandBuffer, uint first, uint count, nint pViewports);
 	}
 
-	public void SetVertexInput(Instance instance, VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions) 
+	public void SetVertexInput(VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions) 
 	{
 		if (bindingDescriptions == null || attributeDescriptions == null)
 			throw new ArgumentNullException();
@@ -130,7 +130,7 @@ public readonly struct CommandBuffer
 		);
 	}
 
-	public void SetCullMode(Instance instance, CullMode mode) 
+	public void SetCullMode(CullMode mode) 
 	{
 		vkCmdSetCullModeEXT(this, mode);
 	}

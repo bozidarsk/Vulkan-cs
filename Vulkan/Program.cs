@@ -572,9 +572,9 @@ public class Program : IDisposable
 		foreach (var x in objects) 
 		{
 			cmd.BindVertexBuffers(x.VertexBuffer);
-			cmd.SetVertexInput(instance, x.BindingDescriptions, x.AttributeDescriptions);
+			cmd.SetVertexInput(x.BindingDescriptions, x.AttributeDescriptions);
 			cmd.BindIndexBuffer(x.IndexBuffer, x.IndexType);
-			cmd.SetCullMode(instance, CullMode.None);
+			cmd.SetCullMode(CullMode.None);
 			cmd.DrawIndexed(x.IndexCount);
 		}
 
