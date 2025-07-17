@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -10,38 +12,30 @@ public readonly struct Compiler : IDisposable
 {
 	private readonly nint handle;
 
-	public static string Preprocess(string filename, ShaderStage stage, string entryPoint = "main", Compiler? compiler = null, CompilerOptions? options = null) 
+	private static Dictionary<string, string> GetShaderProperties(string filename) 
 	{
-		if (filename == null || entryPoint == null)
-			throw new ArgumentNullException();
+		var properties = new Dictionary<string, string>();
 
-		bool disposeCompiler = compiler == null;
-		bool disposeOptions = options == null;
-
-		compiler ??= new Compiler();
-		options ??= new CompilerOptions() 
+		foreach (var line in File.ReadAllLines(filename)) 
 		{
-			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
-			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
-			IncludeDirectories = [ SHADER_INCLUDE_DIR ]
-		};
+			if (!line.TrimStart().StartsWith("#pragma"))
+				continue;
 
-		var c = (Compiler)compiler;
-		var o = (CompilerOptions)options;
+			var tokens = line.Split(' ').Where(x => !string.IsNullOrEmpty(x));
+			properties[tokens.ElementAt(1).ToLower()] = tokens.Skip(2).Aggregate((current, next) => $"{current} {next}").ToLower();
+		}
 
+		return properties;
+	}
+
+	private static string Preprocess(string filename, ShaderKind kind, string entryPoint, Compiler compiler, CompilerOptions options) 
+	{
 		var source = File.ReadAllText(filename);
-		var kind = stage.GetShaderKind();
 
-		using CompilationResult result = shaderc_compile_into_preprocessed_text(c, source, (nuint)source.Length, kind, filename, entryPoint, o);
+		using CompilationResult result = shaderc_compile_into_preprocessed_text(compiler, source, (nuint)source.Length, kind, filename, entryPoint, options);
 
 		if (result.Status != CompilationStatus.Success)
 			throw new VulkanException($"Failed to preprocess shader '{filename}' - {result.Status}.\n{result.ErrorMessage}");
-
-		if (disposeCompiler)
-			c.Dispose();
-
-		if (disposeOptions)
-			o.Dispose();
 
 		return result.Text;
 
@@ -57,26 +51,50 @@ public readonly struct Compiler : IDisposable
 		);
 	}
 
-	public static byte[] Compile(string filename, ShaderStage stage, string entryPoint = "main") 
+	public static byte[] Compile(ref ShaderInfo info) 
 	{
-		if (filename == null || entryPoint == null)
+		if (info == null || info.File == null)
 			throw new ArgumentNullException();
+
+		if (Enum.TryParse<ShaderLanguage>(Path.GetExtension(info.File).TrimStart('.').ToUpper(), out ShaderLanguage language))
+			info.Language = language;
+
+		foreach (var x in GetShaderProperties(info.File)) 
+		{
+			switch (x.Key) 
+			{
+				case "stage":
+					var tokens = x.Value.Split(' ');
+					info.Stage = Enum.Parse<ShaderStage>(tokens[0], true);
+					info.EntryPoint = (tokens.Length == 2) ? tokens[1] : "main";
+					break;
+				case "language":
+					info.Language = Enum.Parse<ShaderLanguage>(x.Value, true);
+					break;
+				case "cull":
+					info.CullMode = Enum.Parse<CullMode>(x.Value, true);
+					break;
+				case "frontface":
+					info.FrontFace = Enum.Parse<FrontFace>(x.Value, true);
+					break;
+			}
+		}
 
 		using var compiler = new Compiler();
 		using var options = new CompilerOptions() 
 		{
 			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
-			ShaderLanguage = Enum.Parse<ShaderLanguage>(Path.GetExtension(filename).TrimStart('.').ToUpper()),
-			IncludeDirectories = [ SHADER_INCLUDE_DIR ]
+			IncludeDirectories = [ SHADER_INCLUDE_DIR ],
+			ShaderLanguage = (ShaderLanguage)info.Language!
 		};
 
-		var source = Preprocess(filename, stage, entryPoint, compiler, options);
-		var kind = stage.GetShaderKind();
+		var kind = ((ShaderStage)info.Stage!).GetShaderKind();
+		var source = Preprocess(info.File, kind, info.EntryPoint!, compiler, options);
 
-		using CompilationResult result = shaderc_compile_into_spv(compiler, source, (nuint)source.Length, kind, filename, entryPoint, options);
+		using CompilationResult result = shaderc_compile_into_spv(compiler, source, (nuint)source.Length, kind, info.File, info.EntryPoint!, options);
 
 		if (result.Status != CompilationStatus.Success)
-			throw new VulkanException($"Failed to compile shader '{filename}'.\n{result.ErrorMessage}");
+			throw new VulkanException($"Failed to compile shader '{info.File}'.\n{result.ErrorMessage}");
 
 		return result.Data;
 

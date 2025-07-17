@@ -1,3 +1,9 @@
+// #pragma stage {Vulkan.ShaderStage} [main|...]
+// #pragma cull {Vulkan.CullMode}
+// #pragma frontface {Vulkan.FrontFace}
+// #pragma blend {Vulkan.BlendFactor} {Vulkan.BlendFactor}
+// #pragma language {glsl|hlsl}
+
 #ifndef COMMON_H
 #define COMMON_H
 

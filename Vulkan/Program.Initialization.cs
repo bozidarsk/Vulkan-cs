@@ -4,15 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-using Vulkan.ShaderCompiler;
-using static Vulkan.Constants;
-
 namespace Vulkan;
 
-public class Program : IDisposable
+public partial class Program : IDisposable
 {
 	protected readonly GLFW.Window window;
-	protected readonly Handle<AllocationCallbacks> allocator;
+	protected readonly Handle<AllocationCallbacks> allocator = default;
 
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
 	protected Format swapchainImageFormat;
@@ -29,15 +26,12 @@ public class Program : IDisposable
 	protected ImageView[] imageViews;
 	protected PipelineLayout pipelineLayout;
 	protected RenderPass renderPass;
-	protected Pipeline graphicsPipeline;
 	protected Framebuffer[] framebuffers;
 	protected CommandPool commandPool;
 	protected CommandBuffer[] commandBuffers;
 	protected Semaphore[] imageAvailableSemaphore, renderFinishedSemaphore;
 	protected Fence[] inFlightFence;
 	protected Queue graphicsQueue, presentationQueue;
-
-	protected Dictionary<string, byte[]> shaderCode = new();
 
 	public static uint MakeVersion(int major, int minor, int patch) => ((((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
 	public static uint MakeApiVersion(int variant, int major, int minor, int patch) => ((((uint)variant) << 29) | (((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
@@ -130,21 +124,21 @@ public class Program : IDisposable
 			)
 		);
 
-		using var vertexInputDynamicStateFeatures = new Handle<PhysicalDeviceVertexInputDynamicStateFeatures>(
-			new PhysicalDeviceVertexInputDynamicStateFeatures(
-				type: StructureType.PhysicalDeviceVertexInputDynamicStateFeaturesExt,
-				next: indexTypeUInt8Features,
-				vertexInputDynamicState: true
-			)
-		);
+		// using var vertexInputDynamicStateFeatures = new Handle<PhysicalDeviceVertexInputDynamicStateFeatures>(
+		// 	new PhysicalDeviceVertexInputDynamicStateFeatures(
+		// 		type: StructureType.PhysicalDeviceVertexInputDynamicStateFeaturesExt,
+		// 		next: indexTypeUInt8Features,
+		// 		vertexInputDynamicState: true
+		// 	)
+		// );
 
 		using var deviceCreateInfo = new DeviceCreateInfo(
 			type: StructureType.DeviceCreateInfo,
-			next: vertexInputDynamicStateFeatures,
+			next: indexTypeUInt8Features/*vertexInputDynamicStateFeatures*/,
 			flags: default,
 			queueCreateInfos: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? [ graphicsDeviceQueueCreateInfo, presentationDeviceQueueCreateInfo ] : [ graphicsDeviceQueueCreateInfo ],
 			enabledLayerNames: [ "VK_LAYER_KHRONOS_validation" ],
-			enabledExtensionNames: [ "VK_KHR_swapchain", "VK_EXT_vertex_input_dynamic_state", "VK_EXT_index_type_uint8", "VK_EXT_extended_dynamic_state" ],
+			enabledExtensionNames: [ "VK_KHR_swapchain"/*, "VK_EXT_vertex_input_dynamic_state"*/, "VK_EXT_index_type_uint8", "VK_EXT_extended_dynamic_state" ],
 			enabledFeatures: physicalDevice.Features
 		);
 
@@ -298,159 +292,6 @@ public class Program : IDisposable
 		renderPass = renderPassCreateInfo.CreateRenderPass(device, allocator);
 	}
 
-	protected virtual void InitializePipeline(params (string, ShaderStage)[] shaderDefinitions) 
-	{
-		var shaders = shaderDefinitions.Select(x => 
-			{
-				(string filename, ShaderStage stage) = x;
-
-				return (filename, stage, CreateShaderModule(filename, stage));
-			}
-		).ToArray();
-
-		var stages = shaders.Select(x => 
-			{
-				(string filename, ShaderStage stage, ShaderModule module) = x;
-
-				return new PipelineShaderStageCreateInfo(
-					type: StructureType.PipelineShaderStageCreateInfo,
-					next: default,
-					flags: default,
-					stage: stage,
-					module: module,
-					name: "main",
-					specializationInfo: null
-				);
-			}
-		).ToArray();
-
-		using var vertexInput = new PipelineVertexInputStateCreateInfo(
-			type: StructureType.PipelineVertexInputStateCreateInfo,
-			next: default,
-			flags: default,
-			vertexBindingDescriptions: null,
-			vertexAttributeDescriptions: null
-		);
-
-		var inputAssembly = new PipelineInputAssemblyStateCreateInfo(
-			type: StructureType.PipelineInputAssemblyStateCreateInfo,
-			next: default,
-			flags: default,
-			topology: PrimitiveTopology.TriangleList,
-			primitiveRestartEnable: false
-		);
-
-		using var viewport = new PipelineViewportStateCreateInfo(
-			type: StructureType.PipelineViewportStateCreateInfo,
-			next: default,
-			flags: default,
-			viewports: 
-			[
-				new(
-					x: 0f,
-					y: 0f,
-					width: (float)extent.Width,
-					height: (float)extent.Height,
-					minDepth: 0f,
-					maxDepth: 1f
-				)
-			],
-			scissors: 
-			[
-				new(
-					offset: new(x: 0, y: 0),
-					extent: extent
-				)
-			]
-		);
-
-		var rasterization = new PipelineRasterizationStateCreateInfo(
-			type: StructureType.PipelineRasterizationStateCreateInfo,
-			next: default,
-			flags: default,
-			depthClampEnable: false,
-			rasterizerDiscardEnable: false,
-			polygonMode: PolygonMode.Fill,
-			cullMode: CullMode.Back,
-			frontFace: FrontFace.CounterClockwise,
-			depthBiasEnable: false,
-			depthBiasConstantFactor: 0f,
-			depthBiasClamp: 0f,
-			depthBiasSlopeFactor: 0f,
-			lineWidth: 1f
-		);
-
-		using var multisample = new PipelineMultisampleStateCreateInfo(
-			type: StructureType.PipelineMultisampleStateCreateInfo,
-			next: default,
-			flags: default,
-			rasterizationSamples: SampleCount.Bit1,
-			sampleShadingEnable: false,
-			minSampleShading: 1f,
-			sampleMask: null,
-			alphaToCoverageEnable: false,
-			alphaToOneEnable: false
-		);
-
-		using var colorBlend = new PipelineColorBlendStateCreateInfo(
-			type: StructureType.PipelineColorBlendStateCreateInfo,
-			next: default,
-			flags: default,
-			logicOpEnable: false,
-			logicOp: LogicOp.Copy,
-			attachments: 
-			[
-				new(
-					blendEnable: false,
-					srcColorBlendFactor: BlendFactor.One,
-					dstColorBlendFactor: BlendFactor.Zero,
-					colorBlendOp: BlendOp.Add,
-					srcAlphaBlendFactor: BlendFactor.One,
-					dstAlphaBlendFactor: BlendFactor.Zero,
-					alphaBlendOp: BlendOp.Add,
-					colorWriteMask: ColorComponent.R | ColorComponent.G | ColorComponent.B | ColorComponent.A
-				)
-			],
-			blendConstants: default
-		);
-
-		using var dynamicState = new PipelineDynamicStateCreateInfo(
-			type: StructureType.PipelineDynamicStateCreateInfo,
-			next: default,
-			flags: default,
-			dynamicStates: [ DynamicState.VertexInputExt, DynamicState.Viewport, DynamicState.Scissor, DynamicState.CullMode, DynamicState.FrontFace ]
-		);
-
-		using var graphicsPipelineCreateInfo = new GraphicsPipelineCreateInfo(
-			type: StructureType.GraphicsPipelineCreateInfo,
-			next: default,
-			flags: default,
-			stages: stages,
-			vertexInputState: vertexInput,
-			inputAssemblyState: inputAssembly,
-			tessellationState: null,
-			viewportState: viewport,
-			rasterizationState: rasterization,
-			multisampleState: multisample,
-			depthStencilState: null,
-			colorBlendState: colorBlend,
-			dynamicState: dynamicState,
-			layout: pipelineLayout,
-			renderPass: renderPass,
-			subpass: 0,
-			basePipeline: null,
-			basePipelineIndex: -1
-		);
-
-		graphicsPipeline = graphicsPipelineCreateInfo.CreateGraphicsPipeline(device, allocator);
-
-		foreach (var x in stages)
-			x.Dispose();
-
-		foreach ((string filename, ShaderStage stage, ShaderModule module) in shaders)
-			module.Dispose();
-	}
-
 	protected virtual void InitializeFramebuffers() 
 	{
 		framebuffers = new Framebuffer[imageViews.Length];
@@ -523,200 +364,6 @@ public class Program : IDisposable
 		}
 	}
 
-	protected virtual void StartRenderPass(IEnumerable<RenderInfo> objects, uint imageIndex) 
-	{
-		using var beginInfo = new CommandBufferBeginInfo(
-			type: StructureType.CommandBufferBeginInfo,
-			next: default,
-			usage: default,
-			inheritanceInfo: null
-		);
-
-		using var renderPassInfo = new RenderPassBeginInfo(
-			type: StructureType.RenderPassBeginInfo,
-			next: default,
-			renderPass: renderPass,
-			framebuffer: framebuffers[imageIndex],
-			renderArea: new(offset: new(0, 0), extent: extent),
-			clearValues: 
-			[
-				new(
-					color: new(float32: Color.White * 0.02f, int32: default, uint32: default),
-					depthStencil: new(depth: 0f, stencil: 0)
-				)
-			]
-		);
-
-		var viewport = new Viewport(
-			x: 0f,
-			y: 0f,
-			width: (float)extent.Width,
-			height: (float)extent.Height,
-			minDepth: 0f,
-			maxDepth: 1f
-		);
-
-		var scissor = new Rect2D(
-			offset: new(0, 0),
-			extent: extent
-		);
-
-		var cmd = commandBuffers[currentFrame];
-
-		cmd.Begin(beginInfo);
-		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
-		cmd.BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
-		cmd.SetViewports(viewport);
-		cmd.SetScissors(scissor);
-
-		foreach (var x in objects) 
-		{
-			cmd.BindVertexBuffers(x.VertexBuffer);
-			cmd.SetVertexInput(x.BindingDescriptions, x.AttributeDescriptions);
-			cmd.BindIndexBuffer(x.IndexBuffer, x.IndexType);
-			cmd.SetCullMode(CullMode.None);
-			cmd.SetFrontFace(FrontFace.CounterClockwise);
-			cmd.DrawIndexed(x.IndexCount);
-		}
-
-		cmd.EndRenderPass();
-		cmd.End();
-	}
-
-	protected ShaderModule CreateShaderModule(string filename, ShaderStage stage) 
-	{
-		if (filename == null) throw new ArgumentNullException();
-
-		filename = Path.GetFullPath(filename);
-		byte[]? code;
-
-		if (!shaderCode.TryGetValue(filename, out code)) 
-		{
-			code = Compiler.Compile(filename, stage);
-			shaderCode.Add(filename, code!);
-		}
-
-		using ShaderModuleCreateInfo shaderModuleCreateInfo = new(
-			type: StructureType.ShaderModuleCreateInfo,
-			next: default,
-			flags: default,
-			code: code!
-		);
-
-		return shaderModuleCreateInfo.CreateShaderModule(device, allocator);
-	}
-
-	protected void CreateBuffer(DeviceSize size, BufferUsage usage, MemoryProperty properties, out Buffer buffer, out DeviceMemory memory) 
-	{
-		using var bufferCreateInfo = new BufferCreateInfo(
-			type: StructureType.BufferCreateInfo,
-			next: default,
-			flags: default,
-			size: size,
-			usage: usage,
-			sharingMode: SharingMode.Exclusive,
-			queueFamilyIndices: default
-		);
-
-		buffer = bufferCreateInfo.CreateBuffer(device, allocator);
-
-		var allocateInfo = new MemoryAllocateInfo(
-			type: StructureType.MemoryAllocateInfo,
-			next: default,
-			allocationSize: buffer.MemoryRequirements.Size,
-			memoryTypeIndex: findMemoryType(buffer.MemoryRequirements.MemoryType, properties)
-		);
-
-		memory = allocateInfo.CreateDeviceMemory(device, allocator);
-
-		buffer.Bind(memory);
-
-		uint findMemoryType(uint typeFilter, MemoryProperty properties) 
-		{
-			var memProperties = physicalDevice.MemoryProperties;
-			int i = 0;
-
-			foreach (var x in memProperties.MemoryTypes) 
-			{
-				if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
-					return (uint)i;
-
-				i++;
-			}
-
-			throw new VulkanException("Failed to find suitable memory type.");
-		}
-	}
-
-	protected void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
-	{
-		var allocateInfo = new CommandBufferAllocateInfo(
-			type: StructureType.CommandBufferAllocateInfo,
-			next: default,
-			commandPool: commandPool,
-			level: CommandBufferLevel.Primary,
-			commandBufferCount: 1
-		);
-
-		using var beginInfo = new CommandBufferBeginInfo(
-			type: StructureType.CommandBufferBeginInfo,
-			next: default,
-			usage: CommandBufferUsage.OneTimeSubmit,
-			inheritanceInfo: null
-		);
-
-		CommandBuffer[] commandBuffers = allocateInfo.CreateCommandBuffers(device);
-		var cmd = commandBuffers.Single();
-
-		cmd.Begin(beginInfo);
-		cmd.CopyBuffer(source, destination, size);
-		cmd.End();
-
-		using var submitInfo = new SubmitInfo(
-			type: StructureType.SubmitInfo,
-			next: default,
-			waitSemaphores: null,
-			waitDstStageMasks: null,
-			commandBuffers: commandBuffers,
-			signalSemaphores: null
-		);
-
-		graphicsQueue.Submit(null, submitInfo);
-		graphicsQueue.WaitIdle();
-
-		commandPool.FreeCommandBuffers(commandBuffers);
-	}
-
-	public void CreateVertexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
-	{
-		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
-
-		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
-		staggingMemory.Map(data, offset: 0, size: size);
-
-		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.VertexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
-
-		CopyBuffer(staggingBuffer, buffer, size);
-
-		staggingBuffer.Dispose();
-		staggingMemory.Dispose();
-	}
-
-	public void CreateIndexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
-	{
-		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
-
-		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
-		staggingMemory.Map(data, offset: 0, size: size);
-
-		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.IndexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
-
-		CopyBuffer(staggingBuffer, buffer, size);
-
-		staggingBuffer.Dispose();
-		staggingMemory.Dispose();
-	}
-
 	public void DeviceWaitIdle() => device.WaitIdle();
 
 	public void RecreateSwapchain() 
@@ -743,47 +390,6 @@ public class Program : IDisposable
 		InitializeFramebuffers();
 	}
 
-	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(IEnumerable<RenderInfo> objects) 
-	{
-		if (objects == null)
-			throw new ArgumentNullException();
-
-		inFlightFence[currentFrame].Wait();
-		inFlightFence[currentFrame].Reset();
-
-		uint imageIndex = swapchain.GetNextImage(imageAvailableSemaphore[currentFrame]);
-
-		commandBuffers[currentFrame].Reset(default);
-
-		StartRenderPass(objects, imageIndex);
-
-		using var submitInfo = new SubmitInfo(
-			type: StructureType.SubmitInfo,
-			next: default,
-			waitSemaphores: [ imageAvailableSemaphore[currentFrame] ],
-			waitDstStageMasks: [ PipelineStage.ColorAttachmentOutput ],
-			commandBuffers: [ commandBuffers[currentFrame] ],
-			signalSemaphores: [ renderFinishedSemaphore[imageIndex] ]
-		);
-
-		graphicsQueue.Submit(inFlightFence[currentFrame], submitInfo);
-
-		using var presentInfo = new PresentInfo(
-			type: StructureType.PresentInfo,
-			next: default,
-			waitSemaphores: [ renderFinishedSemaphore[imageIndex] ],
-			swapchains: [ swapchain ],
-			imageIndices: [ imageIndex ],
-			results: null
-		);
-
-		presentationQueue.Present(presentInfo);
-
-		if (++currentFrame >= maxFrames)
-			currentFrame = 0;
-	}
-
 	public virtual void Initialize() 
 	{
 		InitializeInstance();
@@ -798,10 +404,6 @@ public class Program : IDisposable
 		InitializeImageViews();
 		InitializePipelineLayout();
 		InitializeRenderPass();
-		InitializePipeline(
-			(Path.Join(SHADER_INCLUDE_DIR, "default.vert.hlsl"), ShaderStage.Vertex),
-			(Path.Join(SHADER_INCLUDE_DIR, "default.frag.hlsl"), ShaderStage.Fragment)
-		);
 		InitializeFramebuffers();
 		InitializeCommandPool();
 		InitializeCommandBuffers();
@@ -825,9 +427,11 @@ public class Program : IDisposable
 			x.Dispose();
 
 		commandPool.Dispose();
-		graphicsPipeline.Dispose();
 		pipelineLayout.Dispose();
 		renderPass.Dispose();
+
+		foreach ((RenderInfo i, Pipeline p) in graphicsPipelines)
+			p.Dispose();
 
 		foreach (var x in framebuffers)
 			x.Dispose();
@@ -844,10 +448,9 @@ public class Program : IDisposable
 	}
 
 	#pragma warning disable CS8618
-	public Program(GLFW.Window window, in AllocationCallbacks? allocator) 
+	public Program(GLFW.Window window) 
 	{
 		this.window = window;
-		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default;
 
 		this.debugMessageCallback = (DebugUtilsMessageSeverity severity, DebugUtilsMessageType type, in DebugUtilsMessengerCallbackData data, nint userData) => 
 		{
@@ -855,5 +458,9 @@ public class Program : IDisposable
 			return false;
 		};
 	}
+
+	public Program(GLFW.Window window, in AllocationCallbacks? allocator) : this(window) => 
+		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default
+	;
 	#pragma warning restore
 }
