@@ -272,8 +272,6 @@ public partial class Program
 			cmd.BindIndexBuffer(info.IndexBuffer, info.IndexType);
 			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
 			cmd.DrawIndexed(info.IndexCount);
-
-			// Console.WriteLine($"model:\n{model}");
 		}
 
 		cmd.EndRenderPass();
@@ -294,16 +292,8 @@ public partial class Program
 
 		cmd.Reset(default);
 
-		// projection.yy *= -1;
-		// projection.zz = 0.5f * (projection.zz + projection.zw);
-		// projection.zw /= 2f;
-
 		Marshal.StructureToPtr(new GlobalUniforms(view.Inverse, projection), globalUniformsLocations[currentFrame], false);
 		StartRenderPass(objects, imageIndex);
-
-		// Console.WriteLine($"view:\n{view}");
-		// Console.WriteLine($"projection:\n{projection}");
-		// Console.WriteLine("------------------");
 
 		using var submitInfo = new SubmitInfo(
 			type: StructureType.SubmitInfo,
