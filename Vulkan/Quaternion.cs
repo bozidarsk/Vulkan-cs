@@ -27,16 +27,16 @@ public struct Quaternion
 
 	public static Quaternion AxisAngle(Vector3 axis, float angle) 
 	{
+		angle *= MathF.PI / 180f;
 		angle /= 2f;
-		angle *= (float)Math.PI / 180f;
 
-		axis = axis.Normalized * (float)Math.Sin(angle);
+		axis = axis.Normalized * MathF.Sin(angle);
 
 		return new Quaternion(
-			(float)Math.Cos(angle),
+			MathF.Cos(angle),
 			axis.x,
 			axis.y,
-			-axis.z
+			axis.z
 		);
 	}
 

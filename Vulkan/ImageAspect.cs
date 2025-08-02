@@ -1,7 +1,7 @@
 namespace Vulkan;
 
 [System.Flags]
-public enum ImageAspectFlags : uint
+public enum ImageAspect : uint
 {
 	None = 0,
 	Color = 0x00000001,

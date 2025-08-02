@@ -11,5 +11,5 @@ public readonly struct SurfaceCapabilities
 	public readonly SurfaceTransformFlags SupportedTransforms;
 	public readonly SurfaceTransformFlags CurrentTransform;
 	public readonly CompositeAlphaFlags SupportedCompositeAlpha;
-	public readonly ImageUsageFlags SupportedUsageFlags;
+	public readonly ImageUsage SupportedUsage;
 }

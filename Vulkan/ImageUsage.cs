@@ -1,7 +1,7 @@
 namespace Vulkan;
 
 [System.Flags]
-public enum ImageUsageFlags : uint
+public enum ImageUsage : uint
 {
 	TransferSrc = 0x00000001,
 	TransferDst = 0x00000002,

@@ -10,6 +10,25 @@ public sealed class Device : IDisposable
 	private readonly nint device;
 	private readonly Handle<AllocationCallbacks> allocator;
 
+	public void UpdateDescriptorSets(WriteDescriptorSet[]? writes, WriteDescriptorSet[]? copies) 
+	{
+		vkUpdateDescriptorSets(
+			device,
+			(uint)(writes?.Length ?? 0),
+			writes.AsPointer(),
+			(uint)(copies?.Length ?? 0),
+			copies.AsPointer()
+		);
+
+		[DllImport(VK_LIB)] static extern void vkUpdateDescriptorSets(
+			nint device,
+			uint descriptorWriteCount,
+			nint pDescriptorWrites,
+			uint descriptorCopyCount,
+			nint pDescriptorCopies
+		);
+	}
+
 	public Queue GetQueue(uint queueFamilyIndex, uint queueIndex) 
 	{
 		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out Queue queue);

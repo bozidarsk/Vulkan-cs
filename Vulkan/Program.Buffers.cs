@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Vulkan;
 
 public partial class Program 
 {
-	protected void CreateBuffer(DeviceSize size, BufferUsage usage, MemoryProperty properties, out Buffer buffer, out DeviceMemory memory) 
+	public void CreateBuffer(DeviceSize size, BufferUsage usage, MemoryProperty properties, out Buffer buffer, out DeviceMemory memory) 
 	{
 		using var bufferCreateInfo = new BufferCreateInfo(
 			type: StructureType.BufferCreateInfo,
@@ -24,31 +25,15 @@ public partial class Program
 			type: StructureType.MemoryAllocateInfo,
 			next: default,
 			allocationSize: buffer.MemoryRequirements.Size,
-			memoryTypeIndex: findMemoryType(buffer.MemoryRequirements.MemoryType, properties)
+			memoryTypeIndex: FindMemoryType(buffer.MemoryRequirements.MemoryType, properties)
 		);
 
 		memory = allocateInfo.CreateDeviceMemory(device, allocator);
 
 		buffer.Bind(memory);
-
-		uint findMemoryType(uint typeFilter, MemoryProperty properties) 
-		{
-			var memProperties = physicalDevice.MemoryProperties;
-			int i = 0;
-
-			foreach (var x in memProperties.MemoryTypes) 
-			{
-				if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
-					return (uint)i;
-
-				i++;
-			}
-
-			throw new VulkanException("Failed to find suitable memory type.");
-		}
 	}
 
-	protected void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
 	{
 		var allocateInfo = new CommandBufferAllocateInfo(
 			type: StructureType.CommandBufferAllocateInfo,
@@ -87,32 +72,38 @@ public partial class Program
 		commandPool.FreeCommandBuffers(commandBuffers);
 	}
 
-	public void CreateVertexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
+	public unsafe void CreateVertexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
 	{
 		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
 
 		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
-		staggingMemory.Map(data, offset: 0, size: size);
+
+		nint staggingLocation = staggingMemory.Map(size: size, offset: default, flags: default);
+		Unsafe.CopyBlockUnaligned(ref Unsafe.AsRef<byte>((void*)staggingLocation), ref MemoryMarshal.GetArrayDataReference(data), checked((uint)size));
 
 		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.VertexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
 
 		CopyBuffer(staggingBuffer, buffer, size);
 
+		staggingMemory.Unmap();
 		staggingBuffer.Dispose();
 		staggingMemory.Dispose();
 	}
 
-	public void CreateIndexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
+	public unsafe void CreateIndexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
 	{
 		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
 
 		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
-		staggingMemory.Map(data, offset: 0, size: size);
+
+		nint staggingLocation = staggingMemory.Map(size: size, offset: default, flags: default);
+		Unsafe.CopyBlockUnaligned(ref Unsafe.AsRef<byte>((void*)staggingLocation), ref MemoryMarshal.GetArrayDataReference(data), checked((uint)size));
 
 		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.IndexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
 
 		CopyBuffer(staggingBuffer, buffer, size);
 
+		staggingMemory.Unmap();
 		staggingBuffer.Dispose();
 		staggingMemory.Dispose();
 	}

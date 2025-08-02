@@ -12,21 +12,20 @@ public sealed class DeviceMemory : IDisposable
 	private readonly nint deviceMemory;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public void Map(Array src, DeviceSize offset, DeviceSize size) => Map(ref MemoryMarshal.GetArrayDataReference((Array)src), offset, size);
-	public unsafe void Map(ref byte src, DeviceSize offset, DeviceSize size) 
+	public nint Map(DeviceSize size, DeviceSize offset, MemoryMapFlags flags) 
 	{
-		Result result;
-		void* dest = default;
-
-		result = vkMapMemory((nint)device, (nint)deviceMemory, offset, size, default, &dest);
+		Result result = vkMapMemory((nint)device, (nint)deviceMemory, offset, size, flags, out nint pointer);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		System.Buffer.MemoryCopy(Unsafe.AsPointer<byte>(ref src), dest, size, size);
+		return pointer;
 
-		result = vkUnmapMemory((nint)device, (nint)deviceMemory);
-		if (result != Result.Success) throw new VulkanException(result);
+		[DllImport(VK_LIB)] static extern Result vkMapMemory(nint device, nint deviceMemory, DeviceSize offset, DeviceSize size, MemoryMapFlags flags, out nint pDest);
+	}
 
-		[DllImport(VK_LIB)] static extern Result vkMapMemory(nint device, nint deviceMemory, DeviceSize offset, DeviceSize size, MemoryMapFlags flags, void** ppDest);
+	public void Unmap() 
+	{
+		vkUnmapMemory((nint)device, (nint)deviceMemory);
+
 		[DllImport(VK_LIB)] static extern Result vkUnmapMemory(nint device, nint deviceMemory);
 	}
 

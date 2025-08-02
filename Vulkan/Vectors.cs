@@ -1,3 +1,6 @@
+#pragma warning disable CS0660
+#pragma warning disable CS0661
+
 using System;
 
 namespace Vulkan;
@@ -18,6 +21,9 @@ public partial struct Vector4
 	public static Vector4 operator / (float x, Vector4 a) => new Vector4(a.x / x, a.y / x, a.z / x, a.w / x);
 	public static Vector4 operator + (Vector4 a, Vector4 b) => new Vector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 	public static Vector4 operator - (Vector4 a, Vector4 b) => new Vector4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+
+	public static bool operator == (Vector4 a, Vector4 b) => a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	public static bool operator != (Vector4 a, Vector4 b) => a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
 
 	public static float Dot(Vector4 a, Vector4 b) => a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
 
@@ -49,6 +55,9 @@ public partial struct Vector3
 	public static Vector3 operator + (Vector3 a, Vector3 b) => new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
 	public static Vector3 operator - (Vector3 a, Vector3 b) => new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
 
+	public static bool operator == (Vector3 a, Vector3 b) => a.x == b.x && a.y == b.y && a.z == b.z;
+	public static bool operator != (Vector3 a, Vector3 b) => a.x != b.x && a.y != b.y && a.z != b.z;
+
 	public static float Dot(Vector3 a, Vector3 b) => a.x*b.x + a.y*b.y + a.z*b.z;
 	public static Vector3 Cross(Vector3 a, Vector3 b) => new Vector3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 
@@ -78,6 +87,9 @@ public partial struct Vector2
 	public static Vector2 operator + (Vector2 a, Vector2 b) => new Vector2(a.x + b.x, a.y + b.y);
 	public static Vector2 operator - (Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
 
+	public static bool operator == (Vector2 a, Vector2 b) => a.x == b.x && a.y == b.y;
+	public static bool operator != (Vector2 a, Vector2 b) => a.x != b.x && a.y != b.y;
+
 	public static float Dot(Vector2 a, Vector2 b) => a.x*b.x + a.y*b.y;
 	public static Vector3 Cross(Vector2 a, Vector2 b) => new Vector3(0, 0, a.x*b.y - a.y*b.x);
 
@@ -102,6 +114,9 @@ public partial struct Vector4Int
 	public static Vector4Int operator / (int x, Vector4Int a) => new Vector4Int(a.x / x, a.y / x, a.z / x, a.w / x);
 	public static Vector4Int operator + (Vector4Int a, Vector4Int b) => new Vector4Int(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 	public static Vector4Int operator - (Vector4Int a, Vector4Int b) => new Vector4Int(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+
+	public static bool operator == (Vector4Int a, Vector4Int b) => a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	public static bool operator != (Vector4Int a, Vector4Int b) => a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
 
 	public override string ToString() => $"({x}, {y}, {z}, {w})";
 
@@ -131,6 +146,9 @@ public partial struct Vector3Int
 	public static Vector3Int operator + (Vector3Int a, Vector3Int b) => new Vector3Int(a.x + b.x, a.y + b.y, a.z + b.z);
 	public static Vector3Int operator - (Vector3Int a, Vector3Int b) => new Vector3Int(a.x - b.x, a.y - b.y, a.z - b.z);
 
+	public static bool operator == (Vector3Int a, Vector3Int b) => a.x == b.x && a.y == b.y && a.z == b.z;
+	public static bool operator != (Vector3Int a, Vector3Int b) => a.x != b.x && a.y != b.y && a.z != b.z;
+
 	public static int Dot(Vector3Int a, Vector3Int b) => a.x*b.x + a.y*b.y + a.z*b.z;
 	public static Vector3Int Cross(Vector3Int a, Vector3Int b) => new Vector3Int(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 
@@ -159,6 +177,9 @@ public partial struct Vector2Int
 	public static Vector2Int operator / (int x, Vector2Int a) => new Vector2Int(a.x / x, a.y / x);
 	public static Vector2Int operator + (Vector2Int a, Vector2Int b) => new Vector2Int(a.x + b.x, a.y + b.y);
 	public static Vector2Int operator - (Vector2Int a, Vector2Int b) => new Vector2Int(a.x - b.x, a.y - b.y);
+
+	public static bool operator == (Vector2Int a, Vector2Int b) => a.x == b.x && a.y == b.y;
+	public static bool operator != (Vector2Int a, Vector2Int b) => a.x != b.x && a.y != b.y;
 
 	public static int Dot(Vector2Int a, Vector2Int b) => a.x*b.x + a.y*b.y;
 	public static Vector3Int Cross(Vector2Int a, Vector2Int b) => new Vector3Int(0, 0, a.x*b.y - a.y*b.x);

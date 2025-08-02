@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using Vulkan.ShaderCompiler;
 using static Vulkan.Constants;
@@ -128,6 +131,21 @@ public partial class Program
 			alphaToOneEnable: false
 		);
 
+		var depthStencil = new PipelineDepthStencilStateCreateInfo(
+			type: StructureType.PipelineDepthStencilStateCreateInfo,
+			next: default,
+			flags: default,
+			depthTestEnable: true,
+			depthWriteEnable: true,
+			depthCompareOp: CompareOp.Greater,
+			depthBoundsTestEnable: false,
+			stencilTestEnable: false,
+			front: default,
+			back: default,
+			minDepthBounds: 0f,
+			maxDepthBounds: 1f
+		);
+
 		using var colorBlend = new PipelineColorBlendStateCreateInfo(
 			type: StructureType.PipelineColorBlendStateCreateInfo,
 			next: default,
@@ -168,7 +186,7 @@ public partial class Program
 			viewportState: viewport,
 			rasterizationState: rasterization,
 			multisampleState: multisample,
-			depthStencilState: null,
+			depthStencilState: depthStencil,
 			colorBlendState: colorBlend,
 			dynamicState: dynamicState,
 			layout: pipelineLayout,
@@ -207,38 +225,63 @@ public partial class Program
 			clearValues: 
 			[
 				new(
-					color: new(float32: Color.White * 0.02f, int32: default, uint32: default),
-					depthStencil: new(depth: 0f, stencil: 0)
+					color: new(float32: new(0.1f, 0.1f, 0.1f, 1f), int32: default, uint32: default),
+					depthStencil: default
+				),
+				new(
+					color: default,
+					depthStencil: new(depth: 1f, stencil: 0)
 				)
 			]
 		);
+
+		using var descriptorWrite = new WriteDescriptorSet(
+			type: StructureType.WriteDescriptorSet,
+			next: default,
+			destinationSet: descriptorSets[currentFrame],
+			destinationBinding: 0,
+			destinationArrayElement: 0,
+			descriptorType: DescriptorType.UniformBuffer,
+			imageInfos: null,
+			bufferInfos: [ new(buffer: globalUniformsBuffers[currentFrame], offset: default, range: (ulong)Marshal.SizeOf<GlobalUniforms>()) ],
+			texelBufferViews: null
+		);
+
+		device.UpdateDescriptorSets([ descriptorWrite ], null);
 
 		var cmd = commandBuffers[currentFrame];
 
 		cmd.Begin(beginInfo);
 		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
+		cmd.BindDescriptorSets(pipelineLayout, PipelineBindPoint.Graphics, [ descriptorSets[currentFrame] ]);
 
-		foreach ((Matrix4x4 transform, RenderInfo obj) in objects) 
+		foreach ((var model, var info) in objects) 
 		{
 			Pipeline graphicsPipeline;
 
-			if (!graphicsPipelines.TryGetValue(obj, out graphicsPipeline!)) 
+			if (!graphicsPipelines.TryGetValue(info, out graphicsPipeline!)) 
 			{
-				graphicsPipeline = CreateGraphicsPipeline(obj);
-				graphicsPipelines[obj] = graphicsPipeline;
+				graphicsPipeline = CreateGraphicsPipeline(info);
+				graphicsPipelines[info] = graphicsPipeline;
 			}
 
+			var m = model;
+
 			cmd.BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
-			cmd.BindVertexBuffers(obj.VertexBuffer);
-			cmd.BindIndexBuffer(obj.IndexBuffer, obj.IndexType);
-			cmd.DrawIndexed(obj.IndexCount);
+			cmd.BindVertexBuffers(info.VertexBuffer);
+			cmd.BindIndexBuffer(info.IndexBuffer, info.IndexType);
+			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
+			cmd.DrawIndexed(info.IndexCount);
+
+			// Console.WriteLine($"model:\n{model}");
 		}
+
 		cmd.EndRenderPass();
 		cmd.End();
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(IEnumerable<(Matrix4x4, RenderInfo)> objects) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(Matrix4x4, RenderInfo)> objects) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();
@@ -251,7 +294,16 @@ public partial class Program
 
 		cmd.Reset(default);
 
+		// projection.yy *= -1;
+		// projection.zz = 0.5f * (projection.zz + projection.zw);
+		// projection.zw /= 2f;
+
+		Marshal.StructureToPtr(new GlobalUniforms(view.Inverse, projection), globalUniformsLocations[currentFrame], false);
 		StartRenderPass(objects, imageIndex);
+
+		// Console.WriteLine($"view:\n{view}");
+		// Console.WriteLine($"projection:\n{projection}");
+		// Console.WriteLine("------------------");
 
 		using var submitInfo = new SubmitInfo(
 			type: StructureType.SubmitInfo,
@@ -277,13 +329,5 @@ public partial class Program
 
 		if (++currentFrame >= maxFrames)
 			currentFrame = 0;
-	}
-
-	public bool TryDisposeGraphicsPipeline(RenderInfo info) 
-	{
-		bool success = graphicsPipelines.Remove(info, out Pipeline? pipeline);
-
-		if (success) pipeline!.Dispose();
-		return success;
 	}
 }

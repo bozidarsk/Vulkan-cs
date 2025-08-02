@@ -12,7 +12,7 @@ public partial class Program : IDisposable
 	protected readonly Handle<AllocationCallbacks> allocator = default;
 
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
-	protected Format swapchainImageFormat;
+	protected Format swapchainImageFormat, depthFormat;
 	protected Extent2D extent;
 
 	protected uint currentFrame = 0;
@@ -32,6 +32,14 @@ public partial class Program : IDisposable
 	protected Semaphore[] imageAvailableSemaphore, renderFinishedSemaphore;
 	protected Fence[] inFlightFence;
 	protected Queue graphicsQueue, presentationQueue;
+	protected DescriptorSetLayout[] descriptorSetLayouts;
+	protected DescriptorPool descriptorPool;
+	protected DescriptorSet[] descriptorSets;
+	protected Buffer[] globalUniformsBuffers;
+	protected DeviceMemory[] globalUniformsMemories;
+	protected nint[] globalUniformsLocations;
+	protected Image depthImage;
+	protected ImageView depthImageView;
 
 	public static uint MakeVersion(int major, int minor, int patch) => ((((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
 	public static uint MakeApiVersion(int variant, int major, int minor, int patch) => ((((uint)variant) << 29) | (((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
@@ -186,7 +194,7 @@ public partial class Program : IDisposable
 			imageColorSpace: surfaceFormat.ColorSpace,
 			imageExtent: extent,
 			imageArrayLayers: 1,
-			imageUsage: ImageUsageFlags.ColorAttachment,
+			imageUsage: ImageUsage.ColorAttachment,
 			imageSharingMode: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? SharingMode.Concurrent : SharingMode.Exclusive,
 			queueFamilyIndices: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? [ graphicsQueueFamilyIndex, presentationQueueFamilyIndex ] : [ graphicsQueueFamilyIndex ],
 			preTransform: swapchainProperties.Capabilities.CurrentTransform,
@@ -216,7 +224,7 @@ public partial class Program : IDisposable
 				format: swapchainImageFormat,
 				components: new(ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity),
 				subresourceRange: new(
-					aspectMask: ImageAspectFlags.Color,
+					aspectMask: ImageAspect.Color,
 					baseMipLevel: 0,
 					levelCount: 1,
 					baseArrayLayer: 0,
@@ -228,17 +236,179 @@ public partial class Program : IDisposable
 		}
 	}
 
+	protected virtual void InitializeDescriptorSetLayout() 
+	{
+		var globalUniformsBinding = new DescriptorSetLayoutBinding(
+			binding: 0,
+			descriptorType: DescriptorType.UniformBuffer,
+			descriptorCount: 1,
+			stage: ShaderStage.AllGraphics,
+			immutableSamplers: null
+		);
+
+		using var descriptorSetLayoutCreateInfo = new DescriptorSetLayoutCreateInfo(
+			type: StructureType.DescriptorSetLayoutCreateInfo,
+			next: default,
+			flags: default,
+			bindings: [ globalUniformsBinding ]
+		);
+
+		descriptorSetLayouts = new DescriptorSetLayout[maxFrames];
+
+		for (int i = 0; i < maxFrames; i++)
+			descriptorSetLayouts[i] = descriptorSetLayoutCreateInfo.CreateDescriptorSetLayout(device, allocator);
+	}
+
+	protected virtual void InitializeDescriptorPool() 
+	{
+		using var descriptorPoolCreateInfo = new DescriptorPoolCreateInfo(
+			type: StructureType.DescriptorPoolCreateInfo,
+			next: default,
+			flags: DescriptorPoolCreateFlags.FreeDescriptorSet,
+			maxSets: maxFrames,
+			poolSizes: [ new(DescriptorType.UniformBuffer, maxFrames * 2) ]
+		);
+
+		descriptorPool = descriptorPoolCreateInfo.CreateDescriptorPool(device, allocator);
+	}
+
+	protected virtual void InitialzieDescriptorSets() 
+	{
+		using var descriptorSetAllocateInfo = new DescriptorSetAllocateInfo(
+			type: StructureType.DescriptorSetAllocateInfo,
+			next: default,
+			descriptorPool: descriptorPool,
+			setLayouts: descriptorSetLayouts
+		);
+
+		descriptorSets = descriptorSetAllocateInfo.CreateDescriptorSets(device, descriptorPool);
+	}
+
+	protected virtual void InitializeGlobalUniforms() 
+	{
+		DeviceSize size = (ulong)Marshal.SizeOf<GlobalUniforms>();
+
+		globalUniformsBuffers = new Buffer[maxFrames];
+		globalUniformsMemories = new DeviceMemory[maxFrames];
+		globalUniformsLocations = new nint[maxFrames];
+
+		for (int i = 0; i < maxFrames; i++) 
+		{
+			CreateBuffer(size, BufferUsage.UniformBuffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out Buffer buffer, out DeviceMemory memory);
+
+			globalUniformsBuffers[i] = buffer;
+			globalUniformsMemories[i] = memory;
+			globalUniformsLocations[i] = memory.Map(size: size, offset: default, flags: default);
+		}
+	}
+
 	protected virtual void InitializePipelineLayout() 
 	{
 		using var pipelineLayoutCreateInfo = new PipelineLayoutCreateInfo(
 			type: StructureType.PipelineLayoutCreateInfo,
 			next: default,
 			flags: default,
-			setLayouts: null,
-			pushConstantRanges: null
+			setLayouts: descriptorSetLayouts,
+			pushConstantRanges: [
+				new(stage: ShaderStage.All, offset: default, size: 64)
+			]
 		);
 
 		pipelineLayout = pipelineLayoutCreateInfo.CreatePipelineLayout(device, allocator);
+	}
+
+	protected uint FindMemoryType(uint typeFilter, MemoryProperty properties) 
+	{
+		var memProperties = physicalDevice.MemoryProperties;
+		int i = 0;
+
+		foreach (var x in memProperties.MemoryTypes) 
+		{
+			if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
+				return (uint)i;
+
+			i++;
+		}
+
+		throw new VulkanException("Failed to find suitable memory type.");
+	}
+
+	protected Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatures features) 
+	{
+		foreach (var format in candidates) 
+		{
+			var properties = physicalDevice.GetFormatProperties(format);
+
+			if (tiling == ImageTiling.Linear && properties.LinearTilingFeatures.HasFlag(features))
+				return format;
+
+			if (tiling == ImageTiling.Optimal && properties.OptimalTilingFeatures.HasFlag(features))
+				return format;
+		}
+
+		throw new NullReferenceException("Failed to find supported format.");
+	}
+
+	protected virtual void InitializeDepthImage() 
+	{
+		depthFormat = FindSupportedFormat(
+			[ Format.D32SFloat, Format.D32SFloatS8UInt, Format.D24UNormS8UInt ],
+			ImageTiling.Optimal,
+			FormatFeatures.DepthStencilAttachment
+		);
+
+		using var imageCreateInfo = new ImageCreateInfo(
+			type: StructureType.ImageCreateInfo,
+			next: default,
+			flags: default,
+			imageType: ImageType.Generic2D,
+			format: depthFormat,
+			extent: new(extent.Width, extent.Height, 1),
+			mipLevels: 1,
+			arrayLayers: 1,
+			samples: SampleCount.Bit1,
+			tiling: ImageTiling.Optimal,
+			usage: ImageUsage.DepthStencilAttachment,
+			sharingMode: SharingMode.Exclusive,
+			queueFamilyIndices: null,
+			initialLayout: ImageLayout.Undefined
+		);
+
+		depthImage = imageCreateInfo.CreateImage(device, allocator);
+
+		var imageViewCreateInfo = new ImageViewCreateInfo(
+			type: StructureType.ImageViewCreateInfo,
+			next: default,
+			flags: default,
+			image: depthImage,
+			viewType: ImageViewType.Generic2D,
+			format: depthFormat,
+			components: default,
+			subresourceRange: new(
+				aspectMask: ImageAspect.Depth,
+				baseMipLevel: 0,
+				levelCount: 1,
+				baseArrayLayer: 0,
+				layerCount: 1
+			)
+		);
+
+		vkGetImageMemoryRequirements((nint)device, depthImage, out MemoryRequirements requirements);
+
+		var allocateInfo = new MemoryAllocateInfo(
+			type: StructureType.MemoryAllocateInfo,
+			next: default,
+			allocationSize: requirements.Size,
+			memoryTypeIndex: FindMemoryType(requirements.MemoryType, MemoryProperty.DeviceLocal)
+		);
+
+		DeviceMemory depthImageMemory = allocateInfo.CreateDeviceMemory(device, allocator);
+		vkBindImageMemory((nint)device, depthImage, (nint)depthImageMemory, default);
+
+		depthImageView = imageViewCreateInfo.CreateImageView(device, allocator);
+
+		[DllImport(Vulkan.Constants.VK_LIB)] static extern void vkGetImageMemoryRequirements(nint device, Image image, out MemoryRequirements requirements);
+		[DllImport(Vulkan.Constants.VK_LIB)] static extern void vkBindImageMemory(nint device, Image image, nint memory, DeviceSize offset);
 	}
 
 	protected virtual void InitializeRenderPass() 
@@ -260,23 +430,40 @@ public partial class Program : IDisposable
 			layout: ImageLayout.ColorAttachmentOptimal
 		);
 
+		var depthAttachment = new AttachmentDescription(
+			flags: default,
+			format: depthFormat,
+			samples: SampleCount.Bit1,
+			loadOp: AttachmentLoadOp.Clear,
+			storeOp: AttachmentStoreOp.DontCare,
+			stencilLoadOp: AttachmentLoadOp.DontCare,
+			stencilStoreOp: AttachmentStoreOp.DontCare,
+			initialLayout: ImageLayout.Undefined,
+			finalLayout: ImageLayout.DepthStencilAttachmentOptimal
+		);
+
+		var depthAttachmentRef = new AttachmentReference(
+			attachment: 1,
+			layout: ImageLayout.DepthStencilAttachmentOptimal
+		);
+
 		using var subpass = new SubpassDescription(
 			flags: default,
 			pipelineBindPoint: PipelineBindPoint.Graphics,
 			inputAttachments: null,
 			colorAttachments: [ colorAttachmentRef ],
 			resolveAttachments: null,
-			depthStencilAttachment: null,
+			depthStencilAttachment: depthAttachmentRef,
 			preserveAttachments: null
 		);
 
 		var dependency = new SubpassDependency(
 			srcSubpass: unchecked((uint)-1),
 			dstSubpass: 0,
-			srcStageMask: PipelineStage.ColorAttachmentOutput,
-			dstStageMask: PipelineStage.ColorAttachmentOutput,
+			srcStageMask: PipelineStage.ColorAttachmentOutput | PipelineStage.EarlyFragmentTests,
+			dstStageMask: PipelineStage.ColorAttachmentOutput | PipelineStage.EarlyFragmentTests,
 			srcAccessMask: 0,
-			dstAccessMask: Access.ColorAttachmentWrite,
+			dstAccessMask: Access.ColorAttachmentWrite | Access.DepthStencilAttachmentWrite,
 			dependencyFlags: default
 		);
 
@@ -284,7 +471,7 @@ public partial class Program : IDisposable
 			type: StructureType.RenderPassCreateInfo,
 			next: default,
 			flags: default,
-			attachments: [ colorAttachment ],
+			attachments: [ colorAttachment, depthAttachment ],
 			subpasses: [ subpass ],
 			dependencies: [ dependency ]
 		);
@@ -303,7 +490,7 @@ public partial class Program : IDisposable
 				next: default,
 				flags: default,
 				renderPass: renderPass,
-				attachments: [ imageViews[i] ],
+				attachments: [ imageViews[i], depthImageView ],
 				width: extent.Width,
 				height: extent.Height,
 				layers: 1
@@ -402,7 +589,12 @@ public partial class Program : IDisposable
 		InitializeDevice();
 		InitializeSwapchain();
 		InitializeImageViews();
+		InitializeDescriptorSetLayout();
+		InitializeDescriptorPool();
+		InitialzieDescriptorSets();
+		InitializeGlobalUniforms();
 		InitializePipelineLayout();
+		InitializeDepthImage();
 		InitializeRenderPass();
 		InitializeFramebuffers();
 		InitializeCommandPool();
@@ -417,6 +609,9 @@ public partial class Program : IDisposable
 
 	public void Dispose() 
 	{
+		foreach (var x in globalUniformsMemories)
+			x.Unmap();
+
 		foreach (var x in imageAvailableSemaphore)
 			x.Dispose();
 
@@ -440,6 +635,20 @@ public partial class Program : IDisposable
 			x.Dispose();
 
 		swapchain.Dispose();
+
+		foreach (var x in globalUniformsBuffers)
+			x.Dispose();
+		foreach (var x in globalUniformsMemories)
+			x.Dispose();
+
+		foreach (var x in descriptorSets)
+			x.Dispose();
+
+		descriptorPool.Dispose();
+
+		foreach (var x in descriptorSetLayouts)
+			x.Dispose();
+
 		device.Dispose();
 		debugUtilsMessenger.Dispose();
 		instance.Dispose();

@@ -16,7 +16,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	public readonly ColorSpace ImageColorSpace;
 	public readonly Extent2D ImageExtent;
 	public readonly uint ImageArrayLayers;
-	public readonly ImageUsageFlags ImageUsage;
+	public readonly ImageUsage ImageUsage;
 	public readonly SharingMode ImageSharingMode;
 	private readonly uint queueFamilyIndexCount;
 	private readonly Handle<uint> queueFamilyIndices;
@@ -55,7 +55,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 		ColorSpace imageColorSpace,
 		Extent2D imageExtent,
 		uint imageArrayLayers,
-		ImageUsageFlags imageUsage,
+		ImageUsage imageUsage,
 		SharingMode imageSharingMode,
 		uint[]? queueFamilyIndices,
 		SurfaceTransformFlags preTransform,

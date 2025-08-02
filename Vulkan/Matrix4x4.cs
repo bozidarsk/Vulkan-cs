@@ -11,26 +11,65 @@ public struct Matrix4x4
 	public float xz, yz, zz, tz;
 	public float xw, yw, zw, tw;
 
-	public readonly Vector4 x => new Vector4(xx, xy, xz, xw);
-	public readonly Vector4 y => new Vector4(yx, yy, yz, yw);
-	public readonly Vector4 z => new Vector4(zx, zy, zz, zw);
-	public readonly Vector4 t => new Vector4(tx, ty, tz, tw);
+	public Vector4 x => new Vector4(xx, xy, xz, xw);
+	public Vector4 y => new Vector4(yx, yy, yz, yw);
+	public Vector4 z => new Vector4(zx, zy, zz, zw);
+	public Vector4 t => new Vector4(tx, ty, tz, tw);
 
-	public readonly float Determinand => 0
-		+ (xx*yy - yx*xy) * (zz*tw - tz*zw)
-		- (xx*zy - zx*xy) * (yz*tw - tz*yw)
-		+ (xx*ty - tx*xy) * (yz*zw - zz*yw)
-		+ (yx*zy - zx*yy) * (xz*tw - tz*xw)
-		- (yx*ty - tx*yy) * (xz*zw - zz*xw)
-		+ (zx*ty - tx*zy) * (xz*yw - yz*xw)
+	public float Determinant => 0
+		+ xx * (yy * (zz * tw - zw * tz) - yz * (zy * tw - zw * ty) + yw * (zy * tz - zz * ty))
+		- yx * (xy * (zz * tw - zw * tz) - xz * (zy * tw - zw * ty) + xw * (zy * tz - zz * ty))
+		+ zx * (xy * (yz * tw - yw * tz) - xz * (yy * tw - yw * ty) + xw * (yy * tz - yz * ty))
+		- tx * (xy * (yz * zw - yw * zz) - xz * (yy * zw - yw * zy) + xw * (yy * zz - yz * zy))
 	;
 
-	public readonly Matrix4x4 Transposed => new Matrix4x4(
+	public Matrix4x4 Transposed => new Matrix4x4(
 		new Vector4(xx, yx, zx, tx),
 		new Vector4(xy, yy, zy, ty),
 		new Vector4(xz, yz, zz, tz),
 		new Vector4(xw, yw, zw, tw)
 	);
+
+	public Matrix4x4 Inverse 
+	{
+		get 
+		{
+			float det = this.Determinant;
+
+			if (det > -1e-6f && det < 1e-6f)
+				throw new DivideByZeroException();
+
+			var x = new Vector4(
+				yy*zz*tw + zy*tz*yw + ty*yz*zw - ty*zz*yw - zy*yz*tw - yy*tz*zw,
+				-xy*zz*tw - zy*tz*xw - ty*xz*zw + ty*zz*xw + zy*xz*tw + xy*tz*zw,
+				xy*yz*tw + yy*tz*xw + ty*xz*yw - ty*yz*xw - yy*xz*tw - xy*tz*yw,
+				-xy*yz*zw - yy*zz*xw - zy*xz*yw + zy*yz*xw + yy*xz*zw + xy*zz*yw
+			) / det;
+
+			var y = new Vector4(
+				-yx*zz*tw - zx*tz*yw - tx*yz*zw + tx*zz*yw + zx*yz*tw + yx*tz*zw,
+				xx*zz*tw + zx*tz*xw + tx*xz*zw - tx*zz*xw - zx*xz*tw - xx*tz*zw,
+				-xx*yz*tw - yx*tz*xw - tx*xz*yw + tx*yz*xw + yx*xz*tw + xx*tz*yw,
+				xx*yz*zw + yx*zz*xw + zx*xz*yw - zx*yz*xw - yx*xz*zw - xx*zz*yw
+			) / det;
+
+			var z = new Vector4(
+				yx*zy*tw + zx*ty*yw + tx*yy*zw - tx*zy*yw - zx*yy*tw - yx*ty*zw,
+				-xx*zy*tw - zx*ty*xw - tx*xy*zw + tx*zy*xw + zx*xy*tw + xx*ty*zw,
+				xx*yy*tw + yx*ty*xw + tx*xy*yw - tx*yy*xw - yx*xy*tw - xx*ty*yw,
+				-xx*yy*zw - yx*zy*xw - zx*xy*yw + zx*yy*xw + yx*xy*zw + xx*zy*yw
+			) / det;
+
+			var w = new Vector4(
+				-yx*zy*tz - zx*ty*yz - tx*yy*zz + tx*zy*yz + zx*yy*tz + yx*ty*zz,
+				xx*zy*tz + zx*ty*xz + tx*xy*zz - tx*zy*xz - zx*xy*tz - xx*ty*zz,
+				-xx*yy*tz - yx*ty*xz - tx*xy*yz + tx*yy*xz + yx*xy*tz + xx*ty*yz,
+				xx*yy*zz + yx*zy*xz + zx*xy*yz - zx*yy*xz - yx*xy*zz - xx*zy*yz
+			) / det;
+
+			return new(x, y, z, w);
+		}
+	}
 
 	public static readonly Matrix4x4 Identity = new Matrix4x4() 
 	{
@@ -61,28 +100,57 @@ public struct Matrix4x4
 
 	public static Matrix4x4 Perspective(float fov, float ratio, float near, float far) 
 	{
-		fov *= (float)Math.PI / 180;
-		float tan = (float)Math.Tan(fov / 2);
+		float f = 1f / MathF.Tan((fov * MathF.PI / 180f) / 2f);
 
-		return new Matrix4x4() 
+		return Matrix4x4.Zero with 
 		{
-			xx = 1 / (ratio * tan), yx = 0,       zx = 0,                                tx = 0,
-			xy = 0,                 yy = 1 / tan, zy = 0,                                ty = 0,
-			xz = 0,                 yz = 0,       zz = -(near + far) / (far - near),      tz = -1,
-			xw = 0,                 yw = 0,       zw = -(2 * near * far) / (far - near), tw = 0,
+			xx = f / ratio,
+			yy = -f,
+			zz = near / (far - near),
+			tz = (near * far) / (far - near),
+			zw = -1f
 		};
 	}
 	
-	public static Matrix4x4 Ortho(float left, float right, float bottom, float top, float near, float far) 
+	public static Matrix4x4 Orthographic(float left, float right, float bottom, float top, float near, float far) 
 	{
-		return new Matrix4x4() 
+		return Matrix4x4.Identity with 
 		{
-			xx = 2 / (right - left), yx = 0,                  zx = 0,                 tx = -(right + left) / (right - left),
-			xy = 0,                  yy = 2 / (top - bottom), zy = 0,                 ty = -(top + bottom) / (top - bottom),
-			xz = 0,                  yz = 0,                  zz = -2 / (far - near), tz = -(far + near) / (far - near),
-			xw = 0,                  yw = 0,                  zw = 0,                 tw = 1,
+			xx = 2.0f / (right - left),
+			yy = 2.0f / (top - bottom),
+
+			tx = -(right + left) / (right - left),
+			ty = -(top + bottom) / (top - bottom),
+
+			// #if VULKAN || DIRECTX
+			zz = 1.0f / (near - far),
+			tz = near / (near - far)
+			// #elif OPENGL
+			// zz = -2.0f / (far - near),
+			// tz = -(far + near) / (far - near)
+			// #else
+			// #error Unknown graphics api.
+			// #endif
 		};
 	}
+
+	public static Matrix4x4 LookAt(Vector3 from, Vector3 to, Vector3 up) 
+	{
+		Vector3 forward = (to - from).Normalized;
+		Vector3 right = Vector3.Cross(forward, up).Normalized;
+		Vector3 cameraUp = Vector3.Cross(right, forward);
+
+		forward *= -1;
+
+		return new() 
+		{
+			xx = right.x,                   yx = cameraUp.x,                   zx = forward.x,                   tx = 0,
+			xy = right.y,                   yy = cameraUp.y,                   zy = forward.y,                   ty = 0,
+			xz = right.z,                   yz = cameraUp.z,                   zz = forward.z,                   tz = 0,
+			xw = -Vector3.Dot(right, from), yw = -Vector3.Dot(cameraUp, from), zw = -Vector3.Dot(forward, from), tw = 1,
+		};
+	}
+
 
 	public static Matrix4x4 Translate(Vector3 v) => Matrix4x4.Identity with { tx = v.x, ty = v.y, tz = v.z };
 	public static Matrix4x4 Scale(Vector3 v) => Matrix4x4.Identity with { xx = v.x, yy = v.y, zz = v.z };

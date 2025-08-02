@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -11,11 +12,11 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineLayoutCreateFlags Flags;
 	private readonly uint setLayoutCount;
-	private readonly Handle<DescriptorSetLayout> setLayouts;
+	private readonly Handle<nint> setLayouts;
 	private readonly uint pushConstantRangeCount;
 	private readonly Handle<PushConstantRange> pushConstantRanges;
 
-	public DescriptorSetLayout[]? SetLayouts => setLayouts.ToArray(setLayoutCount);
+	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params
 	public PushConstantRange[]? PushConstantRanges => pushConstantRanges.ToArray(pushConstantRangeCount);
 
 	public PipelineLayout CreatePipelineLayout(Device device, Handle<AllocationCallbacks> allocator) 
@@ -47,7 +48,7 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 		this.Flags = flags;
 
 		this.setLayoutCount = (uint)(setLayouts?.Length ?? 0);
-		this.setLayouts = new(setLayouts);
+		this.setLayouts = new(setLayouts?.Select(x => (nint)x).ToArray());
 
 		this.pushConstantRangeCount = (uint)(pushConstantRanges?.Length ?? 0);
 		this.pushConstantRanges = new(pushConstantRanges);

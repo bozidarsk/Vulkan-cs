@@ -56,6 +56,14 @@ public readonly struct PhysicalDevice
 		}
 	}
 
+	public FormatProperties GetFormatProperties(Format format) 
+	{
+		vkGetPhysicalDeviceFormatProperties(this, format, out FormatProperties properties);
+		return properties;
+
+		[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFormatProperties(PhysicalDevice physicalDevice, Format format, out FormatProperties properties);
+	}
+
 	public ExtensionProperties[] GetExtensionProperties(string? layerName) 
 	{
 		Result result;

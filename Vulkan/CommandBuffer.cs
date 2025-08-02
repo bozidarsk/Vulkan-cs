@@ -11,6 +11,45 @@ public readonly struct CommandBuffer
 {
 	private readonly nint handle;
 
+	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data) 
+	{
+		vkCmdPushConstants(this, (nint)layout, stage, offset, size, ref data);
+
+		[DllImport(VK_LIB)] static extern void vkCmdPushConstants(
+			CommandBuffer commandBuffer,
+			nint layout,
+			ShaderStage stage,
+			uint offset,
+			uint size,
+			ref byte data
+		);
+	}
+
+	public void BindDescriptorSets(PipelineLayout layout, PipelineBindPoint bindPoint, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
+	{
+		vkCmdBindDescriptorSets(
+			this,
+			bindPoint,
+			(nint)layout,
+			0,
+			(uint)sets.Length,
+			sets.Select(x => (nint)x).ToArray().AsPointer(),
+			(uint)(dynamicOffsets?.Length ?? 0),
+			dynamicOffsets.AsPointer()
+		);
+
+		[DllImport(VK_LIB)] static extern void vkCmdBindDescriptorSets(
+			CommandBuffer commandBuffer,
+			PipelineBindPoint pipelineBindPoint,
+			nint layout,
+			uint firstSet,
+			uint descriptorSetCount,
+			nint pDescriptorSets,
+			uint dynamicOffsetCount,
+			nint pDynamicOffsets
+		);
+	}
+
 	public void BindVertexBuffers(params Buffer[] buffers) 
 	{
 		vkCmdBindVertexBuffers(

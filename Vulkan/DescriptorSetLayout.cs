@@ -1,18 +1,26 @@
+using System;
+using System.Runtime.InteropServices;
+
+using static Vulkan.Constants;
+
 namespace Vulkan;
 
-public readonly struct DescriptorSetLayout 
+public sealed class DescriptorSetLayout : IDisposable
 {
-	private readonly nint handle;
+	private readonly Device device;
+	private readonly nint descriptorSetLayout;
+	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static bool operator == (DescriptorSetLayout a, DescriptorSetLayout b) => a.handle == b.handle;
-	public static bool operator != (DescriptorSetLayout a, DescriptorSetLayout b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is DescriptorSetLayout x) ? x.handle == handle : false;
+	public static explicit operator nint (DescriptorSetLayout x) => x.descriptorSetLayout;
 
-	public static implicit operator nint (DescriptorSetLayout x) => x.handle;
-	public static implicit operator DescriptorSetLayout (nint x) => new(x);
+	public void Dispose() 
+	{
+		vkDestroyDescriptorSetLayout((nint)device, descriptorSetLayout, allocator);
 
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
+		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorSetLayout(nint device, nint descriptorSetLayout, nint allocator);
+	}
 
-	private DescriptorSetLayout(nint handle) => this.handle = handle;
+	private DescriptorSetLayout(Device device, nint descriptorSetLayout) => (this.device, this.descriptorSetLayout) = (device, descriptorSetLayout);
+	internal DescriptorSetLayout(Device device, nint descriptorSetLayout, Handle<AllocationCallbacks> allocator) : this(device, descriptorSetLayout) => this.allocator = allocator;
 }
+

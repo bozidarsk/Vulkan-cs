@@ -19,4 +19,16 @@ struct Fragment
 	float4 color;
 };
 
+cbuffer GlobalUniforms : register(b0)
+{
+	float4x4 VIEW;
+	float4x4 PROJECTION;
+}
+
+[[vk::push_constant]]
+cbuffer PushConstants 
+{
+	float4x4 MODEL;
+};
+
 #endif
