@@ -1,7 +1,7 @@
 #pragma stage vertex
 #pragma cull none
 
-#include <common.h>
+#include <common.hlsl>
 
 Fragment main(Vertex input) 
 {

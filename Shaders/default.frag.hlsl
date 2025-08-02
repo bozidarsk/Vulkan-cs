@@ -1,6 +1,6 @@
 #pragma stage fragment
 
-#include <common.h>
+#include <common.hlsl>
 
 float4 main(Fragment input) 
 {

@@ -4,8 +4,8 @@
 // #pragma blend {Vulkan.BlendFactor} {Vulkan.BlendFactor}
 // #pragma language {glsl|hlsl}
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef COMMON_HLSL
+#define COMMON_HLSL
 
 struct Vertex 
 {
