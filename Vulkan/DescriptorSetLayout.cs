@@ -7,20 +7,20 @@ namespace Vulkan;
 
 public sealed class DescriptorSetLayout : IDisposable
 {
+	private readonly DescriptorSetLayoutHandle descriptorSetLayout;
 	private readonly Device device;
-	private readonly nint descriptorSetLayout;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (DescriptorSetLayout x) => x.descriptorSetLayout;
+	internal DescriptorSetLayoutHandle Handle => descriptorSetLayout;
 
 	public void Dispose() 
 	{
-		vkDestroyDescriptorSetLayout((nint)device, descriptorSetLayout, allocator);
+		vkDestroyDescriptorSetLayout(device.Handle, descriptorSetLayout, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorSetLayout(nint device, nint descriptorSetLayout, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorSetLayout(DeviceHandle device, DescriptorSetLayoutHandle descriptorSetLayout, nint allocator);
 	}
 
-	private DescriptorSetLayout(Device device, nint descriptorSetLayout) => (this.device, this.descriptorSetLayout) = (device, descriptorSetLayout);
-	internal DescriptorSetLayout(Device device, nint descriptorSetLayout, Handle<AllocationCallbacks> allocator) : this(device, descriptorSetLayout) => this.allocator = allocator;
+	internal DescriptorSetLayout(DescriptorSetLayoutHandle descriptorSetLayout, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.descriptorSetLayout, this.device, this.allocator) = (descriptorSetLayout, device, allocator)
+	;
 }
-

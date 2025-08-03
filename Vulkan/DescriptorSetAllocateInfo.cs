@@ -10,23 +10,23 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
-	private readonly nint descriptorPool;
+	private readonly DescriptorPoolHandle descriptorPool;
 	private readonly uint descriptorSetCount;
-	private readonly Handle<nint> setLayouts;
+	private readonly Handle<DescriptorSetLayoutHandle> setLayouts;
 
 	public DescriptorPool DescriptorPool => throw new NotImplementedException(); // cannot get allocator and device params
 	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public DescriptorSet[] CreateDescriptorSets(Device device, DescriptorPool descriptorPool) 
 	{
-		var descriptorSetHandles = new nint[descriptorSetCount];
+		var descriptorSetHandles = new DescriptorSetHandle[descriptorSetCount];
 
-		Result result = vkAllocateDescriptorSets((nint)device, in this, descriptorSetHandles.AsPointer());
+		Result result = vkAllocateDescriptorSets(device.Handle, in this, ref MemoryMarshal.GetArrayDataReference(descriptorSetHandles));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return descriptorSetHandles.Select(x => new DescriptorSet(device, x, descriptorPool)).ToArray();
+		return descriptorSetHandles.Select(x => x.GetDescriptorSet(device, descriptorPool)).ToArray();
 
-		[DllImport(VK_LIB)] static extern Result vkAllocateDescriptorSets(nint device, in DescriptorSetAllocateInfo createInfo, nint pDescriptorSets);
+		[DllImport(VK_LIB)] static extern Result vkAllocateDescriptorSets(DeviceHandle device, in DescriptorSetAllocateInfo createInfo, ref DescriptorSetHandle pDescriptorSets);
 	}
 
 	public void Dispose() 
@@ -43,9 +43,9 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 	{
 		this.Type = type;
 		this.Next = next;
-		this.descriptorPool = (nint)descriptorPool;
+		this.descriptorPool = descriptorPool.Handle;
 
 		this.descriptorSetCount = (uint)(setLayouts?.Length ?? 0);
-		this.setLayouts = new(setLayouts?.Select(x => (nint)x).ToArray());
+		this.setLayouts = new(setLayouts?.Select(x => x.Handle).ToArray());
 	}
 }

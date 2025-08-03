@@ -8,7 +8,7 @@ public readonly struct PipelineShaderStageCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineShaderStageCreateFlags Flags;
 	public readonly ShaderStage Stage;
-	private readonly nint module;
+	private readonly ShaderModuleHandle module;
 	private readonly cstring name;
 	private readonly Handle<SpecializationInfo> specializationInfo;
 
@@ -28,7 +28,7 @@ public readonly struct PipelineShaderStageCreateInfo : IDisposable
 		this.Next = next;
 		this.Flags = flags;
 		this.Stage = stage;
-		this.module = (nint)module;
+		this.module = module.Handle;
 		this.name = name;
 		this.specializationInfo = (specializationInfo is SpecializationInfo x) ? new(x) : default;
 	}

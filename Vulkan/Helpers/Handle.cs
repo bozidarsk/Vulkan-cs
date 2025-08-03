@@ -41,8 +41,3 @@ public unsafe readonly struct Handle<T> : IDisposable where T : struct
 			this.pointer[i] = array![i];
 	}
 }
-
-public unsafe static class HandleExtensions 
-{
-	public static nint AsPointer<T>(this T[]? array) => (array != null) ? (nint)Unsafe.AsPointer<T>(ref MemoryMarshal.GetArrayDataReference<T>(array)) : default;
-}

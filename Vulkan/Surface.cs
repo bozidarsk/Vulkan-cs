@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -18,38 +19,38 @@ public readonly struct Surface
 		[DllImport(VK_LIB)] static extern Result vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice physicalDevice, uint queueFamilyIndex, Surface surface, out bool32 supported);
 	}
 
-	public PresentMode[] GetSurfacePresentModes(PhysicalDevice physicalDevice) 
+	public unsafe PresentMode[] GetSurfacePresentModes(PhysicalDevice physicalDevice) 
 	{
 		Result result;
 
-		result = vkGetPhysicalDeviceSurfacePresentModesKHR((nint)physicalDevice, this, out uint count, default);
+		result = vkGetPhysicalDeviceSurfacePresentModesKHR((nint)physicalDevice, this, out uint count, ref Unsafe.AsRef<PresentMode>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var modes = new PresentMode[count];
 
-		result = vkGetPhysicalDeviceSurfacePresentModesKHR((nint)physicalDevice, this, out count, modes.AsPointer());
+		result = vkGetPhysicalDeviceSurfacePresentModesKHR((nint)physicalDevice, this, out count, ref MemoryMarshal.GetArrayDataReference(modes));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return modes;
 
-		[DllImport(VK_LIB)] static extern Result vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice physicalDevice, Surface surface, out uint count, nint pModes);
+		[DllImport(VK_LIB)] static extern Result vkGetPhysicalDeviceSurfacePresentModesKHR(PhysicalDevice physicalDevice, Surface surface, out uint count, ref PresentMode pModes);
 	}
 
-	public SurfaceFormat[] GetSurfaceFormats(PhysicalDevice physicalDevice) 
+	public unsafe SurfaceFormat[] GetSurfaceFormats(PhysicalDevice physicalDevice) 
 	{
 		Result result;
 
-		result = vkGetPhysicalDeviceSurfaceFormatsKHR((nint)physicalDevice, this, out uint count, default);
+		result = vkGetPhysicalDeviceSurfaceFormatsKHR((nint)physicalDevice, this, out uint count, ref Unsafe.AsRef<SurfaceFormat>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var formats = new SurfaceFormat[count];
 
-		result = vkGetPhysicalDeviceSurfaceFormatsKHR((nint)physicalDevice, this, out count, formats.AsPointer());
+		result = vkGetPhysicalDeviceSurfaceFormatsKHR((nint)physicalDevice, this, out count, ref MemoryMarshal.GetArrayDataReference(formats));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return formats;
 
-		[DllImport(VK_LIB)] static extern Result vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice physicalDevice, Surface surface, out uint count, nint pFormats);
+		[DllImport(VK_LIB)] static extern Result vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice physicalDevice, Surface surface, out uint count, ref SurfaceFormat pFormats);
 	}
 
 	public SurfaceCapabilities GetSurfaceCapabilities(PhysicalDevice physicalDevice) 

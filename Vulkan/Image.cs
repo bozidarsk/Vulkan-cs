@@ -1,15 +1,12 @@
 namespace Vulkan;
 
-public readonly struct Image 
+public sealed class Image 
 {
-	private readonly nint handle;
+	private readonly ImageHandle image;
 
-	public static bool operator == (Image a, Image b) => a.handle == b.handle;
-	public static bool operator != (Image a, Image b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is Image x) ? x.handle == handle : false;
+	internal ImageHandle Handle => image;
 
-	public static implicit operator nint (Image x) => x.handle;
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
+	internal Image(ImageHandle image) => 
+		this.image = image
+	;
 }

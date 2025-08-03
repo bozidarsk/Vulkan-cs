@@ -7,20 +7,20 @@ namespace Vulkan;
 
 public sealed class DescriptorSet : IDisposable
 {
+	private readonly DescriptorSetHandle descriptorSet;
 	private readonly Device device;
-	private readonly nint descriptorSet;
 	private readonly DescriptorPool descriptorPool;
 
-	public static explicit operator nint (DescriptorSet x) => x.descriptorSet;
+	internal DescriptorSetHandle Handle => descriptorSet;
 
 	public void Dispose() 
 	{
-		vkFreeDescriptorSets((nint)device, (nint)descriptorPool, 1, in descriptorSet);
+		vkFreeDescriptorSets(device.Handle, descriptorPool.Handle, 1, in descriptorSet);
 
-		[DllImport(VK_LIB)] static extern void vkFreeDescriptorSets(nint device, nint descriptorPool, uint count, in nint pDescriptorSets);
+		[DllImport(VK_LIB)] static extern void vkFreeDescriptorSets(DeviceHandle device, DescriptorPoolHandle descriptorPool, uint count, in DescriptorSetHandle pDescriptorSets);
 	}
 
-	internal DescriptorSet(Device device, nint descriptorSet, DescriptorPool descriptorPool) => 
-		(this.device, this.descriptorSet, this.descriptorPool) = (device, descriptorSet, descriptorPool)
+	internal DescriptorSet(DescriptorSetHandle descriptorSet, Device device, DescriptorPool descriptorPool) => 
+		(this.descriptorSet, this.device, this.descriptorPool) = (descriptorSet, device, descriptorPool)
 	;
 }

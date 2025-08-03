@@ -13,12 +13,12 @@ public readonly struct CommandPoolCreateInfo
 
 	public CommandPool CreateCommandPool(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateCommandPool((nint)device, in this, allocator, out nint commandPoolHandle);
+		Result result = vkCreateCommandPool(device.Handle, in this, allocator, out CommandPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, commandPoolHandle, allocator);
+		return handle.GetCommandPool(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateCommandPool(nint device, in CommandPoolCreateInfo createInfo, nint allocator, out nint commandPool);
+		[DllImport(VK_LIB)] static extern Result vkCreateCommandPool(DeviceHandle device, in CommandPoolCreateInfo createInfo, nint allocator, out CommandPoolHandle commandPool);
 	}
 
 	public CommandPoolCreateInfo(

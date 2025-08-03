@@ -27,12 +27,12 @@ public readonly struct ImageCreateInfo : IDisposable
 
 	public Image CreateImage(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateImage((nint)device, in this, allocator, out Image image);
+		Result result = vkCreateImage(device.Handle, in this, allocator, out ImageHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return image;
+		return handle.GetImage();
 
-		[DllImport(VK_LIB)] static extern Result vkCreateImage(nint device, in ImageCreateInfo createInfo, nint allocator, out Image image);
+		[DllImport(VK_LIB)] static extern Result vkCreateImage(DeviceHandle device, in ImageCreateInfo createInfo, nint allocator, out ImageHandle image);
 	}
 
 	public void Dispose() 

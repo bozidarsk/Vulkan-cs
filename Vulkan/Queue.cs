@@ -10,10 +10,10 @@ public readonly struct Queue
 
 	public void Submit(Fence? fence, params SubmitInfo[] infos) 
 	{
-		Result result = vkQueueSubmit(this, (uint)infos.Length, infos.AsPointer(), (fence != null) ? (nint)fence : default);
+		Result result = vkQueueSubmit(this, (uint)infos.Length, ref MemoryMarshal.GetArrayDataReference(infos), (fence != null) ? fence.Handle : default);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkQueueSubmit(Queue queue, uint count, nint pInfos, nint fence);
+		[DllImport(VK_LIB)] static extern Result vkQueueSubmit(Queue queue, uint count, ref SubmitInfo pInfos, FenceHandle fence);
 	}
 
 	public void Present(PresentInfo info) 

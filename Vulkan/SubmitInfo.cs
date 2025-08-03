@@ -8,16 +8,16 @@ public readonly struct SubmitInfo : IDisposable
 	public readonly StructureType Type;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
-	private readonly Handle<nint> waitSemaphores;
+	private readonly Handle<SemaphoreHandle> waitSemaphores;
 	private readonly Handle<PipelineStage> waitDstStageMasks;
 	private readonly uint commandBufferCount;
-	private readonly Handle<CommandBuffer> commandBuffers;
+	private readonly Handle<CommandBufferHandle> commandBuffers;
 	private readonly uint signalSemaphoreCount;
-	private readonly Handle<nint> signalSemaphores;
+	private readonly Handle<SemaphoreHandle> signalSemaphores;
 
 	public Semaphore[]? WaitSemaphores => throw new NotImplementedException(); // cannot get allocator and device params
-	public PipelineStage[]? WaitDstStage => waitDstStageMasks.ToArray(waitSemaphoreCount);
-	public CommandBuffer[]? CommandBuffers => commandBuffers.ToArray(commandBufferCount);
+	public PipelineStage[]? WaitDstStage => throw new NotImplementedException(); // cannot get allocator and device params
+	public CommandBuffer[]? CommandBuffers => throw new NotImplementedException(); // cannot get allocator and device params
 	public Semaphore[]? SignalSemaphores => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public void Dispose() 
@@ -44,13 +44,13 @@ public readonly struct SubmitInfo : IDisposable
 		this.Next = next;
 
 		this.waitSemaphoreCount = (uint)(waitSemaphores?.Length ?? 0);
-		this.waitSemaphores = new(waitSemaphores?.Select(x => (nint)x).ToArray());
+		this.waitSemaphores = new(waitSemaphores?.Select(x => x.Handle).ToArray());
 		this.waitDstStageMasks = new(waitDstStageMasks);
 
 		this.commandBufferCount = (uint)(commandBuffers?.Length ?? 0);
-		this.commandBuffers = new(commandBuffers);
+		this.commandBuffers = new(commandBuffers?.Select(x => x.Handle).ToArray());
 
 		this.signalSemaphoreCount = (uint)(signalSemaphores?.Length ?? 0);
-		this.signalSemaphores = new(signalSemaphores?.Select(x => (nint)x).ToArray());
+		this.signalSemaphores = new(signalSemaphores?.Select(x => x.Handle).ToArray());
 	}
 }

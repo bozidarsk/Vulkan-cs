@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -7,42 +9,43 @@ namespace Vulkan;
 
 public sealed class Swapchain : IDisposable
 {
+	private readonly SwapchainHandle swapchain;
 	private readonly Device device;
-	private readonly nint swapchain;
 	private readonly Handle<AllocationCallbacks> allocator;
+
+	internal SwapchainHandle Handle => swapchain;
 
 	public uint GetNextImage(Semaphore semaphore) 
 	{
-		Result result = vkAcquireNextImageKHR((nint)device, swapchain, ulong.MaxValue, (nint)semaphore, default, out uint imageIndex);
+		Result result = vkAcquireNextImageKHR(device.Handle, swapchain, ulong.MaxValue, semaphore.Handle, default, out uint imageIndex);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return imageIndex;
 
-		[DllImport(VK_LIB)] static extern Result vkAcquireNextImageKHR(nint device, nint swapchain, ulong timeout, nint semaphore, nint fence, out uint imageIndex);
+		[DllImport(VK_LIB)] static extern Result vkAcquireNextImageKHR(DeviceHandle device, SwapchainHandle swapchain, ulong timeout, SemaphoreHandle semaphore, FenceHandle fence, out uint imageIndex);
 	}
 
-	public Image[] GetImages() 
+	public unsafe Image[] GetImages() 
 	{
-		vkGetSwapchainImagesKHR((nint)device, swapchain, out uint count, default);
-		Image[] images = new Image[count];
+		vkGetSwapchainImagesKHR(device.Handle, swapchain, out uint count, ref Unsafe.AsRef<ImageHandle>(default));
+		var images = new ImageHandle[count];
 
-		Result result = vkGetSwapchainImagesKHR((nint)device, swapchain, out count, images.AsPointer());
+		Result result = vkGetSwapchainImagesKHR(device.Handle, swapchain, out count, ref MemoryMarshal.GetArrayDataReference(images));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return images;
+		return images.Select(x => x.GetImage()).ToArray();
 
-		[DllImport(VK_LIB)] static extern Result vkGetSwapchainImagesKHR(nint device, nint swapchain, out uint count, nint pImages);
+		[DllImport(VK_LIB)] static extern Result vkGetSwapchainImagesKHR(DeviceHandle device, SwapchainHandle swapchain, out uint count, ref ImageHandle pImages);
 	}
-
-	public static explicit operator nint (Swapchain x) => x.swapchain;
 
 	public void Dispose() 
 	{
-		vkDestroySwapchainKHR((nint)device, swapchain, allocator);
+		vkDestroySwapchainKHR(device.Handle, swapchain, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(nint device, nint swapchain, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(DeviceHandle device, SwapchainHandle swapchain, nint allocator);
 	}
 
-	private Swapchain(Device device, nint swapchain) => (this.device, this.swapchain) = (device, swapchain);
-	internal Swapchain(Device device, nint swapchain, Handle<AllocationCallbacks> allocator) : this(device, swapchain) => this.allocator = allocator;
+	internal Swapchain(SwapchainHandle swapchain, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.swapchain, this.device, this.allocator) = (swapchain, device, allocator)
+	;
 }

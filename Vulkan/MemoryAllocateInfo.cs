@@ -13,12 +13,12 @@ public readonly struct MemoryAllocateInfo
 
 	public DeviceMemory CreateDeviceMemory(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkAllocateMemory((nint)device, in this, allocator, out nint deviceMemoryHandle);
+		Result result = vkAllocateMemory(device.Handle, in this, allocator, out DeviceMemoryHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, deviceMemoryHandle, allocator);
+		return handle.GetDeviceMemory(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkAllocateMemory(nint device, in MemoryAllocateInfo createInfo, nint allocator, out nint deviceMemory);
+		[DllImport(VK_LIB)] static extern Result vkAllocateMemory(DeviceHandle device, in MemoryAllocateInfo createInfo, nint allocator, out DeviceMemoryHandle deviceMemory);
 	}
 
 	public MemoryAllocateInfo(

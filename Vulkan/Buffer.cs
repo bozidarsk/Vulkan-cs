@@ -7,38 +7,39 @@ namespace Vulkan;
 
 public sealed class Buffer : IDisposable
 {
+	private readonly BufferHandle buffer;
 	private readonly Device device;
-	private readonly nint buffer;
 	private readonly Handle<AllocationCallbacks> allocator;
+
+	internal BufferHandle Handle => buffer;
 
 	public MemoryRequirements MemoryRequirements 
 	{
 		get 
 		{
-			vkGetBufferMemoryRequirements((nint)device, buffer, out MemoryRequirements requirements);
+			vkGetBufferMemoryRequirements(device.Handle, buffer, out MemoryRequirements requirements);
 			return requirements;
 
-			[DllImport(VK_LIB)] static extern void vkGetBufferMemoryRequirements(nint device, nint buffer, out MemoryRequirements requirements);
+			[DllImport(VK_LIB)] static extern void vkGetBufferMemoryRequirements(DeviceHandle device, BufferHandle buffer, out MemoryRequirements requirements);
 		}
 	}
 
 	public void Bind(DeviceMemory memory, DeviceSize offset = default) 
 	{
-		Result result = vkBindBufferMemory((nint)device, (nint)this, (nint)memory, offset);
+		Result result = vkBindBufferMemory(device.Handle, buffer, memory.Handle, offset);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkBindBufferMemory(nint device, nint buffer, nint memory, DeviceSize offset);
+		[DllImport(VK_LIB)] static extern Result vkBindBufferMemory(DeviceHandle device, BufferHandle buffer, DeviceMemoryHandle memory, DeviceSize offset);
 	}
-
-	public static explicit operator nint (Buffer x) => x.buffer;
 
 	public void Dispose() 
 	{
-		vkDestroyBuffer((nint)device, buffer, allocator);
+		vkDestroyBuffer(device.Handle, buffer, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(nint device, nint buffer, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(DeviceHandle device, BufferHandle buffer, nint allocator);
 	}
 
-	private Buffer(Device device, nint buffer) => (this.device, this.buffer) = (device, buffer);
-	internal Buffer(Device device, nint buffer, Handle<AllocationCallbacks> allocator) : this(device, buffer) => this.allocator = allocator;
+	internal Buffer(BufferHandle buffer, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.buffer, this.device, this.allocator) = (buffer, device, allocator)
+	;
 }

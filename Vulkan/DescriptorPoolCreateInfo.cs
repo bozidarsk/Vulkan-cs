@@ -18,12 +18,12 @@ public readonly struct DescriptorPoolCreateInfo : IDisposable
 
 	public DescriptorPool CreateDescriptorPool(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateDescriptorPool((nint)device, in this, allocator, out nint descriptorPoolHandle);
+		Result result = vkCreateDescriptorPool(device.Handle, in this, allocator, out DescriptorPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, descriptorPoolHandle, allocator);
+		return handle.GetDescriptorPool(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateDescriptorPool(nint device, in DescriptorPoolCreateInfo createInfo, nint allocator, out nint descriptorPool);
+		[DllImport(VK_LIB)] static extern Result vkCreateDescriptorPool(DeviceHandle device, in DescriptorPoolCreateInfo createInfo, nint allocator, out DescriptorPoolHandle descriptorPool);
 	}
 
 	public void Dispose() 

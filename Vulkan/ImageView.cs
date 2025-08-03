@@ -7,19 +7,20 @@ namespace Vulkan;
 
 public sealed class ImageView : IDisposable
 {
+	private readonly ImageViewHandle imageView;
 	private readonly Device device;
-	private readonly nint imageview;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (ImageView x) => x.imageview;
+	internal ImageViewHandle Handle => imageView;
 
 	public void Dispose() 
 	{
-		vkDestroyImageView((nint)device, imageview, allocator);
+		vkDestroyImageView(device.Handle, imageView, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyImageView(nint device, nint imageview, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyImageView(DeviceHandle device, ImageViewHandle imageView, nint allocator);
 	}
 
-	private ImageView(Device device, nint imageview) => (this.device, this.imageview) = (device, imageview);
-	internal ImageView(Device device, nint imageview, Handle<AllocationCallbacks> allocator) : this(device, imageview) => this.allocator = allocator;
+	internal ImageView(ImageViewHandle imageView, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.imageView, this.device, this.allocator) = (imageView, device, allocator)
+	;
 }

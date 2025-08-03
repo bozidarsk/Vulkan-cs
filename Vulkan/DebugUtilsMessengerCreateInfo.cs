@@ -17,10 +17,10 @@ public readonly struct DebugUtilsMessengerCreateInfo
 
 	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateDebugUtilsMessengerEXT((nint)instance, in this, allocator, out nint debugUtilsMessengerHandle);
+		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(instance, debugUtilsMessengerHandle, allocator);
+		return handle.GetDebugUtilsMessenger(instance, allocator);
 	}
 
 	public DebugUtilsMessengerCreateInfo(

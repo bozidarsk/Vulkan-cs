@@ -21,10 +21,10 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 	private readonly Handle<PipelineDepthStencilStateCreateInfo> depthStencilState;
 	private readonly Handle<PipelineColorBlendStateCreateInfo> colorBlendState;
 	private readonly Handle<PipelineDynamicStateCreateInfo> dynamicState;
-	private readonly nint layout;
-	private readonly nint renderPass;
+	private readonly PipelineLayoutHandle layout;
+	private readonly RenderPassHandle renderPass;
 	public readonly uint Subpass;
-	private readonly nint basePipeline;
+	private readonly PipelineHandle basePipeline;
 	public readonly int BasePipelineIndex;
 
 	public PipelineShaderStageCreateInfo[]? Stages => stages.ToArray(stageCount);
@@ -43,12 +43,12 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 
 	public Pipeline CreateGraphicsPipeline(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateGraphicsPipelines((nint)device, default, 1, in this, allocator, out nint graphicsPipelineHandle);
+		Result result = vkCreateGraphicsPipelines(device.Handle, default, 1, in this, allocator, out PipelineHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, graphicsPipelineHandle, allocator);
+		return handle.GetPipeline(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(nint device, PipelineCache cache, uint count, in GraphicsPipelineCreateInfo createInfos, nint allocator, out nint graphicsPipeline);
+		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCache cache, uint count, in GraphicsPipelineCreateInfo createInfos, nint allocator, out PipelineHandle graphicsPipeline);
 	}
 
 	public void Dispose() 
@@ -103,11 +103,11 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 		this.colorBlendState = (colorBlendState is PipelineColorBlendStateCreateInfo h) ? new(h) : default;
 		this.dynamicState = (dynamicState is PipelineDynamicStateCreateInfo i) ? new(i) : default;
 
-		this.layout = (nint)layout;
-		this.renderPass = (nint)renderPass;
+		this.layout = layout.Handle;
+		this.renderPass = renderPass.Handle;
 		this.Subpass = subpass;
 
-		this.basePipeline = (basePipeline != null) ? (nint)basePipeline : default;
+		this.basePipeline = (basePipeline != null) ? basePipeline.Handle : default;
 		this.BasePipelineIndex = basePipelineIndex;
 	}
 }

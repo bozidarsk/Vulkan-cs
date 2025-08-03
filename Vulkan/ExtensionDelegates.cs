@@ -9,33 +9,33 @@ namespace Vulkan;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate Result CreateDebugUtilsMessengerDelegate(
-	nint instance,
+	InstanceHandle instance,
 	in DebugUtilsMessengerCreateInfo createInfo,
 	nint allocator,
-	out nint messenger
+	out DebugUtilsMessengerHandle messenger
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void DestroyDebugUtilsMessengerDelegate(
-	nint instance,
-	nint messenger,
+	InstanceHandle instance,
+	DebugUtilsMessengerHandle messenger,
 	nint allocator
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void SetVertexInputDelegate(
-	CommandBuffer commandBuffer,
+	CommandBufferHandle commandBuffer,
 	uint bindingDescriptionsCount,
-	nint bindingDescriptions,
+	ref VertexInputBindingDescription2 bindingDescriptions,
 	uint attributeDescriptionsCount,
-	nint attributeDescriptions
+	ref VertexInputAttributeDescription2 attributeDescriptions
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void SetCullModeDelegate(CommandBuffer commandBuffer, CullMode mode);
+internal delegate void SetCullModeDelegate(CommandBufferHandle commandBuffer, CullMode mode);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void SetFrontFaceDelegate(CommandBuffer commandBuffer, FrontFace frontFace);
+internal delegate void SetFrontFaceDelegate(CommandBufferHandle commandBuffer, FrontFace frontFace);
 
 internal static class ExtensionDelegates 
 {
@@ -47,12 +47,12 @@ internal static class ExtensionDelegates
 
 	public static void Initialize(Instance instance) 
 	{
-		vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCreateDebugUtilsMessengerEXT"));
-		vkDestroyDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<DestroyDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr((nint)instance, "vkDestroyDebugUtilsMessengerEXT"));
-		vkCmdSetVertexInputEXT = Marshal.GetDelegateForFunctionPointer<SetVertexInputDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetVertexInputEXT"));
-		vkCmdSetCullModeEXT = Marshal.GetDelegateForFunctionPointer<SetCullModeDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetCullModeEXT"));
-		vkCmdSetFrontFaceEXT = Marshal.GetDelegateForFunctionPointer<SetFrontFaceDelegate>(vkGetInstanceProcAddr((nint)instance, "vkCmdSetFrontFaceEXT"));
+		vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
+		vkDestroyDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<DestroyDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkDestroyDebugUtilsMessengerEXT"));
+		vkCmdSetVertexInputEXT = Marshal.GetDelegateForFunctionPointer<SetVertexInputDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetVertexInputEXT"));
+		vkCmdSetCullModeEXT = Marshal.GetDelegateForFunctionPointer<SetCullModeDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetCullModeEXT"));
+		vkCmdSetFrontFaceEXT = Marshal.GetDelegateForFunctionPointer<SetFrontFaceDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetFrontFaceEXT"));
 
-		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(nint instance, string name);
+		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(InstanceHandle instance, string name);
 	}
 }

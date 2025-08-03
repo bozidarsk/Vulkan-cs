@@ -24,7 +24,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	public readonly CompositeAlphaFlags CompositeAlpha;
 	public readonly PresentMode PresentMode;
 	public readonly bool32 Clipped;
-	private readonly nint oldSwapchain;
+	private readonly SwapchainHandle oldSwapchain;
 
 	public Swapchain OldSwapchain => throw new NotImplementedException(); // cannot get device and allocator params
 
@@ -32,12 +32,12 @@ public readonly struct SwapchainCreateInfo : IDisposable
 
 	public Swapchain CreateSwapchain(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateSwapchainKHR((nint)device, in this, allocator, out nint swapchainHandle);
+		Result result = vkCreateSwapchainKHR(device.Handle, in this, allocator, out SwapchainHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, swapchainHandle, allocator);
+		return handle.GetSwapchain(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateSwapchainKHR(nint device, in SwapchainCreateInfo createInfo, nint allocator, out nint swapchain);
+		[DllImport(VK_LIB)] static extern Result vkCreateSwapchainKHR(DeviceHandle device, in SwapchainCreateInfo createInfo, nint allocator, out SwapchainHandle swapchain);
 	}
 
 	public void Dispose() 
@@ -80,7 +80,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 		this.CompositeAlpha = compositeAlpha;
 		this.PresentMode = presentMode;
 		this.Clipped = clipped;
-		this.oldSwapchain = (oldSwapchain != null) ? (nint)oldSwapchain : default;
+		this.oldSwapchain = (oldSwapchain != null) ? oldSwapchain.Handle : default;
 
 		this.queueFamilyIndexCount = (uint)(queueFamilyIndices?.Length ?? 0);
 		this.queueFamilyIndices = new(queueFamilyIndices);

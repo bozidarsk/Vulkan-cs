@@ -17,12 +17,12 @@ public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 
 	public DescriptorSetLayout CreateDescriptorSetLayout(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateDescriptorSetLayout((nint)device, in this, allocator, out nint descriptorSetLayoutHandle);
+		Result result = vkCreateDescriptorSetLayout(device.Handle, in this, allocator, out DescriptorSetLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, descriptorSetLayoutHandle, allocator);
+		return handle.GetDescriptorSetLayout(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateDescriptorSetLayout(nint device, in DescriptorSetLayoutCreateInfo createInfo, nint allocator, out nint descriptorSetLayout);
+		[DllImport(VK_LIB)] static extern Result vkCreateDescriptorSetLayout(DeviceHandle device, in DescriptorSetLayoutCreateInfo createInfo, nint allocator, out DescriptorSetLayoutHandle descriptorSetLayout);
 	}
 
 	public void Dispose() 

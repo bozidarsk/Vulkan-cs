@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -7,25 +8,27 @@ namespace Vulkan;
 
 public sealed class Device : IDisposable
 {
-	private readonly nint device;
+	private readonly DeviceHandle device;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public void UpdateDescriptorSets(WriteDescriptorSet[]? writes, WriteDescriptorSet[]? copies) 
+	internal DeviceHandle Handle => device;
+
+	public unsafe void UpdateDescriptorSets(WriteDescriptorSet[]? writes, WriteDescriptorSet[]? copies) 
 	{
 		vkUpdateDescriptorSets(
 			device,
 			(uint)(writes?.Length ?? 0),
-			writes.AsPointer(),
+			ref (writes != null) ? ref MemoryMarshal.GetArrayDataReference(writes) : ref Unsafe.AsRef<WriteDescriptorSet>(default),
 			(uint)(copies?.Length ?? 0),
-			copies.AsPointer()
+			ref (copies != null) ? ref MemoryMarshal.GetArrayDataReference(copies) : ref Unsafe.AsRef<WriteDescriptorSet>(default)
 		);
 
 		[DllImport(VK_LIB)] static extern void vkUpdateDescriptorSets(
-			nint device,
+			DeviceHandle device,
 			uint descriptorWriteCount,
-			nint pDescriptorWrites,
+			ref WriteDescriptorSet pDescriptorWrites,
 			uint descriptorCopyCount,
-			nint pDescriptorCopies
+			ref WriteDescriptorSet pDescriptorCopies
 		);
 	}
 
@@ -34,25 +37,24 @@ public sealed class Device : IDisposable
 		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out Queue queue);
 		return queue;
 
-		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(nint device, uint queueFamilyIndex, uint queueIndex, out Queue queue);
+		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(DeviceHandle device, uint queueFamilyIndex, uint queueIndex, out Queue queue);
 	}
 
 	public void WaitIdle() 
 	{
-		vkDeviceWaitIdle((nint)device);
+		vkDeviceWaitIdle(device);
 
-		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(nint device);
+		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(DeviceHandle device);
 	}
-
-	public static explicit operator nint (Device x) => x.device;
 
 	public void Dispose() 
 	{
 		vkDestroyDevice(device, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyDevice(nint device, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyDevice(DeviceHandle device, nint allocator);
 	}
 
-	private Device(nint device) => this.device = device;
-	internal Device(nint device, Handle<AllocationCallbacks> allocator) : this(device) => this.allocator = allocator;
+	internal Device(DeviceHandle device, Handle<AllocationCallbacks> allocator) => 
+		(this.device, this.allocator) = (device, allocator)
+	;
 }

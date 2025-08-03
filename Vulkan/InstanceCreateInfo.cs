@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -22,48 +23,48 @@ public readonly struct InstanceCreateInfo : IDisposable
 	public string?[]? EnabledLayerNames => enabledLayerNames.ToArray(enabledLayerCount)?.Select(x => (string?)x).ToArray();
 	public string?[]? EnabledExtensionNames => enabledExtensionNames.ToArray(enabledExtensionCount)?.Select(x => (string?)x).ToArray();
 
-	public static LayerProperties[] GetLayerProperties() 
+	public static unsafe LayerProperties[] GetLayerProperties() 
 	{
 		Result result;
 
-		result = vkEnumerateInstanceLayerProperties(out uint count, default);
+		result = vkEnumerateInstanceLayerProperties(out uint count, ref Unsafe.AsRef<LayerProperties>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var properties = new LayerProperties[count];
 
-		result = vkEnumerateInstanceLayerProperties(out count, properties.AsPointer());
+		result = vkEnumerateInstanceLayerProperties(out count, ref MemoryMarshal.GetArrayDataReference(properties));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return properties;
 
-		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceLayerProperties(out uint count, nint pProperties);
+		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceLayerProperties(out uint count, ref LayerProperties pProperties);
 	}
 
-	public static ExtensionProperties[] GetExtensionProperties(string? layerName) 
+	public static unsafe ExtensionProperties[] GetExtensionProperties(string? layerName) 
 	{
 		Result result;
 
-		result = vkEnumerateInstanceExtensionProperties(layerName, out uint count, default);
+		result = vkEnumerateInstanceExtensionProperties(layerName, out uint count, ref Unsafe.AsRef<ExtensionProperties>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var extensions = new ExtensionProperties[count];
 
-		result = result = vkEnumerateInstanceExtensionProperties(layerName, out count, extensions.AsPointer());
+		result = result = vkEnumerateInstanceExtensionProperties(layerName, out count, ref MemoryMarshal.GetArrayDataReference(extensions));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return extensions;
 
-		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceExtensionProperties(string? layerName, out uint count, nint pExtensions);
+		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceExtensionProperties(string? layerName, out uint count, ref ExtensionProperties pExtensions);
 	}
 
 	public Instance CreateInstance(Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateInstance(in this, allocator, out nint instanceHandle);
+		Result result = vkCreateInstance(in this, allocator, out InstanceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(instanceHandle, allocator);
+		return handle.GetInstance(allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, nint allocator, out nint instanceHandle);
+		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, nint allocator, out InstanceHandle instance);
 	}
 
 	public void Dispose() 

@@ -7,14 +7,14 @@ public readonly struct WriteDescriptorSet : IDisposable
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
-	private readonly nint destinationSet;
+	private readonly DescriptorSetHandle destinationSet;
 	public readonly uint DestinationBinding;
 	public readonly uint DestinationArrayElement;
 	private readonly uint descriptorCount;
 	public readonly DescriptorType DescriptorType;
 	private readonly Handle<DescriptorImageInfo> imageInfos;
 	private readonly Handle<DescriptorBufferInfo> bufferInfos;
-	private readonly Handle<nint> texelBufferViews;
+	private readonly Handle<BufferViewHandle> texelBufferViews;
 
 	public DescriptorSet DestinationSet => throw new NotImplementedException(); // cannot get allocator and device params
 	public DescriptorImageInfo[]? ImageInfo => imageInfos.ToArray(descriptorCount);
@@ -43,7 +43,7 @@ public readonly struct WriteDescriptorSet : IDisposable
 	{
 		this.Type = type;
 		this.Next = next;
-		this.destinationSet = (nint)destinationSet;
+		this.destinationSet = destinationSet.Handle;
 		this.DestinationBinding = destinationBinding;
 		this.DestinationArrayElement = destinationArrayElement;
 		this.DescriptorType = descriptorType;
@@ -63,7 +63,7 @@ public readonly struct WriteDescriptorSet : IDisposable
 		if (texelBufferViews != null) 
 		{
 			this.descriptorCount = (uint)(texelBufferViews?.Length ?? 0);
-			this.texelBufferViews = new(texelBufferViews?.Select(x => (nint)x).ToArray());
+			this.texelBufferViews = new(texelBufferViews?.Select(x => x.Handle).ToArray());
 		}
 	}
 }

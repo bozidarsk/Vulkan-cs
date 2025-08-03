@@ -11,9 +11,9 @@ public readonly struct FramebufferCreateInfo : IDisposable
 	public readonly StructureType Type;
 	public readonly nint Next;
 	public readonly FramebufferCreateFlags Flags;
-	private readonly nint renderPass;
+	private readonly RenderPassHandle renderPass;
 	private readonly uint attachmentCount;
-	private readonly Handle<nint> attachments;
+	private readonly Handle<ImageViewHandle> attachments;
 	public readonly uint Width;
 	public readonly uint Height;
 	public readonly uint Layers;
@@ -23,12 +23,12 @@ public readonly struct FramebufferCreateInfo : IDisposable
 
 	public Framebuffer CreateFramebuffer(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateFramebuffer((nint)device, in this, allocator, out nint framebufferHandle);
+		Result result = vkCreateFramebuffer(device.Handle, in this, allocator, out FramebufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, framebufferHandle, allocator);
+		return handle.GetFramebuffer(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateFramebuffer(nint device, in FramebufferCreateInfo createInfo, nint allocator, out nint framebuffer);
+		[DllImport(VK_LIB)] static extern Result vkCreateFramebuffer(DeviceHandle device, in FramebufferCreateInfo createInfo, nint allocator, out FramebufferHandle framebuffer);
 	}
 
 	public void Dispose() 
@@ -50,12 +50,12 @@ public readonly struct FramebufferCreateInfo : IDisposable
 		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
-		this.renderPass = (nint)renderPass;
+		this.renderPass = renderPass.Handle;
 		this.Width = width;
 		this.Height = height;
 		this.Layers = layers;
 
 		this.attachmentCount = (uint)(attachments?.Length ?? 0);
-		this.attachments = new(attachments?.Select(x => (nint)x).ToArray());
+		this.attachments = new(attachments?.Select(x => x.Handle).ToArray());
 	}
 }

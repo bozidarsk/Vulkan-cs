@@ -12,7 +12,7 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineLayoutCreateFlags Flags;
 	private readonly uint setLayoutCount;
-	private readonly Handle<nint> setLayouts;
+	private readonly Handle<DescriptorSetLayoutHandle> setLayouts;
 	private readonly uint pushConstantRangeCount;
 	private readonly Handle<PushConstantRange> pushConstantRanges;
 
@@ -21,12 +21,12 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 
 	public PipelineLayout CreatePipelineLayout(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreatePipelineLayout((nint)device, in this, allocator, out nint pipelineLayoutHandle);
+		Result result = vkCreatePipelineLayout(device.Handle, in this, allocator, out PipelineLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, pipelineLayoutHandle, allocator);
+		return handle.GetPipelineLayout(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreatePipelineLayout(nint device, in PipelineLayoutCreateInfo createInfo, nint allocator, out nint pipelineLayout);
+		[DllImport(VK_LIB)] static extern Result vkCreatePipelineLayout(DeviceHandle device, in PipelineLayoutCreateInfo createInfo, nint allocator, out PipelineLayoutHandle pipelineLayout);
 	}
 
 	public void Dispose() 
@@ -48,7 +48,7 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 		this.Flags = flags;
 
 		this.setLayoutCount = (uint)(setLayouts?.Length ?? 0);
-		this.setLayouts = new(setLayouts?.Select(x => (nint)x).ToArray());
+		this.setLayouts = new(setLayouts?.Select(x => x.Handle).ToArray());
 
 		this.pushConstantRangeCount = (uint)(pushConstantRanges?.Length ?? 0);
 		this.pushConstantRanges = new(pushConstantRanges);

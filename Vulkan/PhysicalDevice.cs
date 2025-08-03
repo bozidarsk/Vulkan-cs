@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -41,18 +42,18 @@ public readonly struct PhysicalDevice
 		}
 	}
 
-	public QueueFamilyProperties[] QueueFamilyProperties 
+	public unsafe QueueFamilyProperties[] QueueFamilyProperties 
 	{
 		get 
 		{
-			vkGetPhysicalDeviceQueueFamilyProperties(this, out uint count, default);
+			vkGetPhysicalDeviceQueueFamilyProperties(this, out uint count, ref Unsafe.AsRef<QueueFamilyProperties>(default));
 			var queueFamilyProperties = new QueueFamilyProperties[count];
 
-			vkGetPhysicalDeviceQueueFamilyProperties(this, out count, queueFamilyProperties.AsPointer());
+			vkGetPhysicalDeviceQueueFamilyProperties(this, out count, ref MemoryMarshal.GetArrayDataReference(queueFamilyProperties));
 
 			return queueFamilyProperties;
 
-			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice physicalDevice, out uint count, nint pQueueFamilyProperties);
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice physicalDevice, out uint count, ref QueueFamilyProperties pQueueFamilyProperties);
 		}
 	}
 
@@ -64,21 +65,21 @@ public readonly struct PhysicalDevice
 		[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFormatProperties(PhysicalDevice physicalDevice, Format format, out FormatProperties properties);
 	}
 
-	public ExtensionProperties[] GetExtensionProperties(string? layerName) 
+	public unsafe ExtensionProperties[] GetExtensionProperties(string? layerName) 
 	{
 		Result result;
 
-		result = vkEnumerateDeviceExtensionProperties(this, layerName, out uint count, default);
+		result = vkEnumerateDeviceExtensionProperties(this, layerName, out uint count, ref Unsafe.AsRef<ExtensionProperties>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var properties = new ExtensionProperties[count];
 
-		result = vkEnumerateDeviceExtensionProperties(this, layerName, out count, properties.AsPointer());
+		result = vkEnumerateDeviceExtensionProperties(this, layerName, out count, ref MemoryMarshal.GetArrayDataReference(properties));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return properties;
 
-		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDevice physicalDevice, string? layerName, out uint count, nint pProperties);
+		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDevice physicalDevice, string? layerName, out uint count, ref ExtensionProperties pProperties);
 	}
 
 	public static bool operator == (PhysicalDevice a, PhysicalDevice b) => a.handle == b.handle;

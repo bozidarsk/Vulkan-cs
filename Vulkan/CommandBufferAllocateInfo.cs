@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -9,7 +10,7 @@ public readonly struct CommandBufferAllocateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
-	private readonly nint commandPool;
+	private readonly CommandPoolHandle commandPool;
 	public readonly CommandBufferLevel Level;
 	public readonly uint CommandBufferCount;
 
@@ -17,14 +18,14 @@ public readonly struct CommandBufferAllocateInfo
 
 	public CommandBuffer[] CreateCommandBuffers(Device device) 
 	{
-		CommandBuffer[] commandBuffers = new CommandBuffer[this.CommandBufferCount];
+		var commandBuffers = new CommandBufferHandle[this.CommandBufferCount];
 
-		Result result = vkAllocateCommandBuffers((nint)device, in this, commandBuffers.AsPointer());
+		Result result = vkAllocateCommandBuffers(device.Handle, in this, ref MemoryMarshal.GetArrayDataReference(commandBuffers));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return commandBuffers;
+		return commandBuffers.Select(x => x.GetCommandBuffer()).ToArray();
 
-		[DllImport(VK_LIB)] static extern Result vkAllocateCommandBuffers(nint device, in CommandBufferAllocateInfo createInfo, nint pCommandBuffers);
+		[DllImport(VK_LIB)] static extern Result vkAllocateCommandBuffers(DeviceHandle device, in CommandBufferAllocateInfo createInfo, ref CommandBufferHandle pCommandBuffers);
 	}
 
 	public CommandBufferAllocateInfo(
@@ -37,7 +38,7 @@ public readonly struct CommandBufferAllocateInfo
 	{
 		this.Type = type;
 		this.Next = next;
-		this.commandPool = (nint)commandPool;
+		this.commandPool = commandPool.Handle;
 		this.Level = level;
 		this.CommandBufferCount = commandBufferCount;
 	}

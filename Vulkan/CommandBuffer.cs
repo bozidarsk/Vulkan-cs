@@ -1,23 +1,26 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
-public readonly struct CommandBuffer 
+public sealed class CommandBuffer 
 {
-	private readonly nint handle;
+	private readonly CommandBufferHandle commandBuffer;
+
+	internal CommandBufferHandle Handle => commandBuffer;
 
 	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data) 
 	{
-		vkCmdPushConstants(this, (nint)layout, stage, offset, size, ref data);
+		vkCmdPushConstants(commandBuffer, layout.Handle, stage, offset, size, ref data);
 
 		[DllImport(VK_LIB)] static extern void vkCmdPushConstants(
-			CommandBuffer commandBuffer,
-			nint layout,
+			CommandBufferHandle commandBuffer,
+			PipelineLayoutHandle layout,
 			ShaderStage stage,
 			uint offset,
 			uint size,
@@ -25,134 +28,136 @@ public readonly struct CommandBuffer
 		);
 	}
 
-	public void BindDescriptorSets(PipelineLayout layout, PipelineBindPoint bindPoint, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
+	public unsafe void BindDescriptorSets(PipelineLayout layout, PipelineBindPoint bindPoint, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
 	{
 		vkCmdBindDescriptorSets(
-			this,
+			commandBuffer,
 			bindPoint,
-			(nint)layout,
+			layout.Handle,
 			0,
 			(uint)sets.Length,
-			sets.Select(x => (nint)x).ToArray().AsPointer(),
+			ref MemoryMarshal.GetArrayDataReference(sets.Select(x => x.Handle).ToArray()),
 			(uint)(dynamicOffsets?.Length ?? 0),
-			dynamicOffsets.AsPointer()
+			ref (dynamicOffsets != null) ? ref MemoryMarshal.GetArrayDataReference(dynamicOffsets) : ref Unsafe.AsRef<uint>(default)
 		);
 
 		[DllImport(VK_LIB)] static extern void vkCmdBindDescriptorSets(
-			CommandBuffer commandBuffer,
+			CommandBufferHandle commandBuffer,
 			PipelineBindPoint pipelineBindPoint,
-			nint layout,
+			PipelineLayoutHandle layout,
 			uint firstSet,
 			uint descriptorSetCount,
-			nint pDescriptorSets,
+			ref DescriptorSetHandle pDescriptorSets,
 			uint dynamicOffsetCount,
-			nint pDynamicOffsets
+			ref uint pDynamicOffsets
 		);
 	}
 
 	public void BindVertexBuffers(params Buffer[] buffers) 
 	{
 		vkCmdBindVertexBuffers(
-			this,
+			commandBuffer,
 			0,
 			(uint)buffers.Length,
-			buffers.Select(x => (nint)x).ToArray().AsPointer(),
-			buffers.Skip(1).Select(x => x.MemoryRequirements.Size).Prepend(default).ToArray().AsPointer()
+			ref MemoryMarshal.GetArrayDataReference(buffers.Select(x => x.Handle).ToArray()),
+			ref MemoryMarshal.GetArrayDataReference(buffers.Skip(1).Select(x => x.MemoryRequirements.Size).Prepend(default).ToArray())
 		);
 
-		[DllImport(VK_LIB)] static extern void vkCmdBindVertexBuffers(CommandBuffer commandBuffer, uint firstBinding, uint bindingCount, nint pBuffers, nint pOffsets);
+		[DllImport(VK_LIB)] static extern void vkCmdBindVertexBuffers(CommandBufferHandle commandBuffer, uint firstBinding, uint bindingCount, ref BufferHandle pBuffers, ref DeviceSize pOffsets);
 	}
 
 	public void BindIndexBuffer(Buffer buffer, IndexType type) 
 	{
 		vkCmdBindIndexBuffer(
-			this,
-			(nint)buffer,
+			commandBuffer,
+			buffer.Handle,
 			0,
 			type
 		);
 
-		[DllImport(VK_LIB)] static extern void vkCmdBindIndexBuffer(CommandBuffer commandBuffer, nint buffer, DeviceSize offset, IndexType type);
+		[DllImport(VK_LIB)] static extern void vkCmdBindIndexBuffer(CommandBufferHandle commandBuffer, BufferHandle buffer, DeviceSize offset, IndexType type);
 	}
 
 	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
 	{
 		var region = new BufferCopy(sourceOffset: default, destinationOffset: default, size: size);
 
-		vkCmdCopyBuffer(this, (nint)source, (nint)destination, 1, in region);
+		vkCmdCopyBuffer(commandBuffer, source.Handle, destination.Handle, 1, ref region);
 
-		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBuffer commandBuffer, nint source, nint destination, uint regionCount, in BufferCopy pRegions);
+		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
 	}
 
 	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, BufferCopy[] regions) 
 	{
-		vkCmdCopyBuffer(this, (nint)source, (nint)destination, (uint)regions.Length, regions.AsPointer());
+		vkCmdCopyBuffer(commandBuffer, source.Handle, destination.Handle, (uint)regions.Length, ref MemoryMarshal.GetArrayDataReference(regions));
 
-		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBuffer commandBuffer, nint source, nint destination, uint regionCount, nint pRegions);
+		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
 	}
 
 	public void Reset(CommandBufferResetFlags flags) 
 	{
-		Result result = vkResetCommandBuffer(this, flags);
+		Result result = vkResetCommandBuffer(commandBuffer, flags);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkResetCommandBuffer(CommandBuffer commandBuffer, CommandBufferResetFlags flags);
+		[DllImport(VK_LIB)] static extern Result vkResetCommandBuffer(CommandBufferHandle commandBuffer, CommandBufferResetFlags flags);
 	}
 
 	public void Begin(CommandBufferBeginInfo beginInfo) 
 	{
-		Result result = vkBeginCommandBuffer(this, in beginInfo);
+		Result result = vkBeginCommandBuffer(commandBuffer, in beginInfo);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkBeginCommandBuffer(CommandBuffer commandBuffer, in CommandBufferBeginInfo beginInfo);
+		[DllImport(VK_LIB)] static extern Result vkBeginCommandBuffer(CommandBufferHandle commandBuffer, in CommandBufferBeginInfo beginInfo);
 	}
 
 	public void End() 
 	{
-		Result result = vkEndCommandBuffer(this);
+		Result result = vkEndCommandBuffer(commandBuffer);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkEndCommandBuffer(CommandBuffer commandBuffer);
+		[DllImport(VK_LIB)] static extern Result vkEndCommandBuffer(CommandBufferHandle commandBuffer);
 	}
 
 	public void BeginRenderPass(RenderPassBeginInfo renderPassInfo, SubpassContents contents) 
 	{
-		Result result = vkCmdBeginRenderPass(this, in renderPassInfo, contents);
+		Result result = vkCmdBeginRenderPass(commandBuffer, in renderPassInfo, contents);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkCmdBeginRenderPass(CommandBuffer commandBuffer, in RenderPassBeginInfo renderPassInfo, SubpassContents contents);
+		[DllImport(VK_LIB)] static extern Result vkCmdBeginRenderPass(CommandBufferHandle commandBuffer, in RenderPassBeginInfo renderPassInfo, SubpassContents contents);
 	}
 
 	public void EndRenderPass() 
 	{
-		vkCmdEndRenderPass(this);
+		vkCmdEndRenderPass(commandBuffer);
 
-		[DllImport(VK_LIB)] static extern void vkCmdEndRenderPass(CommandBuffer commandBuffer);
+		[DllImport(VK_LIB)] static extern void vkCmdEndRenderPass(CommandBufferHandle commandBuffer);
 	}
 
 	public void BindPipeline(Pipeline pipeline, PipelineBindPoint bindPoint) 
 	{
-		vkCmdBindPipeline(this, bindPoint, (nint)pipeline);
+		vkCmdBindPipeline(commandBuffer, bindPoint, pipeline.Handle);
 
-		[DllImport(VK_LIB)] static extern void vkCmdBindPipeline(CommandBuffer commandBuffer, PipelineBindPoint bindPoint, nint pipeline);
+		[DllImport(VK_LIB)] static extern void vkCmdBindPipeline(CommandBufferHandle commandBuffer, PipelineBindPoint bindPoint, PipelineHandle pipeline);
 	}
 
 	public void SetViewports(params Viewport[] viewports) 
 	{
-		if (viewports == null) throw new ArgumentNullException();
+		if (viewports == null)
+			throw new ArgumentNullException();
 
-		vkCmdSetViewport(this, 0, (uint)viewports.Length, viewports.AsPointer());
+		vkCmdSetViewport(commandBuffer, 0, (uint)viewports.Length, ref MemoryMarshal.GetArrayDataReference(viewports));
 
-		[DllImport(VK_LIB)] static extern void vkCmdSetViewport(CommandBuffer commandBuffer, uint first, uint count, nint pViewports);
+		[DllImport(VK_LIB)] static extern void vkCmdSetViewport(CommandBufferHandle commandBuffer, uint first, uint count, ref Viewport pViewports);
 	}
 
 	public void SetScissors(params Rect2D[] scissors) 
 	{
-		if (scissors == null) throw new ArgumentNullException();
+		if (scissors == null)
+			throw new ArgumentNullException();
 
-		vkCmdSetScissor(this, 0, (uint)scissors.Length, scissors.AsPointer());
+		vkCmdSetScissor(commandBuffer, 0, (uint)scissors.Length, ref MemoryMarshal.GetArrayDataReference(scissors));
 
-		[DllImport(VK_LIB)] static extern void vkCmdSetScissor(CommandBuffer commandBuffer, uint first, uint count, nint pViewports);
+		[DllImport(VK_LIB)] static extern void vkCmdSetScissor(CommandBufferHandle commandBuffer, uint first, uint count, ref Rect2D pScissors);
 	}
 
 	public void SetVertexInput(VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions) 
@@ -161,47 +166,39 @@ public readonly struct CommandBuffer
 			throw new ArgumentNullException();
 
 		vkCmdSetVertexInputEXT(
-			this,
+			commandBuffer,
 			(uint)bindingDescriptions.Length,
-			bindingDescriptions.AsPointer(),
+			ref MemoryMarshal.GetArrayDataReference(bindingDescriptions),
 			(uint)attributeDescriptions.Length,
-			attributeDescriptions.AsPointer()
+			ref MemoryMarshal.GetArrayDataReference(attributeDescriptions)
 		);
 	}
 
 	public void SetCullMode(CullMode mode) 
 	{
-		vkCmdSetCullModeEXT(this, mode);
+		vkCmdSetCullModeEXT(commandBuffer, mode);
 	}
 
 	public void SetFrontFace(FrontFace frontFace) 
 	{
-		vkCmdSetFrontFaceEXT(this, frontFace);
+		vkCmdSetFrontFaceEXT(commandBuffer, frontFace);
 	}
 
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
 	{
-		vkCmdDraw(this, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
+		vkCmdDraw(commandBuffer, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
 
-		[DllImport(VK_LIB)] static extern void vkCmdDraw(CommandBuffer commandBuffer, uint vertextCount, uint instanceCount, uint firstVertex, uint firstInstance);
+		[DllImport(VK_LIB)] static extern void vkCmdDraw(CommandBufferHandle commandBuffer, uint vertextCount, uint instanceCount, uint firstVertex, uint firstInstance);
 	}
 
 	public void DrawIndexed(int indexCount, int instanceCount = 1, int firstIndex = 0, int vertexOffset = 0, int firstInstance = 0) 
 	{
-		vkCmdDrawIndexed(this, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
+		vkCmdDrawIndexed(commandBuffer, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
 
-		[DllImport(VK_LIB)] static extern void vkCmdDrawIndexed(CommandBuffer commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
+		[DllImport(VK_LIB)] static extern void vkCmdDrawIndexed(CommandBufferHandle commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
 	}
 
-	public static bool operator == (CommandBuffer a, CommandBuffer b) => a.handle == b.handle;
-	public static bool operator != (CommandBuffer a, CommandBuffer b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is CommandBuffer x) ? x.handle == handle : false;
-
-	public static implicit operator nint (CommandBuffer x) => x.handle;
-	public static implicit operator CommandBuffer (nint x) => new(x);
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
-
-	private CommandBuffer(nint handle) => this.handle = handle;
+	internal CommandBuffer(CommandBufferHandle commandBuffer) => 
+		this.commandBuffer = commandBuffer
+	;
 }

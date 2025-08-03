@@ -8,9 +8,9 @@ public readonly struct PresentInfo : IDisposable
 	public readonly StructureType Type;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
-	private readonly Handle<nint> waitSemaphores;
+	private readonly Handle<SemaphoreHandle> waitSemaphores;
 	private readonly uint swapchainCount;
-	private readonly Handle<nint> swapchains;
+	private readonly Handle<SwapchainHandle> swapchains;
 	private readonly Handle<uint> imageIndices;
 	private readonly Handle<Result> results;
 
@@ -43,10 +43,10 @@ public readonly struct PresentInfo : IDisposable
 		this.Next = next;
 
 		this.waitSemaphoreCount = (uint)(waitSemaphores?.Length ?? 0);
-		this.waitSemaphores = new(waitSemaphores?.Select(x => (nint)x).ToArray());
+		this.waitSemaphores = new(waitSemaphores?.Select(x => x.Handle).ToArray());
 
 		this.swapchainCount = (uint)(swapchains?.Length ?? 0);
-		this.swapchains = new(swapchains?.Select(x => (nint)x).ToArray());
+		this.swapchains = new(swapchains?.Select(x => x.Handle).ToArray());
 		this.imageIndices = new(imageIndices);
 		this.results = new(results);
 	}

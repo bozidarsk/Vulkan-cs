@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -7,29 +8,30 @@ namespace Vulkan;
 
 public sealed class CommandPool : IDisposable
 {
+	private readonly CommandPoolHandle commandPool;
 	private readonly Device device;
-	private readonly nint commandPool;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (CommandPool x) => x.commandPool;
+	internal CommandPoolHandle Handle => commandPool;
 
 	public void FreeCommandBuffers(CommandBuffer[] buffers) 
 	{
 		if (buffers == null)
 			throw new ArgumentNullException();
 
-		vkFreeCommandBuffers((nint)device, commandPool, (uint)buffers.Length, buffers.AsPointer());
+		vkFreeCommandBuffers(device.Handle, commandPool, (uint)buffers.Length, ref MemoryMarshal.GetArrayDataReference(buffers.Select(x => x.Handle).ToArray()));
 
-		[DllImport(VK_LIB)] static extern void vkFreeCommandBuffers(nint device, nint commandPool, uint bufferCount, nint pBuffers);
+		[DllImport(VK_LIB)] static extern void vkFreeCommandBuffers(DeviceHandle device, CommandPoolHandle commandPool, uint bufferCount, ref CommandBufferHandle pBuffers);
 	}
 
 	public void Dispose() 
 	{
-		vkDestroyCommandPool((nint)device, commandPool, allocator);
+		vkDestroyCommandPool(device.Handle, commandPool, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyCommandPool(nint device, nint commandPool, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyCommandPool(DeviceHandle device, CommandPoolHandle commandPool, nint allocator);
 	}
 
-	private CommandPool(Device device, nint commandPool) => (this.device, this.commandPool) = (device, commandPool);
-	internal CommandPool(Device device, nint commandPool, Handle<AllocationCallbacks> allocator) : this(device, commandPool) => this.allocator = allocator;
+	internal CommandPool(CommandPoolHandle commandPool, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.commandPool, this.device, this.allocator) = (commandPool, device, allocator)
+	;
 }

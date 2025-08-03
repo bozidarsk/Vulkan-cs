@@ -7,20 +7,20 @@ namespace Vulkan;
 
 public sealed class BufferView : IDisposable
 {
+	private readonly BufferViewHandle bufferView;
 	private readonly Device device;
-	private readonly nint bufferView;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (BufferView x) => x.bufferView;
+	internal BufferViewHandle Handle => bufferView;
 
 	public void Dispose() 
 	{
-		vkDestroyBufferView((nint)device, bufferView, allocator);
+		vkDestroyBufferView(device.Handle, bufferView, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(nint device, nint bufferView, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(DeviceHandle device, BufferViewHandle bufferView, nint allocator);
 	}
 
-	private BufferView(Device device, nint bufferView) => (this.device, this.bufferView) = (device, bufferView);
-	internal BufferView(Device device, nint bufferView, Handle<AllocationCallbacks> allocator) : this(device, bufferView) => this.allocator = allocator;
+	internal BufferView(BufferViewHandle bufferView, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.bufferView, this.device, this.allocator) = (bufferView, device, allocator)
+	;
 }
-

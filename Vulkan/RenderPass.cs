@@ -7,19 +7,20 @@ namespace Vulkan;
 
 public sealed class RenderPass : IDisposable
 {
+	private readonly RenderPassHandle renderPass;
 	private readonly Device device;
-	private readonly nint renderPass;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (RenderPass x) => x.renderPass;
+	internal RenderPassHandle Handle => renderPass;
 
 	public void Dispose() 
 	{
-		vkDestroyRenderPass((nint)device, renderPass, allocator);
+		vkDestroyRenderPass(device.Handle, renderPass, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(nint device, nint renderPass, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(DeviceHandle device, RenderPassHandle renderPass, nint allocator);
 	}
 
-	private RenderPass(Device device, nint renderPass) => (this.device, this.renderPass) = (device, renderPass);
-	internal RenderPass(Device device, nint renderPass, Handle<AllocationCallbacks> allocator) : this(device, renderPass) => this.allocator = allocator;
+	internal RenderPass(RenderPassHandle renderPass, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.renderPass, this.device, this.allocator) = (renderPass, device, allocator)
+	;
 }

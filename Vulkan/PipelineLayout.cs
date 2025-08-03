@@ -7,19 +7,20 @@ namespace Vulkan;
 
 public sealed class PipelineLayout : IDisposable
 {
+	private readonly PipelineLayoutHandle pipelineLayout;
 	private readonly Device device;
-	private readonly nint pipelineLayout;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (PipelineLayout x) => x.pipelineLayout;
+	internal PipelineLayoutHandle Handle => pipelineLayout;
 
 	public void Dispose() 
 	{
-		vkDestroyPipelineLayout((nint)device, pipelineLayout, allocator);
+		vkDestroyPipelineLayout(device.Handle, pipelineLayout, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyPipelineLayout(nint device, nint pipelineLayout, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyPipelineLayout(DeviceHandle device, PipelineLayoutHandle pipelineLayout, nint allocator);
 	}
 
-	private PipelineLayout(Device device, nint pipelineLayout) => (this.device, this.pipelineLayout) = (device, pipelineLayout);
-	internal PipelineLayout(Device device, nint pipelineLayout, Handle<AllocationCallbacks> allocator) : this(device, pipelineLayout) => this.allocator = allocator;
+	internal PipelineLayout(PipelineLayoutHandle pipelineLayout, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.pipelineLayout, this.device, this.allocator) = (pipelineLayout, device, allocator)
+	;
 }

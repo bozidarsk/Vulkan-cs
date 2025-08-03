@@ -12,12 +12,12 @@ public readonly struct FenceCreateInfo
 
 	public Fence CreateFence(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateFence((nint)device, in this, allocator, out nint fenceHandle);
+		Result result = vkCreateFence(device.Handle, in this, allocator, out FenceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, fenceHandle, allocator);
+		return handle.GetFence(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateFence(nint device, in FenceCreateInfo createInfo, nint allocator, out nint fence);
+		[DllImport(VK_LIB)] static extern Result vkCreateFence(DeviceHandle device, in FenceCreateInfo createInfo, nint allocator, out FenceHandle fence);
 	}
 
 	public FenceCreateInfo(StructureType type, nint next, FenceCreateFlags flags) => (this.Type, this.Next, this.Flags) = (type, next, flags);

@@ -7,17 +7,18 @@ namespace Vulkan;
 
 public sealed class DebugUtilsMessenger : IDisposable
 {
+	private readonly DebugUtilsMessengerHandle debugUtilsMessenger;
 	private readonly Instance instance;
-	private readonly nint debugUtilsMessenger;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (DebugUtilsMessenger x) => x.debugUtilsMessenger;
+	internal DebugUtilsMessengerHandle Handle => debugUtilsMessenger;
 
 	public void Dispose() 
 	{
-		vkDestroyDebugUtilsMessengerEXT((nint)instance, debugUtilsMessenger, allocator);
+		vkDestroyDebugUtilsMessengerEXT(instance.Handle, debugUtilsMessenger, allocator);
 	}
 
-	private DebugUtilsMessenger(Instance instance, nint debugUtilsMessenger) => (this.instance, this.debugUtilsMessenger) = (instance, debugUtilsMessenger);
-	internal DebugUtilsMessenger(Instance instance, nint debugUtilsMessenger, Handle<AllocationCallbacks> allocator) : this(instance, debugUtilsMessenger) => this.allocator = allocator;
+	internal DebugUtilsMessenger(DebugUtilsMessengerHandle debugUtilsMessenger, Instance instance, Handle<AllocationCallbacks> allocator) => 
+		(this.debugUtilsMessenger, this.instance, this.allocator) = (debugUtilsMessenger, instance, allocator)
+	;
 }

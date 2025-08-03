@@ -20,12 +20,12 @@ public readonly struct BufferCreateInfo : IDisposable
 
 	public Buffer CreateBuffer(Device device, Handle<AllocationCallbacks> allocator) 
 	{
-		Result result = vkCreateBuffer((nint)device, in this, allocator, out nint bufferHandle);
+		Result result = vkCreateBuffer(device.Handle, in this, allocator, out BufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return new(device, bufferHandle, allocator);
+		return handle.GetBuffer(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateBuffer(nint device, in BufferCreateInfo createInfo, nint allocator, out nint buffer);
+		[DllImport(VK_LIB)] static extern Result vkCreateBuffer(DeviceHandle device, in BufferCreateInfo createInfo, nint allocator, out BufferHandle buffer);
 	}
 
 	public void Dispose() 

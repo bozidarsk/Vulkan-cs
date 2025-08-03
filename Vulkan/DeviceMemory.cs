@@ -8,36 +8,37 @@ namespace Vulkan;
 
 public sealed class DeviceMemory : IDisposable
 {
+	private readonly DeviceMemoryHandle deviceMemory;
 	private readonly Device device;
-	private readonly nint deviceMemory;
 	private readonly Handle<AllocationCallbacks> allocator;
+
+	internal DeviceMemoryHandle Handle => deviceMemory;
 
 	public nint Map(DeviceSize size, DeviceSize offset, MemoryMapFlags flags) 
 	{
-		Result result = vkMapMemory((nint)device, (nint)deviceMemory, offset, size, flags, out nint pointer);
+		Result result = vkMapMemory(device.Handle, deviceMemory, offset, size, flags, out nint pointer);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return pointer;
 
-		[DllImport(VK_LIB)] static extern Result vkMapMemory(nint device, nint deviceMemory, DeviceSize offset, DeviceSize size, MemoryMapFlags flags, out nint pDest);
+		[DllImport(VK_LIB)] static extern Result vkMapMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, DeviceSize offset, DeviceSize size, MemoryMapFlags flags, out nint pDest);
 	}
 
 	public void Unmap() 
 	{
-		vkUnmapMemory((nint)device, (nint)deviceMemory);
+		vkUnmapMemory(device.Handle, deviceMemory);
 
-		[DllImport(VK_LIB)] static extern Result vkUnmapMemory(nint device, nint deviceMemory);
+		[DllImport(VK_LIB)] static extern Result vkUnmapMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory);
 	}
-
-	public static explicit operator nint (DeviceMemory x) => x.deviceMemory;
 
 	public void Dispose() 
 	{
-		vkFreeMemory((nint)device, deviceMemory, allocator);
+		vkFreeMemory(device.Handle, deviceMemory, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkFreeMemory(nint device, nint deviceMemory, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkFreeMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, nint allocator);
 	}
 
-	private DeviceMemory(Device device, nint deviceMemory) => (this.device, this.deviceMemory) = (device, deviceMemory);
-	internal DeviceMemory(Device device, nint deviceMemory, Handle<AllocationCallbacks> allocator) : this(device, deviceMemory) => this.allocator = allocator;
+	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.deviceMemory, this.device, this.allocator) = (deviceMemory, device, allocator)
+	;
 }

@@ -7,19 +7,20 @@ namespace Vulkan;
 
 public sealed class ShaderModule : IDisposable
 {
+	private readonly ShaderModuleHandle shaderModule;
 	private readonly Device device;
-	private readonly nint shaderModule;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (ShaderModule x) => x.shaderModule;
+	internal ShaderModuleHandle Handle => shaderModule;
 
 	public void Dispose() 
 	{
-		vkDestroyShaderModule((nint)device, shaderModule, allocator);
+		vkDestroyShaderModule(device.Handle, shaderModule, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyShaderModule(nint device, nint shaderModule, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyShaderModule(DeviceHandle device, ShaderModuleHandle shaderModule, nint allocator);
 	}
 
-	private ShaderModule(Device device, nint shaderModule) => (this.device, this.shaderModule) = (device, shaderModule);
-	internal ShaderModule(Device device, nint shaderModule, Handle<AllocationCallbacks> allocator) : this(device, shaderModule) => this.allocator = allocator;
+	internal ShaderModule(ShaderModuleHandle shaderModule, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.shaderModule, this.device, this.allocator) = (shaderModule, device, allocator)
+	;
 }

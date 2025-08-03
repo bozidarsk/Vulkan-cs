@@ -6,9 +6,9 @@ public readonly struct CommandBufferInheritanceInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
-	private readonly nint renderPass;
+	private readonly RenderPassHandle renderPass;
 	public readonly uint Subpass;
-	private readonly nint framebuffer;
+	private readonly FramebufferHandle framebuffer;
 	public readonly bool32 OcclusionQueryEnable;
 	public readonly QueryControlFlags QueryFlags;
 	public readonly QueryPipelineStatisticFlags PipelineStatistics;
@@ -29,9 +29,9 @@ public readonly struct CommandBufferInheritanceInfo
 	{
 		this.Type = type;
 		this.Next = next;
-		this.renderPass = (nint)renderPass;
+		this.renderPass = renderPass.Handle;
 		this.Subpass = subpass;
-		this.framebuffer = (nint)framebuffer;
+		this.framebuffer = framebuffer.Handle;
 		this.OcclusionQueryEnable = occlusionQueryEnable;
 		this.QueryFlags = queryFlags;
 		this.PipelineStatistics = pipelineStatistics;

@@ -7,20 +7,20 @@ namespace Vulkan;
 
 public sealed class DescriptorPool : IDisposable
 {
+	private readonly DescriptorPoolHandle descriptorPool;
 	private readonly Device device;
-	private readonly nint descriptorPool;
 	private readonly Handle<AllocationCallbacks> allocator;
 
-	public static explicit operator nint (DescriptorPool x) => x.descriptorPool;
+	internal DescriptorPoolHandle Handle => descriptorPool;
 
 	public void Dispose() 
 	{
-		vkDestroyDescriptorPool((nint)device, descriptorPool, allocator);
+		vkDestroyDescriptorPool(device.Handle, descriptorPool, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorPool(nint device, nint descriptorPool, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorPool(DeviceHandle device, DescriptorPoolHandle descriptorPool, nint allocator);
 	}
 
-	private DescriptorPool(Device device, nint descriptorPool) => (this.device, this.descriptorPool) = (device, descriptorPool);
-	internal DescriptorPool(Device device, nint descriptorPool, Handle<AllocationCallbacks> allocator) : this(device, descriptorPool) => this.allocator = allocator;
+	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, Handle<AllocationCallbacks> allocator) => 
+		(this.descriptorPool, this.device, this.allocator) = (descriptorPool, device, allocator)
+	;
 }
-
