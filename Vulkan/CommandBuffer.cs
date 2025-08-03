@@ -14,6 +14,14 @@ public sealed class CommandBuffer
 
 	internal CommandBufferHandle Handle => commandBuffer;
 
+	public void PushDescriptorSet(PipelineBindPoint bindPoint, PipelineLayout layout, params WriteDescriptorSet[] writes) 
+	{
+		if (writes == null)
+			throw new ArgumentNullException();
+
+		vkCmdPushDescriptorSetKHR(commandBuffer, bindPoint, layout.Handle, 0, (uint)writes.Length, ref MemoryMarshal.GetArrayDataReference(writes));
+	}
+
 	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data) 
 	{
 		vkCmdPushConstants(commandBuffer, layout.Handle, stage, offset, size, ref data);
@@ -28,8 +36,11 @@ public sealed class CommandBuffer
 		);
 	}
 
-	public unsafe void BindDescriptorSets(PipelineLayout layout, PipelineBindPoint bindPoint, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
+	public unsafe void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout layout, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
 	{
+		if (sets == null)
+			throw new ArgumentNullException();
+
 		vkCmdBindDescriptorSets(
 			commandBuffer,
 			bindPoint,
@@ -55,6 +66,9 @@ public sealed class CommandBuffer
 
 	public void BindVertexBuffers(params Buffer[] buffers) 
 	{
+		if (buffers == null)
+			throw new ArgumentNullException();
+
 		vkCmdBindVertexBuffers(
 			commandBuffer,
 			0,

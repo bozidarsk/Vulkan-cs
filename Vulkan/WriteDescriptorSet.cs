@@ -31,7 +31,7 @@ public readonly struct WriteDescriptorSet : IDisposable
 	public WriteDescriptorSet(
 		StructureType type,
 		nint next,
-		DescriptorSet destinationSet,
+		DescriptorSet? destinationSet,
 		uint destinationBinding,
 		uint destinationArrayElement,
 		DescriptorType descriptorType,
@@ -43,7 +43,7 @@ public readonly struct WriteDescriptorSet : IDisposable
 	{
 		this.Type = type;
 		this.Next = next;
-		this.destinationSet = destinationSet.Handle;
+		this.destinationSet = (destinationSet != null) ? destinationSet.Handle : default;
 		this.DestinationBinding = destinationBinding;
 		this.DestinationArrayElement = destinationArrayElement;
 		this.DescriptorType = descriptorType;

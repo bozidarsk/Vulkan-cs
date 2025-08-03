@@ -11,6 +11,7 @@ public partial class Program : IDisposable
 	protected readonly GLFW.Window window;
 	protected readonly Handle<AllocationCallbacks> allocator = default;
 
+	protected Queue<IDisposable>[] toBeDisposed;
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
 	protected Format swapchainImageFormat, depthFormat;
 	protected Extent2D extent;
@@ -146,7 +147,7 @@ public partial class Program : IDisposable
 			flags: default,
 			queueCreateInfos: (graphicsQueueFamilyIndex != presentationQueueFamilyIndex) ? [ graphicsDeviceQueueCreateInfo, presentationDeviceQueueCreateInfo ] : [ graphicsDeviceQueueCreateInfo ],
 			enabledLayerNames: [ "VK_LAYER_KHRONOS_validation" ],
-			enabledExtensionNames: [ "VK_KHR_swapchain"/*, "VK_EXT_vertex_input_dynamic_state"*/, "VK_EXT_index_type_uint8", "VK_EXT_extended_dynamic_state" ],
+			enabledExtensionNames: [ "VK_KHR_swapchain"/*, "VK_EXT_vertex_input_dynamic_state"*/, "VK_EXT_index_type_uint8", "VK_EXT_extended_dynamic_state", "VK_KHR_push_descriptor" ],
 			enabledFeatures: physicalDevice.Features
 		);
 
@@ -246,11 +247,19 @@ public partial class Program : IDisposable
 			immutableSamplers: null
 		);
 
+		var objectUniformsBinding = new DescriptorSetLayoutBinding(
+			binding: 1,
+			descriptorType: DescriptorType.UniformBuffer,
+			descriptorCount: 1,
+			stage: ShaderStage.AllGraphics,
+			immutableSamplers: null
+		);
+
 		using var descriptorSetLayoutCreateInfo = new DescriptorSetLayoutCreateInfo(
 			type: StructureType.DescriptorSetLayoutCreateInfo,
 			next: default,
-			flags: default,
-			bindings: [ globalUniformsBinding ]
+			flags: DescriptorSetLayoutCreateFlags.PushDescriptor,
+			bindings: [ globalUniformsBinding, objectUniformsBinding ]
 		);
 
 		descriptorSetLayouts = new DescriptorSetLayout[maxFrames];
@@ -308,10 +317,8 @@ public partial class Program : IDisposable
 			type: StructureType.PipelineLayoutCreateInfo,
 			next: default,
 			flags: default,
-			setLayouts: descriptorSetLayouts,
-			pushConstantRanges: [
-				new(stage: ShaderStage.All, offset: default, size: 64)
-			]
+			setLayouts: [ descriptorSetLayouts[0] ],
+			pushConstantRanges: null
 		);
 
 		pipelineLayout = pipelineLayoutCreateInfo.CreatePipelineLayout(device, allocator);
@@ -590,8 +597,8 @@ public partial class Program : IDisposable
 		InitializeSwapchain();
 		InitializeImageViews();
 		InitializeDescriptorSetLayout();
-		InitializeDescriptorPool();
-		InitialzieDescriptorSets();
+		// InitializeDescriptorPool();
+		// InitialzieDescriptorSets();
 		InitializeGlobalUniforms();
 		InitializePipelineLayout();
 		InitializeDepthImage();
@@ -601,6 +608,10 @@ public partial class Program : IDisposable
 		InitializeCommandBuffers();
 		InitializeSyncObjects();
 
+		toBeDisposed = new Queue<IDisposable>[maxFrames];
+		for (int i = 0; i < maxFrames; i++)
+			toBeDisposed[i] = new();
+
 		graphicsQueue = device.GetQueue(graphicsQueueFamilyIndex, 0);
 		presentationQueue = device.GetQueue(presentationQueueFamilyIndex, 0);
 
@@ -609,6 +620,10 @@ public partial class Program : IDisposable
 
 	public void Dispose() 
 	{
+		foreach (var x in toBeDisposed)
+			while (x.Count > 0)
+				x.Dequeue().Dispose();
+
 		foreach (var x in globalUniformsMemories)
 			x.Unmap();
 
@@ -641,10 +656,10 @@ public partial class Program : IDisposable
 		foreach (var x in globalUniformsMemories)
 			x.Dispose();
 
-		foreach (var x in descriptorSets)
+		foreach (var x in descriptorSets ?? [])
 			x.Dispose();
 
-		descriptorPool.Dispose();
+		descriptorPool?.Dispose();
 
 		foreach (var x in descriptorSetLayouts)
 			x.Dispose();

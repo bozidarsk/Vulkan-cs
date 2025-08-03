@@ -25,10 +25,9 @@ cbuffer GlobalUniforms : register(b0)
 	float4x4 PROJECTION;
 }
 
-[[vk::push_constant]]
-cbuffer PushConstants 
+cbuffer ObjectUniforms : register(b1)
 {
 	float4x4 MODEL;
-};
+}
 
 #endif

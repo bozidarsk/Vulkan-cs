@@ -32,6 +32,16 @@ internal delegate void SetVertexInputDelegate(
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate void PushDescriptorSetDelegate(
+	CommandBufferHandle commandBuffer,
+	PipelineBindPoint bindPoint,
+	PipelineLayoutHandle layout,
+	uint set,
+	uint descriptorWriteCount,
+	ref WriteDescriptorSet pDescriptorWrites
+);
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void SetCullModeDelegate(CommandBufferHandle commandBuffer, CullMode mode);
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -42,6 +52,7 @@ internal static class ExtensionDelegates
 	public static CreateDebugUtilsMessengerDelegate vkCreateDebugUtilsMessengerEXT { private set; get; }
 	public static DestroyDebugUtilsMessengerDelegate vkDestroyDebugUtilsMessengerEXT { private set; get; }
 	public static SetVertexInputDelegate vkCmdSetVertexInputEXT { private set; get; }
+	public static PushDescriptorSetDelegate vkCmdPushDescriptorSetKHR { private set; get; }
 	public static SetCullModeDelegate vkCmdSetCullModeEXT { private set; get; }
 	public static SetFrontFaceDelegate vkCmdSetFrontFaceEXT { private set; get; }
 
@@ -50,6 +61,7 @@ internal static class ExtensionDelegates
 		vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
 		vkDestroyDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<DestroyDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkDestroyDebugUtilsMessengerEXT"));
 		vkCmdSetVertexInputEXT = Marshal.GetDelegateForFunctionPointer<SetVertexInputDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetVertexInputEXT"));
+		vkCmdPushDescriptorSetKHR = Marshal.GetDelegateForFunctionPointer<PushDescriptorSetDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdPushDescriptorSetKHR"));
 		vkCmdSetCullModeEXT = Marshal.GetDelegateForFunctionPointer<SetCullModeDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetCullModeEXT"));
 		vkCmdSetFrontFaceEXT = Marshal.GetDelegateForFunctionPointer<SetFrontFaceDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCmdSetFrontFaceEXT"));
 

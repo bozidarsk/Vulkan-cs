@@ -207,7 +207,7 @@ public partial class Program
 		return pipeline;
 	}
 
-	protected virtual void StartRenderPass(IEnumerable<(Matrix4x4, RenderInfo)> objects, uint imageIndex) 
+	protected virtual void StartRenderPass(IEnumerable<(IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
 	{
 		using var beginInfo = new CommandBufferBeginInfo(
 			type: StructureType.CommandBufferBeginInfo,
@@ -235,10 +235,10 @@ public partial class Program
 			]
 		);
 
-		using var descriptorWrite = new WriteDescriptorSet(
+		using var globalDescriptorWrite = new WriteDescriptorSet(
 			type: StructureType.WriteDescriptorSet,
 			next: default,
-			destinationSet: descriptorSets[currentFrame],
+			destinationSet: default,
 			destinationBinding: 0,
 			destinationArrayElement: 0,
 			descriptorType: DescriptorType.UniformBuffer,
@@ -247,15 +247,12 @@ public partial class Program
 			texelBufferViews: null
 		);
 
-		device.UpdateDescriptorSets([ descriptorWrite ], null);
-
 		var cmd = commandBuffers[currentFrame];
 
 		cmd.Begin(beginInfo);
 		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
-		cmd.BindDescriptorSets(pipelineLayout, PipelineBindPoint.Graphics, [ descriptorSets[currentFrame] ]);
 
-		foreach ((var model, var info) in objects) 
+		foreach ((var uniforms, var info) in objects) 
 		{
 			Pipeline graphicsPipeline;
 
@@ -265,27 +262,65 @@ public partial class Program
 				graphicsPipelines[info] = graphicsPipeline;
 			}
 
-			var m = model;
+			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer uniformsBuffer, out DeviceMemory uniformsMemory);
+
+			using var objectDescriptorWrite = new WriteDescriptorSet(
+				type: StructureType.WriteDescriptorSet,
+				next: default,
+				destinationSet: default,
+				destinationBinding: 1,
+				destinationArrayElement: 0,
+				descriptorType: DescriptorType.UniformBuffer,
+				imageInfos: null,
+				bufferInfos: [ new(buffer: uniformsBuffer, offset: default, range: uniformsSize) ],
+				texelBufferViews: null
+			);
 
 			cmd.BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
 			cmd.BindVertexBuffers(info.VertexBuffer);
 			cmd.BindIndexBuffer(info.IndexBuffer, info.IndexType);
-			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
+			cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, globalDescriptorWrite, objectDescriptorWrite);
 			cmd.DrawIndexed(info.IndexCount);
+
+			toBeDisposed[currentFrame].Enqueue(uniformsBuffer);
+			toBeDisposed[currentFrame].Enqueue(uniformsMemory);
 		}
 
 		cmd.EndRenderPass();
 		cmd.End();
 	}
 
+	protected DeviceSize CreateUniformsBuffer(IReadOnlyDictionary<string, object> data, out Buffer buffer, out DeviceMemory memory) 
+	{
+		DeviceSize size = default;
+
+		foreach ((var key, var value) in data)
+			size += (ulong)Marshal.SizeOf(value.GetType());
+
+		CreateBuffer(size, BufferUsage.UniformBuffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out buffer, out memory);
+		nint mapped = memory.Map(size, offset: default, flags: default);
+
+		foreach ((var key, var value) in data) 
+		{
+			Marshal.StructureToPtr(value, mapped, false);
+			mapped += (nint)Marshal.SizeOf(value.GetType());
+		}
+
+		memory.Unmap();
+		return size;
+	}
+
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(Matrix4x4, RenderInfo)> objects) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(IReadOnlyDictionary<string, object>, RenderInfo)> objects) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();
 
 		inFlightFence[currentFrame].Wait();
 		inFlightFence[currentFrame].Reset();
+
+		while (toBeDisposed[currentFrame].Count > 0)
+			toBeDisposed[currentFrame].Dequeue().Dispose();
 
 		uint imageIndex = swapchain.GetNextImage(imageAvailableSemaphore[currentFrame]);
 		var cmd = commandBuffers[currentFrame];
