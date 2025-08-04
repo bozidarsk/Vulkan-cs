@@ -48,6 +48,38 @@ public partial class Program : IDisposable
 	private readonly DebugUtilsMessengerCallback debugMessageCallback;
 	public event DebugEventHandler? OnDebugMessage;
 
+	protected uint FindMemoryType(uint typeFilter, MemoryProperty properties) 
+	{
+		var memProperties = physicalDevice.MemoryProperties;
+		int i = 0;
+
+		foreach (var x in memProperties.MemoryTypes) 
+		{
+			if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
+				return (uint)i;
+
+			i++;
+		}
+
+		throw new VulkanException("Failed to find suitable memory type.");
+	}
+
+	protected Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatures features) 
+	{
+		foreach (var format in candidates) 
+		{
+			var properties = physicalDevice.GetFormatProperties(format);
+
+			if (tiling == ImageTiling.Linear && properties.LinearTilingFeatures.HasFlag(features))
+				return format;
+
+			if (tiling == ImageTiling.Optimal && properties.OptimalTilingFeatures.HasFlag(features))
+				return format;
+		}
+
+		throw new NullReferenceException("Failed to find supported format.");
+	}
+	
 	protected virtual void InitializeDebugMessages() 
 	{
 		var debugCreateInfo = new DebugUtilsMessengerCreateInfo(
@@ -322,38 +354,6 @@ public partial class Program : IDisposable
 		);
 
 		pipelineLayout = pipelineLayoutCreateInfo.CreatePipelineLayout(device, allocator);
-	}
-
-	protected uint FindMemoryType(uint typeFilter, MemoryProperty properties) 
-	{
-		var memProperties = physicalDevice.MemoryProperties;
-		int i = 0;
-
-		foreach (var x in memProperties.MemoryTypes) 
-		{
-			if ((typeFilter & (1 << i)) != 0 && x.Properties.HasFlag(properties))
-				return (uint)i;
-
-			i++;
-		}
-
-		throw new VulkanException("Failed to find suitable memory type.");
-	}
-
-	protected Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatures features) 
-	{
-		foreach (var format in candidates) 
-		{
-			var properties = physicalDevice.GetFormatProperties(format);
-
-			if (tiling == ImageTiling.Linear && properties.LinearTilingFeatures.HasFlag(features))
-				return format;
-
-			if (tiling == ImageTiling.Optimal && properties.OptimalTilingFeatures.HasFlag(features))
-				return format;
-		}
-
-		throw new NullReferenceException("Failed to find supported format.");
 	}
 
 	protected virtual void InitializeDepthImage() 

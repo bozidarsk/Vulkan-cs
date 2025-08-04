@@ -107,4 +107,24 @@ public partial class Program
 		staggingBuffer.Dispose();
 		staggingMemory.Dispose();
 	}
+
+	protected DeviceSize CreateUniformsBuffer(IReadOnlyDictionary<string, object> data, out Buffer buffer, out DeviceMemory memory) 
+	{
+		DeviceSize size = default;
+
+		foreach ((var key, var value) in data)
+			size += (ulong)Marshal.SizeOf(value.GetType());
+
+		CreateBuffer(size, BufferUsage.UniformBuffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out buffer, out memory);
+		nint mapped = memory.Map(size, offset: default, flags: default);
+
+		foreach ((var key, var value) in data) 
+		{
+			Marshal.StructureToPtr(value, mapped, false);
+			mapped += (nint)Marshal.SizeOf(value.GetType());
+		}
+
+		memory.Unmap();
+		return size;
+	}
 }
