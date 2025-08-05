@@ -14,6 +14,22 @@ public sealed class DeviceMemory : IDisposable
 
 	internal DeviceMemoryHandle Handle => deviceMemory;
 
+	public void BindBuffer(Buffer buffer, DeviceSize offset = default) 
+	{
+		Result result = vkBindBufferMemory(device.Handle, buffer.Handle, deviceMemory, offset);
+		if (result != Result.Success) throw new VulkanException(result);
+
+		[DllImport(VK_LIB)] static extern Result vkBindBufferMemory(DeviceHandle device, BufferHandle buffer, DeviceMemoryHandle memory, DeviceSize offset);
+	}
+
+	public void BindImage(Image image, DeviceSize offset = default) 
+	{
+		Result result = vkBindImageMemory(device.Handle, image.Handle, deviceMemory, offset);
+		if (result != Result.Success) throw new VulkanException(result);
+
+		[DllImport(VK_LIB)] static extern Result vkBindImageMemory(DeviceHandle device, ImageHandle image, DeviceMemoryHandle memory, DeviceSize offset);
+	}
+
 	public nint Map(DeviceSize size, DeviceSize offset, MemoryMapFlags flags) 
 	{
 		Result result = vkMapMemory(device.Handle, deviceMemory, offset, size, flags, out nint pointer);

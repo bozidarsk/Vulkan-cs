@@ -79,7 +79,7 @@ public partial class Program : IDisposable
 
 		throw new NullReferenceException("Failed to find supported format.");
 	}
-	
+
 	protected virtual void InitializeDebugMessages() 
 	{
 		var debugCreateInfo = new DebugUtilsMessengerCreateInfo(
@@ -246,27 +246,8 @@ public partial class Program : IDisposable
 
 		imageViews = new ImageView[swapchainImages.Length];
 
-		for (int i = 0; i < imageViews.Length; i++) 
-		{
-			var imageViewCreateInfo = new ImageViewCreateInfo(
-				type: StructureType.ImageViewCreateInfo,
-				next: default,
-				flags: default,
-				image: swapchainImages[i],
-				viewType: ImageViewType.Generic2D,
-				format: swapchainImageFormat,
-				components: new(ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity, ComponentSwizzle.Identity),
-				subresourceRange: new(
-					aspectMask: ImageAspect.Color,
-					baseMipLevel: 0,
-					levelCount: 1,
-					baseArrayLayer: 0,
-					layerCount: 1
-				)
-			);
-
-			imageViews[i] = imageViewCreateInfo.CreateImageView(device, allocator);
-		}
+		for (int i = 0; i < imageViews.Length; i++)
+			CreateImageView(swapchainImages[i], swapchainImageFormat, out imageViews[i]);
 	}
 
 	protected virtual void InitializeDescriptorSetLayout() 
@@ -287,11 +268,19 @@ public partial class Program : IDisposable
 			immutableSamplers: null
 		);
 
+		var samplersBinding = new DescriptorSetLayoutBinding(
+			binding: 2,
+			descriptorType: DescriptorType.CombinedImageSampler,
+			descriptorCount: 1,
+			stage: ShaderStage.AllGraphics,
+			immutableSamplers: null
+		);
+
 		using var descriptorSetLayoutCreateInfo = new DescriptorSetLayoutCreateInfo(
 			type: StructureType.DescriptorSetLayoutCreateInfo,
 			next: default,
 			flags: DescriptorSetLayoutCreateFlags.PushDescriptor,
-			bindings: [ globalUniformsBinding, objectUniformsBinding ]
+			bindings: [ globalUniformsBinding, objectUniformsBinding, samplersBinding ]
 		);
 
 		descriptorSetLayouts = new DescriptorSetLayout[maxFrames];
@@ -350,7 +339,7 @@ public partial class Program : IDisposable
 			next: default,
 			flags: default,
 			setLayouts: [ descriptorSetLayouts[0] ],
-			pushConstantRanges: null
+			pushConstantRanges: [ new(stage: ShaderStage.All, offset: 0, size: 128) ]
 		);
 
 		pipelineLayout = pipelineLayoutCreateInfo.CreatePipelineLayout(device, allocator);
@@ -392,7 +381,7 @@ public partial class Program : IDisposable
 			format: depthFormat,
 			components: default,
 			subresourceRange: new(
-				aspectMask: ImageAspect.Depth,
+				aspect: ImageAspect.Depth,
 				baseMipLevel: 0,
 				levelCount: 1,
 				baseArrayLayer: 0,
@@ -529,7 +518,7 @@ public partial class Program : IDisposable
 			commandBufferCount: maxFrames
 		);
 
-		commandBuffers = commandBufferAllocateInfo.CreateCommandBuffers(device);
+		commandBuffers = commandBufferAllocateInfo.CreateCommandBuffers(device, commandPool);
 	}
 
 	protected virtual void InitializeSyncObjects() 

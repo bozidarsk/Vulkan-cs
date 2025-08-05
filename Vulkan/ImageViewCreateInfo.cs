@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -15,7 +16,7 @@ public readonly struct ImageViewCreateInfo
 	public readonly ComponentMapping Components;
 	public readonly ImageSubresourceRange SubresourceRange;
 
-	public Image Image => image.GetImage();
+	public Image Image => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public ImageView CreateImageView(Device device, Handle<AllocationCallbacks> allocator) 
 	{

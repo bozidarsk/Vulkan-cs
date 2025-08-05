@@ -207,7 +207,7 @@ public partial class Program
 		return pipeline;
 	}
 
-	protected virtual void StartRenderPass(IEnumerable<(IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
+	protected virtual void StartRenderPass(IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
 	{
 		using var beginInfo = new CommandBufferBeginInfo(
 			type: StructureType.CommandBufferBeginInfo,
@@ -252,7 +252,7 @@ public partial class Program
 		cmd.Begin(beginInfo);
 		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
 
-		foreach ((var uniforms, var info) in objects) 
+		foreach ((var model, var uniforms, var info) in objects) 
 		{
 			Pipeline graphicsPipeline;
 
@@ -262,28 +262,62 @@ public partial class Program
 				graphicsPipelines[info] = graphicsPipeline;
 			}
 
-			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer uniformsBuffer, out DeviceMemory uniformsMemory);
-
-			using var objectDescriptorWrite = new WriteDescriptorSet(
-				type: StructureType.WriteDescriptorSet,
-				next: default,
-				destinationSet: default,
-				destinationBinding: 1,
-				destinationArrayElement: 0,
-				descriptorType: DescriptorType.UniformBuffer,
-				imageInfos: null,
-				bufferInfos: [ new(buffer: uniformsBuffer, offset: default, range: uniformsSize) ],
-				texelBufferViews: null
-			);
-
 			cmd.BindPipeline(graphicsPipeline, PipelineBindPoint.Graphics);
 			cmd.BindVertexBuffers(info.VertexBuffer);
 			cmd.BindIndexBuffer(info.IndexBuffer, info.IndexType);
-			cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, globalDescriptorWrite, objectDescriptorWrite);
-			cmd.DrawIndexed(info.IndexCount);
+			cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, globalDescriptorWrite);
 
-			toBeDisposed[currentFrame].Enqueue(uniformsBuffer);
-			toBeDisposed[currentFrame].Enqueue(uniformsMemory);
+			var m = model;
+			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
+
+			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer? uniformsBuffer, out DeviceMemory? uniformsMemory);
+			bool hasUniforms = uniformsSize != 0;
+
+			if (hasUniforms) 
+			{
+				using var objectDescriptorWrite = new WriteDescriptorSet(
+					type: StructureType.WriteDescriptorSet,
+					next: default,
+					destinationSet: default,
+					destinationBinding: 1,
+					destinationArrayElement: 0,
+					descriptorType: DescriptorType.UniformBuffer,
+					imageInfos: null,
+					bufferInfos: [ new(buffer: uniformsBuffer!, offset: default, range: uniformsSize) ],
+					texelBufferViews: null
+				);
+
+				cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, objectDescriptorWrite);
+
+				toBeDisposed[currentFrame].Enqueue(uniformsBuffer!);
+				toBeDisposed[currentFrame].Enqueue(uniformsMemory!);
+			}
+
+			var textures = uniforms
+				.Where(x => x.Value is (Sampler, ImageView))
+				.Select(x => ((Sampler, ImageView))x.Value)
+				.Select(x => new DescriptorImageInfo(sampler: x.Item1, imageView: x.Item2, imageLayout: ImageLayout.ShaderReadOnlyOptimal))
+				.ToArray()
+			;
+
+			if (textures.Length > 0) 
+			{
+				using var texturesDescriptorWrite = new WriteDescriptorSet(
+					type: StructureType.WriteDescriptorSet,
+					next: default,
+					destinationSet: default,
+					destinationBinding: 2,
+					destinationArrayElement: 0,
+					descriptorType: DescriptorType.CombinedImageSampler,
+					imageInfos: textures,
+					bufferInfos: null,
+					texelBufferViews: null
+				);
+
+				cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, texturesDescriptorWrite);
+			}
+
+			cmd.DrawIndexed(info.IndexCount);
 		}
 
 		cmd.EndRenderPass();
@@ -291,7 +325,7 @@ public partial class Program
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(IReadOnlyDictionary<string, object>, RenderInfo)> objects) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();

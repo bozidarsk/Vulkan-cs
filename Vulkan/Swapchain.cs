@@ -33,7 +33,7 @@ public sealed class Swapchain : IDisposable
 		Result result = vkGetSwapchainImagesKHR(device.Handle, swapchain, out count, ref MemoryMarshal.GetArrayDataReference(images));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return images.Select(x => x.GetImage()).ToArray();
+		return images.Select(x => x.GetImage(device, allocator)).ToArray();
 
 		[DllImport(VK_LIB)] static extern Result vkGetSwapchainImagesKHR(DeviceHandle device, SwapchainHandle swapchain, out uint count, ref ImageHandle pImages);
 	}

@@ -42,7 +42,7 @@ internal readonly struct Handle
 internal static class HandleExtensions 
 {
 	public static Buffer GetBuffer(this BufferHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new Buffer(handle, device, allocator);
-	public static CommandBuffer GetCommandBuffer(this CommandBufferHandle handle) => new CommandBuffer(handle);
+	public static CommandBuffer GetCommandBuffer(this CommandBufferHandle handle, Device device, CommandPool commandPool) => new CommandBuffer(handle, device, commandPool);
 	public static CommandPool GetCommandPool(this CommandPoolHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new CommandPool(handle, device, allocator);
 	public static DescriptorPool GetDescriptorPool(this DescriptorPoolHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new DescriptorPool(handle, device, allocator);
 	public static DebugUtilsMessenger GetDebugUtilsMessenger(this DebugUtilsMessengerHandle handle, Instance instance, Handle<AllocationCallbacks> allocator) => new DebugUtilsMessenger(handle, instance, allocator);
@@ -52,7 +52,7 @@ internal static class HandleExtensions
 	public static DeviceMemory GetDeviceMemory(this DeviceMemoryHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new DeviceMemory(handle, device, allocator);
 	public static Fence GetFence(this FenceHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new Fence(handle, device, allocator);
 	public static Framebuffer GetFramebuffer(this FramebufferHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new Framebuffer(handle, device, allocator);
-	public static Image GetImage(this ImageHandle handle) => new Image(handle);
+	public static Image GetImage(this ImageHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new Image(handle, device, allocator);
 	public static ImageView GetImageView(this ImageViewHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new ImageView(handle, device, allocator);
 	public static Instance GetInstance(this InstanceHandle handle, Handle<AllocationCallbacks> allocator) => new Instance(handle, allocator);
 	public static Pipeline GetPipeline(this PipelineHandle handle, Device device, Handle<AllocationCallbacks> allocator) => new Pipeline(handle, device, allocator);

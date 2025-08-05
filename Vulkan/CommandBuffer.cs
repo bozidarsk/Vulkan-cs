@@ -8,9 +8,11 @@ using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
-public sealed class CommandBuffer 
+public sealed class CommandBuffer : IDisposable
 {
 	private readonly CommandBufferHandle commandBuffer;
+	private readonly Device device;
+	private readonly CommandPool commandPool;
 
 	internal CommandBufferHandle Handle => commandBuffer;
 
@@ -94,6 +96,9 @@ public sealed class CommandBuffer
 
 	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
 	{
+		if (source == null || destination == null)
+			throw new ArgumentNullException();
+
 		var region = new BufferCopy(sourceOffset: default, destinationOffset: default, size: size);
 
 		vkCmdCopyBuffer(commandBuffer, source.Handle, destination.Handle, 1, ref region);
@@ -101,8 +106,11 @@ public sealed class CommandBuffer
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
 	}
 
-	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, BufferCopy[] regions) 
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, params BufferCopy[] regions) 
 	{
+		if (source == null || destination == null || regions == null)
+			throw new ArgumentNullException();
+
 		vkCmdCopyBuffer(commandBuffer, source.Handle, destination.Handle, (uint)regions.Length, ref MemoryMarshal.GetArrayDataReference(regions));
 
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
@@ -212,7 +220,55 @@ public sealed class CommandBuffer
 		[DllImport(VK_LIB)] static extern void vkCmdDrawIndexed(CommandBufferHandle commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
 	}
 
-	internal CommandBuffer(CommandBufferHandle commandBuffer) => 
-		this.commandBuffer = commandBuffer
+	public void CopyBufferToImage(Buffer buffer, Image image, ImageLayout layout, params BufferImageCopy[] regions) 
+	{
+		if (buffer == null || image == null || regions == null)
+			throw new ArgumentNullException();
+
+		vkCmdCopyBufferToImage(commandBuffer, buffer.Handle, image.Handle, layout, (uint)regions.Length, ref MemoryMarshal.GetArrayDataReference(regions));
+
+		[DllImport(VK_LIB)] static extern void vkCmdCopyBufferToImage(CommandBufferHandle commandBuffer, BufferHandle buffer, ImageHandle image, ImageLayout layout, uint regionCount, ref BufferImageCopy pRegions);
+	}
+
+	public unsafe void PipelineBarrier(
+		PipelineStage srcStage,
+		PipelineStage dstStage,
+		DependencyFlags dependencyFlags,
+		MemoryBarrier[]? memoryBarriers,
+		BufferMemoryBarrier[]? bufferMemoryBarriers,
+		ImageMemoryBarrier[]? imageMemoryBarriers
+	)
+	{
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			srcStage,
+			dstStage,
+			dependencyFlags,
+			(uint)(memoryBarriers?.Length ?? 0),
+			ref (memoryBarriers != null) ? ref MemoryMarshal.GetArrayDataReference(memoryBarriers) : ref Unsafe.AsRef<MemoryBarrier>(default),
+			(uint)(bufferMemoryBarriers?.Length ?? 0),
+			ref (bufferMemoryBarriers != null) ? ref MemoryMarshal.GetArrayDataReference(bufferMemoryBarriers) : ref Unsafe.AsRef<BufferMemoryBarrier>(default),
+			(uint)(imageMemoryBarriers?.Length ?? 0),
+			ref (imageMemoryBarriers != null) ? ref MemoryMarshal.GetArrayDataReference(imageMemoryBarriers) : ref Unsafe.AsRef<ImageMemoryBarrier>(default)
+		);
+
+		[DllImport(VK_LIB)] static extern void vkCmdPipelineBarrier(
+			CommandBufferHandle commandBuffer,
+			PipelineStage srcStage,
+			PipelineStage dstStage,
+			DependencyFlags dependencyFlags,
+			uint memoryBarrierCount,
+			ref MemoryBarrier pMemoryBarriers,
+			uint bufferMemoryBarrierCount,
+			ref BufferMemoryBarrier pBufferMemoryBarriers,
+			uint imageMemoryBarrierCount,
+			ref ImageMemoryBarrier pImageMemoryBarriers
+		);
+	}
+
+	public void Dispose() => commandPool.FreeCommandBuffers(this);
+
+	internal CommandBuffer(CommandBufferHandle commandBuffer, Device device, CommandPool commandPool) => 
+		(this.commandBuffer, this.device, this.commandPool) = (commandBuffer, device, commandPool)
 	;
 }

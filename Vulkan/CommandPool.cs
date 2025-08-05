@@ -14,7 +14,7 @@ public sealed class CommandPool : IDisposable
 
 	internal CommandPoolHandle Handle => commandPool;
 
-	public void FreeCommandBuffers(CommandBuffer[] buffers) 
+	public void FreeCommandBuffers(params CommandBuffer[] buffers) 
 	{
 		if (buffers == null)
 			throw new ArgumentNullException();

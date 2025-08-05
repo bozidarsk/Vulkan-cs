@@ -1,5 +1,6 @@
 namespace Vulkan;
 
+[System.Flags]
 public enum DependencyFlags : uint
 {
 	ByRegion = 0x00000001,

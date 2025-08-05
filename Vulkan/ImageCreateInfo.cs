@@ -30,7 +30,7 @@ public readonly struct ImageCreateInfo : IDisposable
 		Result result = vkCreateImage(device.Handle, in this, allocator, out ImageHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetImage();
+		return handle.GetImage(device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateImage(DeviceHandle device, in ImageCreateInfo createInfo, nint allocator, out ImageHandle image);
 	}

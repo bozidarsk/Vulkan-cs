@@ -24,14 +24,6 @@ public sealed class Buffer : IDisposable
 		}
 	}
 
-	public void Bind(DeviceMemory memory, DeviceSize offset = default) 
-	{
-		Result result = vkBindBufferMemory(device.Handle, buffer, memory.Handle, offset);
-		if (result != Result.Success) throw new VulkanException(result);
-
-		[DllImport(VK_LIB)] static extern Result vkBindBufferMemory(DeviceHandle device, BufferHandle buffer, DeviceMemoryHandle memory, DeviceSize offset);
-	}
-
 	public void Dispose() 
 	{
 		vkDestroyBuffer(device.Handle, buffer, allocator);
