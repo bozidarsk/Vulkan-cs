@@ -31,7 +31,7 @@ public partial class Program
 		);
 
 		memory = allocateInfo.CreateDeviceMemory(device, allocator);
-		memory.BindBuffer(buffer);
+		memory.Bind(buffer);
 	}
 
 	protected void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
@@ -180,8 +180,8 @@ public partial class Program
 		);
 
 		image = createInfo.CreateImage(device, allocator);
-		var memoryRequirements = image.MemoryRequirements;
 
+		var memoryRequirements = image.MemoryRequirements;
 		var allocateInfo = new MemoryAllocateInfo(
 			type: StructureType.MemoryAllocateInfo,
 			next: default,
@@ -190,7 +190,7 @@ public partial class Program
 		);
 
 		memory = allocateInfo.CreateDeviceMemory(device, allocator);
-		memory.BindImage(image);
+		memory.Bind(image);
 	}
 
 	protected void CreateImageView(Image image, Format format, out ImageView imageView) 

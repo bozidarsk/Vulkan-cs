@@ -41,6 +41,7 @@ public partial class Program : IDisposable
 	protected nint[] globalUniformsLocations;
 	protected Image depthImage;
 	protected ImageView depthImageView;
+	protected DeviceMemory depthImageMemory;
 
 	public static uint MakeVersion(int major, int minor, int patch) => ((((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
 	public static uint MakeApiVersion(int variant, int major, int minor, int patch) => ((((uint)variant) << 29) | (((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
@@ -372,6 +373,17 @@ public partial class Program : IDisposable
 
 		depthImage = imageCreateInfo.CreateImage(device, allocator);
 
+		var memoryRequirements = depthImage.MemoryRequirements;
+		var allocateInfo = new MemoryAllocateInfo(
+			type: StructureType.MemoryAllocateInfo,
+			next: default,
+			allocationSize: memoryRequirements.Size,
+			memoryTypeIndex: FindMemoryType(memoryRequirements.MemoryType, MemoryProperty.DeviceLocal)
+		);
+
+		depthImageMemory = allocateInfo.CreateDeviceMemory(device, allocator);
+		depthImageMemory.Bind(depthImage);
+
 		var imageViewCreateInfo = new ImageViewCreateInfo(
 			type: StructureType.ImageViewCreateInfo,
 			next: default,
@@ -389,22 +401,7 @@ public partial class Program : IDisposable
 			)
 		);
 
-		vkGetImageMemoryRequirements(device.Handle, depthImage.Handle, out MemoryRequirements requirements);
-
-		var allocateInfo = new MemoryAllocateInfo(
-			type: StructureType.MemoryAllocateInfo,
-			next: default,
-			allocationSize: requirements.Size,
-			memoryTypeIndex: FindMemoryType(requirements.MemoryType, MemoryProperty.DeviceLocal)
-		);
-
-		DeviceMemory depthImageMemory = allocateInfo.CreateDeviceMemory(device, allocator);
-		vkBindImageMemory(device.Handle, depthImage.Handle, depthImageMemory.Handle, default);
-
 		depthImageView = imageViewCreateInfo.CreateImageView(device, allocator);
-
-		[DllImport(Vulkan.Constants.VK_LIB)] static extern void vkGetImageMemoryRequirements(DeviceHandle device, ImageHandle image, out MemoryRequirements requirements);
-		[DllImport(Vulkan.Constants.VK_LIB)] static extern void vkBindImageMemory(DeviceHandle device, ImageHandle image, DeviceMemoryHandle memory, DeviceSize offset);
 	}
 
 	protected virtual void InitializeRenderPass() 
@@ -609,6 +606,10 @@ public partial class Program : IDisposable
 
 	public void Dispose() 
 	{
+		depthImageView.Dispose();
+		depthImage.Dispose();
+		depthImageMemory.Dispose();
+
 		foreach (var x in toBeDisposed)
 			while (x.Count > 0)
 				x.Dequeue().Dispose();
