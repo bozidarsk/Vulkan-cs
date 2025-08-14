@@ -33,6 +33,8 @@ public sealed record RenderInfo(Buffer VertexBuffer, int VertexCount, Type Verte
 				binding: 0,
 				format: x.Item2.FieldType.FullName! switch 
 				{
+					"System.Single" => Format.R32SFloat,
+					"System.Double" => Format.R64SFloat,
 					"Vulkan.Color" => Format.R32G32B32A32SFloat,
 					"Vulkan.Vector2" => Format.R32G32SFloat,
 					"Vulkan.Vector3" => Format.R32G32B32SFloat,
@@ -40,7 +42,7 @@ public sealed record RenderInfo(Buffer VertexBuffer, int VertexCount, Type Verte
 					"Vulkan.Vector2Int" => Format.R32G32SInt,
 					"Vulkan.Vector3Int" => Format.R32G32B32SInt,
 					"Vulkan.Vector4Int" => Format.R32G32B32A32SInt,
-					_ => throw new ArgumentOutOfRangeException($"Cannot map field type '{x.Item2.FieldType.FullName!}' to a format.")
+					_ => throw new ArgumentOutOfRangeException(nameof(Type), $"Cannot map field type '{x.Item2.FieldType.FullName!}' to a format.")
 				},
 				offset: (uint)Marshal.OffsetOf(x.Item2.DeclaringType!, x.Item2.Name)
 			)
