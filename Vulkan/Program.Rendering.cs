@@ -207,7 +207,7 @@ public partial class Program
 		return pipeline;
 	}
 
-	protected virtual void StartRenderPass(IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
+	protected virtual void StartRenderPass(Vector3 cameraPosition, IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
 	{
 		using var beginInfo = new CommandBufferBeginInfo(
 			type: StructureType.CommandBufferBeginInfo,
@@ -269,6 +269,7 @@ public partial class Program
 
 			var m = model;
 			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
+			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 64, size: 12, ref Unsafe.As<Vector3, byte>(ref cameraPosition));
 
 			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer? uniformsBuffer, out DeviceMemory? uniformsMemory);
 			bool hasUniforms = uniformsSize != 0;
@@ -342,7 +343,7 @@ public partial class Program
 		cmd.Reset(default);
 
 		Marshal.StructureToPtr(new GlobalUniforms(view.Inverse, projection), globalUniformsLocations[currentFrame], false);
-		StartRenderPass(objects, imageIndex);
+		StartRenderPass(view.t.xyz, objects, imageIndex);
 
 		using var submitInfo = new SubmitInfo(
 			type: StructureType.SubmitInfo,

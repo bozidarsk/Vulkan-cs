@@ -33,6 +33,7 @@ cbuffer GlobalUniforms : register(b0)
 cbuffer PushConstants 
 {
 	float4x4 MODEL;
+	float3 CAMERA_POSITION;
 }
 
 #endif
