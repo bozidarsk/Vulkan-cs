@@ -57,14 +57,14 @@ public readonly struct InstanceCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceExtensionProperties(string? layerName, out uint count, ref ExtensionProperties pExtensions);
 	}
 
-	public Instance CreateInstance(Handle<AllocationCallbacks> allocator) 
+	public Instance CreateInstance(AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateInstance(in this, allocator, out InstanceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetInstance(allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, nint allocator, out InstanceHandle instance);
+		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, AllocationCallbacksHandle allocator, out InstanceHandle instance);
 	}
 
 	public void Dispose() 

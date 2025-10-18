@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Vulkan;
 
@@ -25,4 +26,22 @@ public readonly struct AllocationCallbacks
 	public readonly FreeFunctionDelegate FreeFunction;
 	public readonly InternalAllocationNotificationDelegate InternalAllocationNotification;
 	public readonly InternalFreeNotificationDelegate InternalFreeNotification;
+}
+
+public readonly struct AllocationCallbacksHandle 
+{
+	private readonly nint value;
+
+	public static bool operator == (AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value == b.value;
+	public static bool operator != (AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value != b.value;
+	public override bool Equals(object? other) => (other is AllocationCallbacksHandle x) ? x.value == value : false;
+
+	public override string ToString() => value.ToString();
+	public override int GetHashCode() => value.GetHashCode();
+
+	public AllocationCallbacksHandle() => this.value = 0;
+
+	public unsafe AllocationCallbacksHandle(ref AllocationCallbacks allocator) => 
+		this.value = (nint)Unsafe.AsPointer<AllocationCallbacks>(ref allocator)
+	;
 }

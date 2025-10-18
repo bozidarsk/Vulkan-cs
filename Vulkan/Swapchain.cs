@@ -11,7 +11,7 @@ public sealed class Swapchain : IDisposable
 {
 	private readonly SwapchainHandle swapchain;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal SwapchainHandle Handle => swapchain;
 
@@ -42,10 +42,10 @@ public sealed class Swapchain : IDisposable
 	{
 		vkDestroySwapchainKHR(device.Handle, swapchain, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(DeviceHandle device, SwapchainHandle swapchain, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(DeviceHandle device, SwapchainHandle swapchain, AllocationCallbacksHandle allocator);
 	}
 
-	internal Swapchain(SwapchainHandle swapchain, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal Swapchain(SwapchainHandle swapchain, Device device, AllocationCallbacksHandle allocator) => 
 		(this.swapchain, this.device, this.allocator) = (swapchain, device, allocator)
 	;
 }

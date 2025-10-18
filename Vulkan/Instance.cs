@@ -9,7 +9,7 @@ namespace Vulkan;
 public sealed class Instance : IDisposable
 {
 	private readonly InstanceHandle instance;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal InstanceHandle Handle => instance;
 
@@ -42,7 +42,7 @@ public sealed class Instance : IDisposable
 
 		this.Surface = surface;
 
-		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, nint allocator, out Surface surface);
+		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, AllocationCallbacksHandle allocator, out Surface surface);
 	}
 
 	public void Dispose() 
@@ -50,11 +50,11 @@ public sealed class Instance : IDisposable
 		vkDestroySurfaceKHR(instance, Surface, allocator);
 		vkDestroyInstance(instance, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySurfaceKHR(InstanceHandle instance, Surface surface, nint allocator);
-		[DllImport(VK_LIB)] static extern void vkDestroyInstance(InstanceHandle instance, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroySurfaceKHR(InstanceHandle instance, Surface surface, AllocationCallbacksHandle allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyInstance(InstanceHandle instance, AllocationCallbacksHandle allocator);
 	}
 
-	internal Instance(InstanceHandle instance, Handle<AllocationCallbacks> allocator) => 
+	internal Instance(InstanceHandle instance, AllocationCallbacksHandle allocator) => 
 		(this.instance, this.allocator) = (instance, allocator)
 	;
 }

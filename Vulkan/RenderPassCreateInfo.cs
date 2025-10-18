@@ -11,24 +11,24 @@ public readonly struct RenderPassCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly RenderPassCreateFlags Flags;
 	public readonly uint attachmentCount;
-	public readonly Handle<AttachmentDescription> attachments;
+	private readonly Handle<AttachmentDescription> attachments;
 	public readonly uint subpassCount;
-	public readonly Handle<SubpassDescription> subpasses;
+	private readonly Handle<SubpassDescription> subpasses;
 	public readonly uint dependencyCount;
-	public readonly Handle<SubpassDependency> dependencies;
+	private readonly Handle<SubpassDependency> dependencies;
 
 	public AttachmentDescription[]? Attachments => attachments.ToArray(attachmentCount);
 	public SubpassDescription[]? Subpasses => subpasses.ToArray(subpassCount);
 	public SubpassDependency[]? Dependencies => dependencies.ToArray(dependencyCount);
 
-	public RenderPass CreateRenderPass(Device device, Handle<AllocationCallbacks> allocator) 
+	public RenderPass CreateRenderPass(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateRenderPass(device.Handle, in this, allocator, out RenderPassHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetRenderPass(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateRenderPass(DeviceHandle device, in RenderPassCreateInfo createInfo, nint allocator, out RenderPassHandle renderPass);
+		[DllImport(VK_LIB)] static extern Result vkCreateRenderPass(DeviceHandle device, in RenderPassCreateInfo createInfo, AllocationCallbacksHandle allocator, out RenderPassHandle renderPass);
 	}
 
 	public void Dispose() 

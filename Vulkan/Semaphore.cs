@@ -9,7 +9,7 @@ public sealed class Semaphore : IDisposable
 {
 	private readonly SemaphoreHandle semaphore;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal SemaphoreHandle Handle => semaphore;
 
@@ -17,10 +17,10 @@ public sealed class Semaphore : IDisposable
 	{
 		vkDestroySemaphore(device.Handle, semaphore, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySemaphore(DeviceHandle device, SemaphoreHandle semaphore, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroySemaphore(DeviceHandle device, SemaphoreHandle semaphore, AllocationCallbacksHandle allocator);
 	}
 
-	internal Semaphore(SemaphoreHandle semaphore, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal Semaphore(SemaphoreHandle semaphore, Device device, AllocationCallbacksHandle allocator) => 
 		(this.semaphore, this.device, this.allocator) = (semaphore, device, allocator)
 	;
 }

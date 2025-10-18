@@ -1,12 +1,10 @@
-global using Vulkan.Helpers;
-
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Vulkan.Helpers;
 
-public static class Json 
+internal static class Json 
 {
 	public static readonly JsonSerializerOptions SerializerOptions;
 

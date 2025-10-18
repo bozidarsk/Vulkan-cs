@@ -9,7 +9,7 @@ public sealed class Buffer : IDisposable
 {
 	private readonly BufferHandle buffer;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal BufferHandle Handle => buffer;
 
@@ -28,10 +28,10 @@ public sealed class Buffer : IDisposable
 	{
 		vkDestroyBuffer(device.Handle, buffer, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(DeviceHandle device, BufferHandle buffer, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(DeviceHandle device, BufferHandle buffer, AllocationCallbacksHandle allocator);
 	}
 
-	internal Buffer(BufferHandle buffer, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal Buffer(BufferHandle buffer, Device device, AllocationCallbacksHandle allocator) => 
 		(this.buffer, this.device, this.allocator) = (buffer, device, allocator)
 	;
 }

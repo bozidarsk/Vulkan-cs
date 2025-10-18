@@ -41,14 +41,14 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 	public RenderPass RenderPass => throw new NotImplementedException(); // cannot get allocator and device params
 	public Pipeline BasePipeline => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public Pipeline CreateGraphicsPipeline(Device device, Handle<AllocationCallbacks> allocator) 
+	public Pipeline CreateGraphicsPipeline(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateGraphicsPipelines(device.Handle, default, 1, in this, allocator, out PipelineHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetPipeline(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCache cache, uint count, in GraphicsPipelineCreateInfo createInfos, nint allocator, out PipelineHandle graphicsPipeline);
+		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCache cache, uint count, in GraphicsPipelineCreateInfo createInfos, AllocationCallbacksHandle allocator, out PipelineHandle graphicsPipeline);
 	}
 
 	public void Dispose() 

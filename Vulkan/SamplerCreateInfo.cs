@@ -25,14 +25,14 @@ public readonly struct SamplerCreateInfo
 	public readonly BorderColor BorderColor;
 	public readonly bool32 UnnormalizedCoordinates;
 
-	public Sampler CreateSampler(Device device, Handle<AllocationCallbacks> allocator) 
+	public Sampler CreateSampler(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateSampler(device.Handle, in this, allocator, out SamplerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetSampler(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateSampler(DeviceHandle device, in SamplerCreateInfo createInfo, nint allocator, out SamplerHandle sampler);
+		[DllImport(VK_LIB)] static extern Result vkCreateSampler(DeviceHandle device, in SamplerCreateInfo createInfo, AllocationCallbacksHandle allocator, out SamplerHandle sampler);
 	}
 
 	public SamplerCreateInfo(

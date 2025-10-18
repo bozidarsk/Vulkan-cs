@@ -11,14 +11,14 @@ public readonly struct CommandPoolCreateInfo
 	public readonly CommandPoolCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
 
-	public CommandPool CreateCommandPool(Device device, Handle<AllocationCallbacks> allocator) 
+	public CommandPool CreateCommandPool(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateCommandPool(device.Handle, in this, allocator, out CommandPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetCommandPool(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateCommandPool(DeviceHandle device, in CommandPoolCreateInfo createInfo, nint allocator, out CommandPoolHandle commandPool);
+		[DllImport(VK_LIB)] static extern Result vkCreateCommandPool(DeviceHandle device, in CommandPoolCreateInfo createInfo, AllocationCallbacksHandle allocator, out CommandPoolHandle commandPool);
 	}
 
 	public CommandPoolCreateInfo(

@@ -1,6 +1,5 @@
 #pragma warning disable CS8981
 
-global using Vulkan.Helpers;
 global using cstring = global::Vulkan.Helpers.String;
 
 using System;
@@ -8,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace Vulkan.Helpers;
 
-public readonly struct String : IDisposable
+internal readonly struct String : IDisposable
 {
 	private readonly nint x;
 

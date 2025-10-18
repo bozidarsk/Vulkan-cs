@@ -11,7 +11,7 @@ namespace Vulkan;
 internal delegate Result CreateDebugUtilsMessengerDelegate(
 	InstanceHandle instance,
 	in DebugUtilsMessengerCreateInfo createInfo,
-	nint allocator,
+	AllocationCallbacksHandle allocator,
 	out DebugUtilsMessengerHandle messenger
 );
 
@@ -19,7 +19,7 @@ internal delegate Result CreateDebugUtilsMessengerDelegate(
 internal delegate void DestroyDebugUtilsMessengerDelegate(
 	InstanceHandle instance,
 	DebugUtilsMessengerHandle messenger,
-	nint allocator
+	AllocationCallbacksHandle allocator
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

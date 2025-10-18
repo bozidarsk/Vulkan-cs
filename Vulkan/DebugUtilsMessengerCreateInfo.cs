@@ -15,7 +15,7 @@ public readonly struct DebugUtilsMessengerCreateInfo
 	public readonly DebugUtilsMessengerCallback UserCallback;
 	public readonly nint UserData;
 
-	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, Handle<AllocationCallbacks> allocator) 
+	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

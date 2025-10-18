@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Vulkan.Helpers;
 
-public unsafe readonly struct Handle<T> : IDisposable where T : struct
+internal unsafe readonly struct Handle<T> : IDisposable where T : struct
 {
 	private readonly T* pointer;
 

@@ -15,14 +15,14 @@ public readonly struct ShaderModuleCreateInfo : IDisposable
 
 	public byte[] Code => code.ToArray((uint)codeSize)!;
 
-	public ShaderModule CreateShaderModule(Device device, Handle<AllocationCallbacks> allocator) 
+	public ShaderModule CreateShaderModule(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateShaderModule(device.Handle, in this, allocator, out ShaderModuleHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetShaderModule(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateShaderModule(DeviceHandle device, in ShaderModuleCreateInfo createInfo, nint allocator, out ShaderModuleHandle shaderModule);
+		[DllImport(VK_LIB)] static extern Result vkCreateShaderModule(DeviceHandle device, in ShaderModuleCreateInfo createInfo, AllocationCallbacksHandle allocator, out ShaderModuleHandle shaderModule);
 	}
 
 	public void Dispose() 

@@ -9,7 +9,7 @@ public sealed class RenderPass : IDisposable
 {
 	private readonly RenderPassHandle renderPass;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal RenderPassHandle Handle => renderPass;
 
@@ -17,10 +17,10 @@ public sealed class RenderPass : IDisposable
 	{
 		vkDestroyRenderPass(device.Handle, renderPass, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(DeviceHandle device, RenderPassHandle renderPass, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(DeviceHandle device, RenderPassHandle renderPass, AllocationCallbacksHandle allocator);
 	}
 
-	internal RenderPass(RenderPassHandle renderPass, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal RenderPass(RenderPassHandle renderPass, Device device, AllocationCallbacksHandle allocator) => 
 		(this.renderPass, this.device, this.allocator) = (renderPass, device, allocator)
 	;
 }

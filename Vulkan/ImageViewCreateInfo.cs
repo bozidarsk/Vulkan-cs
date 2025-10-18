@@ -18,14 +18,14 @@ public readonly struct ImageViewCreateInfo
 
 	public Image Image => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public ImageView CreateImageView(Device device, Handle<AllocationCallbacks> allocator) 
+	public ImageView CreateImageView(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateImageView(device.Handle, in this, allocator, out ImageViewHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetImageView(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateImageView(DeviceHandle device, in ImageViewCreateInfo createInfo, nint allocator, out ImageViewHandle imageView);
+		[DllImport(VK_LIB)] static extern Result vkCreateImageView(DeviceHandle device, in ImageViewCreateInfo createInfo, AllocationCallbacksHandle allocator, out ImageViewHandle imageView);
 	}
 
 	public ImageViewCreateInfo(

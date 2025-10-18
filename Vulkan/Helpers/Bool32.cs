@@ -1,4 +1,3 @@
-global using Vulkan.Helpers;
 global using bool32 = global::Vulkan.Helpers.Bool32;
 
 namespace Vulkan.Helpers;
@@ -7,7 +6,7 @@ public readonly struct Bool32
 {
 	private readonly uint value;
 
-	public bool Value => value == 1;
+	public bool Value => value != 0;
 
 	public static implicit operator bool (Bool32 x) => x.value == 1;
 	public static implicit operator uint (Bool32 x) => x.value;

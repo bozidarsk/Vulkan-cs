@@ -9,7 +9,7 @@ public sealed class Sampler : IDisposable
 {
 	private readonly SamplerHandle sampler;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal SamplerHandle Handle => sampler;
 
@@ -17,10 +17,10 @@ public sealed class Sampler : IDisposable
 	{
 		vkDestroySampler(device.Handle, sampler, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySampler(DeviceHandle device, SamplerHandle sampler, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroySampler(DeviceHandle device, SamplerHandle sampler, AllocationCallbacksHandle allocator);
 	}
 
-	internal Sampler(SamplerHandle sampler, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacksHandle allocator) => 
 		(this.sampler, this.device, this.allocator) = (sampler, device, allocator)
 	;
 }

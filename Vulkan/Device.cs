@@ -9,7 +9,7 @@ namespace Vulkan;
 public sealed class Device : IDisposable
 {
 	private readonly DeviceHandle device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal DeviceHandle Handle => device;
 
@@ -51,10 +51,10 @@ public sealed class Device : IDisposable
 	{
 		vkDestroyDevice(device, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyDevice(DeviceHandle device, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyDevice(DeviceHandle device, AllocationCallbacksHandle allocator);
 	}
 
-	internal Device(DeviceHandle device, Handle<AllocationCallbacks> allocator) => 
+	internal Device(DeviceHandle device, AllocationCallbacksHandle allocator) => 
 		(this.device, this.allocator) = (device, allocator)
 	;
 }

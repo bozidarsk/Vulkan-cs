@@ -30,14 +30,14 @@ public readonly struct SwapchainCreateInfo : IDisposable
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
 
-	public Swapchain CreateSwapchain(Device device, Handle<AllocationCallbacks> allocator) 
+	public Swapchain CreateSwapchain(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateSwapchainKHR(device.Handle, in this, allocator, out SwapchainHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetSwapchain(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateSwapchainKHR(DeviceHandle device, in SwapchainCreateInfo createInfo, nint allocator, out SwapchainHandle swapchain);
+		[DllImport(VK_LIB)] static extern Result vkCreateSwapchainKHR(DeviceHandle device, in SwapchainCreateInfo createInfo, AllocationCallbacksHandle allocator, out SwapchainHandle swapchain);
 	}
 
 	public void Dispose() 

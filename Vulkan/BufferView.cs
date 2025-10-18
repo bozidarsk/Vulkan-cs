@@ -9,7 +9,7 @@ public sealed class BufferView : IDisposable
 {
 	private readonly BufferViewHandle bufferView;
 	private readonly Device device;
-	private readonly Handle<AllocationCallbacks> allocator;
+	private readonly AllocationCallbacksHandle allocator;
 
 	internal BufferViewHandle Handle => bufferView;
 
@@ -17,10 +17,10 @@ public sealed class BufferView : IDisposable
 	{
 		vkDestroyBufferView(device.Handle, bufferView, allocator);
 
-		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(DeviceHandle device, BufferViewHandle bufferView, nint allocator);
+		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(DeviceHandle device, BufferViewHandle bufferView, AllocationCallbacksHandle allocator);
 	}
 
-	internal BufferView(BufferViewHandle bufferView, Device device, Handle<AllocationCallbacks> allocator) => 
+	internal BufferView(BufferViewHandle bufferView, Device device, AllocationCallbacksHandle allocator) => 
 		(this.bufferView, this.device, this.allocator) = (bufferView, device, allocator)
 	;
 }

@@ -18,14 +18,14 @@ public readonly struct BufferCreateInfo : IDisposable
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
 
-	public Buffer CreateBuffer(Device device, Handle<AllocationCallbacks> allocator) 
+	public Buffer CreateBuffer(Device device, AllocationCallbacksHandle allocator) 
 	{
 		Result result = vkCreateBuffer(device.Handle, in this, allocator, out BufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetBuffer(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateBuffer(DeviceHandle device, in BufferCreateInfo createInfo, nint allocator, out BufferHandle buffer);
+		[DllImport(VK_LIB)] static extern Result vkCreateBuffer(DeviceHandle device, in BufferCreateInfo createInfo, AllocationCallbacksHandle allocator, out BufferHandle buffer);
 	}
 
 	public void Dispose() 

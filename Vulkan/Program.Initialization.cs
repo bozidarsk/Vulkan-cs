@@ -9,7 +9,7 @@ namespace Vulkan;
 public partial class Program : IDisposable
 {
 	protected readonly GLFW.Window window;
-	protected readonly Handle<AllocationCallbacks> allocator = default;
+	protected readonly AllocationCallbacksHandle allocator = default;
 
 	protected Queue<IDisposable>[] toBeDisposed;
 	protected uint graphicsQueueFamilyIndex, presentationQueueFamilyIndex;
@@ -657,8 +657,6 @@ public partial class Program : IDisposable
 		device.Dispose();
 		debugUtilsMessenger.Dispose();
 		instance.Dispose();
-
-		allocator.Dispose();
 	}
 
 	#pragma warning disable CS8618
@@ -673,8 +671,12 @@ public partial class Program : IDisposable
 		};
 	}
 
-	public Program(GLFW.Window window, in AllocationCallbacks? allocator) : this(window) => 
-		this.allocator = (allocator is AllocationCallbacks x) ? new(x) : default
+	public Program(GLFW.Window window, AllocationCallbacksHandle allocator) : this(window) => 
+		this.allocator = allocator
+	;
+
+	public Program(GLFW.Window window, ref AllocationCallbacks allocator) : this(window) => 
+		this.allocator = new(ref allocator)
 	;
 	#pragma warning restore
 }
