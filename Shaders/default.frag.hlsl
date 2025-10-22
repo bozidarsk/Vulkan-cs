@@ -1,14 +1,10 @@
 #pragma stage fragment
+#pragma cull none
 
 #include <common.hlsl>
 
-[vk::binding(2)] Texture2D _MainTex : register(t0);
-[vk::binding(2)] SamplerState _MainTexSampler : register(s0);
-
 float4 main(Fragment input) 
 {
-	return _MainTex.Sample(_MainTexSampler, input.uv.xy);
-
 	float depth = input.position.z / input.position.w;
 
 	if (depth < 0)

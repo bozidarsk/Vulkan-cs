@@ -43,14 +43,21 @@ public partial class Program : IDisposable
 	protected ImageView depthImageView;
 	protected DeviceMemory depthImageMemory;
 
+	public AllocationCallbacksHandle Allocator => allocator;
+	public Device Device => (device != null) ? device : throw new NullReferenceException("Device has not been initialized.");
+	public RenderPass RenderPass => (renderPass != null) ? renderPass : throw new NullReferenceException("RenderPass has not been initialized.");
+
 	public static uint MakeVersion(int major, int minor, int patch) => ((((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
 	public static uint MakeApiVersion(int variant, int major, int minor, int patch) => ((((uint)variant) << 29) | (((uint)major) << 22) | (((uint)minor) << 12) | ((uint)patch));
 
 	private readonly DebugUtilsMessengerCallback debugMessageCallback;
 	public event DebugEventHandler? OnDebugMessage;
 
-	protected uint FindMemoryType(uint typeFilter, MemoryProperty properties) 
+	public uint FindMemoryType(uint typeFilter, MemoryProperty properties) 
 	{
+		if (physicalDevice == default)
+			throw new NullReferenceException("Physical device has not been initialized.");
+
 		var memProperties = physicalDevice.MemoryProperties;
 		int i = 0;
 
@@ -65,8 +72,14 @@ public partial class Program : IDisposable
 		throw new VulkanException("Failed to find suitable memory type.");
 	}
 
-	protected Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatures features) 
+	public Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatures features) 
 	{
+		if (candidates == null)
+			throw new ArgumentNullException();
+
+		if (physicalDevice == default)
+			throw new NullReferenceException("Physical device has not been initialized.");
+
 		foreach (var format in candidates) 
 		{
 			var properties = physicalDevice.GetFormatProperties(format);
@@ -451,7 +464,7 @@ public partial class Program : IDisposable
 		);
 
 		var dependency = new SubpassDependency(
-			srcSubpass: unchecked((uint)-1),
+			srcSubpass: ~0u,
 			dstSubpass: 0,
 			srcStageMask: PipelineStage.ColorAttachmentOutput | PipelineStage.EarlyFragmentTests,
 			dstStageMask: PipelineStage.ColorAttachmentOutput | PipelineStage.EarlyFragmentTests,

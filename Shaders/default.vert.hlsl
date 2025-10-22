@@ -1,5 +1,4 @@
 #pragma stage vertex
-#pragma cull none
 
 #include <common.hlsl>
 

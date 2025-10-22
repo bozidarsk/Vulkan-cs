@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using Vulkan.ShaderCompiler;
 using static Vulkan.Constants;
 
+using SceneObjects = System.Collections.Generic.IEnumerable<(Vulkan.Matrix4x4 model, System.Collections.Generic.IReadOnlyDictionary<string, object> uniforms, Vulkan.RenderInfo info)>;
+
 namespace Vulkan;
 
 public partial class Program 
@@ -207,20 +209,18 @@ public partial class Program
 		return pipeline;
 	}
 
-	protected virtual void StartRenderPass(Vector3 cameraPosition, IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects, uint imageIndex) 
+	protected virtual void StartRenderPass(
+		Framebuffer framebuffer,
+		Extent2D extent,
+		Vector3 cameraPosition,
+		SceneObjects objects
+	)
 	{
-		using var beginInfo = new CommandBufferBeginInfo(
-			type: StructureType.CommandBufferBeginInfo,
-			next: default,
-			usage: default,
-			inheritanceInfo: null
-		);
-
 		using var renderPassInfo = new RenderPassBeginInfo(
 			type: StructureType.RenderPassBeginInfo,
 			next: default,
 			renderPass: renderPass,
-			framebuffer: framebuffers[imageIndex],
+			framebuffer: framebuffer,
 			renderArea: new(offset: new(0, 0), extent: extent),
 			clearValues: 
 			[
@@ -249,7 +249,6 @@ public partial class Program
 
 		var cmd = commandBuffers[currentFrame];
 
-		cmd.Begin(beginInfo);
 		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
 
 		foreach ((var model, var uniforms, var info) in objects) 
@@ -295,9 +294,9 @@ public partial class Program
 			}
 
 			var textures = uniforms
-				.Where(x => x.Value is (Sampler, ImageView))
-				.Select(x => ((Sampler, ImageView))x.Value)
-				.Select(x => new DescriptorImageInfo(sampler: x.Item1, imageView: x.Item2, imageLayout: ImageLayout.ShaderReadOnlyOptimal))
+				.Select(x => x.Value)
+				.OfType<(Sampler sampler, ImageView imageView)>()
+				.Select(x => new DescriptorImageInfo(sampler: x.sampler, imageView: x.imageView, imageLayout: ImageLayout.ShaderReadOnlyOptimal))
 				.ToArray()
 			;
 
@@ -322,11 +321,10 @@ public partial class Program
 		}
 
 		cmd.EndRenderPass();
-		cmd.End();
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<(Matrix4x4, IReadOnlyDictionary<string, object>, RenderInfo)> objects) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, SceneObjects objects, RenderTexture? texture = null) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();
@@ -337,35 +335,54 @@ public partial class Program
 		while (toBeDisposed[currentFrame].Count > 0)
 			toBeDisposed[currentFrame].Dequeue().Dispose();
 
-		uint imageIndex = swapchain.GetNextImage(imageAvailableSemaphore[currentFrame]);
+		Marshal.StructureToPtr(new GlobalUniforms(view.Inverse, projection), globalUniformsLocations[currentFrame], false);
+
+		uint imageIndex = (texture == null) ? swapchain.GetNextImage(imageAvailableSemaphore[currentFrame]) : ~0u;
+
 		var cmd = commandBuffers[currentFrame];
+		var cameraPosition = view.t.xyz;
+
+		using var beginInfo = new CommandBufferBeginInfo(
+			type: StructureType.CommandBufferBeginInfo,
+			next: default,
+			usage: default,
+			inheritanceInfo: null
+		);
 
 		cmd.Reset(default);
-
-		Marshal.StructureToPtr(new GlobalUniforms(view.Inverse, projection), globalUniformsLocations[currentFrame], false);
-		StartRenderPass(view.t.xyz, objects, imageIndex);
+		cmd.Begin(beginInfo);
+		if (texture != null) 
+		{
+			StartRenderPass(texture.Framebuffer, texture.Extent, cameraPosition, objects);
+			TransitionImageLayout(texture.Image, ImageLayout.PresentSrc, ImageLayout.ShaderReadOnlyOptimal, cmd);
+		}
+		else StartRenderPass(framebuffers[imageIndex], extent, cameraPosition, objects);
+		cmd.End();
 
 		using var submitInfo = new SubmitInfo(
 			type: StructureType.SubmitInfo,
 			next: default,
-			waitSemaphores: [ imageAvailableSemaphore[currentFrame] ],
-			waitDstStageMasks: [ PipelineStage.ColorAttachmentOutput ],
+			waitSemaphores: (texture == null) ? [ imageAvailableSemaphore[currentFrame] ] : null,
+			waitDstStageMasks: (texture == null) ? [ PipelineStage.ColorAttachmentOutput ] : null,
 			commandBuffers: [ cmd ],
-			signalSemaphores: [ renderFinishedSemaphore[imageIndex] ]
+			signalSemaphores: (texture == null) ? [ renderFinishedSemaphore[imageIndex] ] : null
 		);
 
 		graphicsQueue.Submit(inFlightFence[currentFrame], submitInfo);
 
-		using var presentInfo = new PresentInfo(
-			type: StructureType.PresentInfo,
-			next: default,
-			waitSemaphores: [ renderFinishedSemaphore[imageIndex] ],
-			swapchains: [ swapchain ],
-			imageIndices: [ imageIndex ],
-			results: null
-		);
+		if (texture == null) 
+		{
+			using var presentInfo = new PresentInfo(
+				type: StructureType.PresentInfo,
+				next: default,
+				waitSemaphores: [ renderFinishedSemaphore[imageIndex] ],
+				swapchains: [ swapchain ],
+				imageIndices: [ imageIndex ],
+				results: null
+			);
 
-		presentationQueue.Present(presentInfo);
+			presentationQueue.Present(presentInfo);
+		}
 
 		if (++currentFrame >= maxFrames)
 			currentFrame = 0;
