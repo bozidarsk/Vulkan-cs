@@ -10,6 +10,7 @@ using Vulkan.ShaderCompiler;
 using static Vulkan.Constants;
 
 using SceneObjects = System.Collections.Generic.IEnumerable<(Vulkan.Matrix4x4 model, System.Collections.Generic.IReadOnlyDictionary<string, object> uniforms, Vulkan.RenderInfo info)>;
+using RenderTextureInfo = (Vulkan.Extent2D Extent, Vulkan.Framebuffer Framebuffer, Vulkan.Image Image);
 
 namespace Vulkan;
 
@@ -324,7 +325,7 @@ public partial class Program
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, SceneObjects objects, RenderTexture? texture = null) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, SceneObjects objects, RenderTextureInfo? texture = null) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();
@@ -351,10 +352,10 @@ public partial class Program
 
 		cmd.Reset(default);
 		cmd.Begin(beginInfo);
-		if (texture != null) 
+		if (texture is RenderTextureInfo rt) 
 		{
-			StartRenderPass(texture.Framebuffer, texture.Extent, cameraPosition, objects);
-			TransitionImageLayout(texture.Image, ImageLayout.PresentSrc, ImageLayout.ShaderReadOnlyOptimal, cmd);
+			StartRenderPass(rt.Framebuffer, rt.Extent, cameraPosition, objects);
+			TransitionImageLayout(rt.Image, ImageLayout.PresentSrc, ImageLayout.ShaderReadOnlyOptimal, cmd);
 		}
 		else StartRenderPass(framebuffers[imageIndex], extent, cameraPosition, objects);
 		cmd.End();

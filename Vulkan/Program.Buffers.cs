@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public partial class Program 
 {
-	public void CreateBuffer(DeviceSize size, BufferUsage usage, MemoryProperty properties, out Buffer buffer, out DeviceMemory memory) 
+	public void CreateBuffer(DeviceSize size, BufferUsage usage, out Buffer buffer) 
 	{
 		using var createInfo = new BufferCreateInfo(
 			type: StructureType.BufferCreateInfo,
@@ -21,6 +21,10 @@ public partial class Program
 		);
 
 		buffer = createInfo.CreateBuffer(device, allocator);
+	}
+
+	public void CreateBufferMemory(Buffer buffer, MemoryProperty properties, out DeviceMemory memory) 
+	{
 		var memoryRequirements = buffer.MemoryRequirements;
 
 		var allocateInfo = new MemoryAllocateInfo(
@@ -68,12 +72,14 @@ public partial class Program
 	{
 		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
 
-		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
+		CreateBuffer(size, BufferUsage.TransferSrc, out Buffer staggingBuffer);
+		CreateBufferMemory(staggingBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out DeviceMemory staggingMemory);
 
 		nint staggingLocation = staggingMemory.Map(size: size, offset: default, flags: default);
 		Unsafe.CopyBlockUnaligned(ref Unsafe.AsRef<byte>((void*)staggingLocation), ref MemoryMarshal.GetArrayDataReference(data), checked((uint)size));
 
-		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.VertexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
+		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.VertexBuffer, out buffer);
+		CreateBufferMemory(buffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out memory);
 
 		CopyBuffer(staggingBuffer, buffer, size);
 
@@ -86,12 +92,14 @@ public partial class Program
 	{
 		DeviceSize size = (ulong)Marshal.SizeOf(data.GetValue(0)!.GetType()) * (ulong)data.LongLength;
 
-		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
+		CreateBuffer(size, BufferUsage.TransferSrc, out Buffer staggingBuffer);
+		CreateBufferMemory(staggingBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out DeviceMemory staggingMemory);
 
 		nint staggingLocation = staggingMemory.Map(size: size, offset: default, flags: default);
 		Unsafe.CopyBlockUnaligned(ref Unsafe.AsRef<byte>((void*)staggingLocation), ref MemoryMarshal.GetArrayDataReference(data), checked((uint)size));
 
-		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.IndexBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out buffer, out memory);
+		CreateBuffer(size, BufferUsage.TransferDst | BufferUsage.IndexBuffer, out buffer);
+		CreateBufferMemory(buffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out memory);
 
 		CopyBuffer(staggingBuffer, buffer, size);
 
@@ -114,7 +122,9 @@ public partial class Program
 			return 0;
 		}
 
-		CreateBuffer(size, BufferUsage.UniformBuffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out buffer, out memory);
+		CreateBuffer(size, BufferUsage.UniformBuffer, out buffer);
+		CreateBufferMemory(buffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out memory);
+
 		nint mapped = memory.Map(size, offset: default, flags: default);
 
 		foreach ((var key, var value) in data) 
@@ -141,18 +151,20 @@ public partial class Program
 
 		DeviceSize size = (ulong)width * (ulong)height * stride;
 
-		CreateBuffer(size, BufferUsage.TransferSrc, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out Buffer staggingBuffer, out DeviceMemory staggingMemory);
+		CreateBuffer(size, BufferUsage.TransferSrc, out Buffer staggingBuffer);
+		CreateBufferMemory(staggingBuffer, MemoryProperty.HostVisible | MemoryProperty.DeviceLocal, out DeviceMemory staggingMemory);
 
 		nint staggingLocation = staggingMemory.Map(size: size, offset: default, flags: default);
 		Unsafe.CopyBlockUnaligned(ref Unsafe.AsRef<byte>((void*)staggingLocation), ref data, checked((uint)size));
 
-		CreateImage(width, height, type, ImageUsage.TransferDst | ImageUsage.Sampled, format, out image, out memory);
+		CreateImage(width, height, type, ImageUsage.TransferDst | ImageUsage.Sampled, format, out image);
+		CreateImageMemory(image, out memory);
 
 		TransitionImageLayout(image, ImageLayout.Undefined, ImageLayout.TransferDstOptimal);
 		CopyBufferToImage(staggingBuffer, image, width, height);
 		TransitionImageLayout(image, ImageLayout.TransferDstOptimal, ImageLayout.ShaderReadOnlyOptimal);
 
-		CreateImageView(image, format, out imageView);
+		CreateImageView(image, format, ImageAspect.Color, out imageView);
 		CreateSampler(out sampler);
 
 		staggingMemory.Unmap();
@@ -160,7 +172,7 @@ public partial class Program
 		staggingMemory.Dispose();
 	}
 
-	public void CreateImage(int width, int height, ImageType type, ImageUsage usage, Format format, out Image image, out DeviceMemory memory) 
+	public void CreateImage(int width, int height, ImageType type, ImageUsage usage, Format format, out Image image) 
 	{
 		using var createInfo = new ImageCreateInfo(
 			type: StructureType.ImageCreateInfo,
@@ -180,20 +192,24 @@ public partial class Program
 		);
 
 		image = createInfo.CreateImage(device, allocator);
+	}
 
-		var memoryRequirements = image.MemoryRequirements;
+	public void CreateImageMemory(Image image, out DeviceMemory memory) 
+	{
+		var mem = image.MemoryRequirements;
+
 		var allocateInfo = new MemoryAllocateInfo(
 			type: StructureType.MemoryAllocateInfo,
 			next: default,
-			allocationSize: memoryRequirements.Size,
-			memoryTypeIndex: FindMemoryType(memoryRequirements.MemoryType, MemoryProperty.DeviceLocal)
+			allocationSize: mem.Size,
+			memoryTypeIndex: FindMemoryType(mem.MemoryType, MemoryProperty.DeviceLocal)
 		);
 
 		memory = allocateInfo.CreateDeviceMemory(device, allocator);
 		memory.Bind(image);
 	}
 
-	public void CreateImageView(Image image, Format format, out ImageView imageView) 
+	public void CreateImageView(Image image, Format format, ImageAspect aspect, out ImageView imageView) 
 	{
 		var createInfo = new ImageViewCreateInfo(
 			type: StructureType.ImageViewCreateInfo,
@@ -204,7 +220,7 @@ public partial class Program
 			format: format,
 			components: new(r: ComponentSwizzle.Identity, g: ComponentSwizzle.Identity, b: ComponentSwizzle.Identity, a: ComponentSwizzle.Identity),
 			subresourceRange: new(
-				aspect: ImageAspect.Color,
+				aspect: aspect,
 				baseMipLevel: 0,
 				levelCount: 1,
 				baseArrayLayer: 0,

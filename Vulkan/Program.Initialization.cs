@@ -261,7 +261,7 @@ public partial class Program : IDisposable
 		imageViews = new ImageView[swapchainImages.Length];
 
 		for (int i = 0; i < imageViews.Length; i++)
-			CreateImageView(swapchainImages[i], swapchainImageFormat, out imageViews[i]);
+			CreateImageView(swapchainImages[i], swapchainImageFormat, ImageAspect.Color, out imageViews[i]);
 	}
 
 	protected virtual void InitializeDescriptorSetLayout() 
@@ -338,7 +338,8 @@ public partial class Program : IDisposable
 
 		for (int i = 0; i < maxFrames; i++) 
 		{
-			CreateBuffer(size, BufferUsage.UniformBuffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out Buffer buffer, out DeviceMemory memory);
+			CreateBuffer(size, BufferUsage.UniformBuffer, out Buffer buffer);
+			CreateBufferMemory(buffer, MemoryProperty.HostVisible | MemoryProperty.HostCoherent, out DeviceMemory memory);
 
 			globalUniformsBuffers[i] = buffer;
 			globalUniformsMemories[i] = memory;
