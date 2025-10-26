@@ -1,14 +1,55 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Reflection;
+using System.Linq;
 
 using Vulkan.ShaderCompiler;
 
 namespace Vulkan;
 
-public sealed record RenderInfo(Buffer VertexBuffer, int VertexCount, Type VertexType, Buffer IndexBuffer, int IndexCount, IndexType IndexType, ShaderInfo[] Shaders) 
+public interface IInfoProvider 
+{
+	Info Info { get; }
+}
+
+public interface IInfoProvider<TInfo> : IInfoProvider where TInfo : Info
+{
+	new TInfo Info { get; }
+}
+
+public interface IRenderable : IInfoProvider<RenderInfo>
+{
+	Matrix4x4 Model { get; }
+	IReadOnlyDictionary<string, object> Uniforms { get; }
+}
+
+public abstract record Info();
+
+public record TextureInfo(ImageView ImageView, Sampler Sampler) : Info;
+
+public record RenderTextureInfo(Extent2D Extent, Framebuffer Framebuffer, Image Image, ImageView ImageView, Sampler Sampler) : TextureInfo(ImageView, Sampler);
+
+public record ShaderInfo(string File) : Info
+{
+	public string? EntryPoint { set; get; }
+	public ShaderStage? Stage { set; get; }
+	public CullMode? CullMode { set; get; }
+	public FrontFace? FrontFace { set; get; }
+	public BlendFactor? SourceBlendFactor { set; get; }
+	public BlendFactor? DestinationBlendFactor { set; get; }
+	public ShaderLanguage? Language { set; get; }
+}
+
+public sealed record RenderInfo(
+	Buffer VertexBuffer,
+	int VertexCount,
+	Type VertexType,
+	Buffer IndexBuffer,
+	int IndexCount,
+	IndexType IndexType,
+	ShaderInfo[] Shaders
+) : Info
 {
 	public CullMode? CullMode => this.Shaders.Select(x => x.CullMode).Where(x => x != null).FirstOrDefault();
 	public FrontFace? FrontFace => this.Shaders.Select(x => x.FrontFace).Where(x => x != null).FirstOrDefault();

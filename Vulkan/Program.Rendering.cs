@@ -9,9 +9,6 @@ using System.Runtime.CompilerServices;
 using Vulkan.ShaderCompiler;
 using static Vulkan.Constants;
 
-using SceneObjects = System.Collections.Generic.IEnumerable<(Vulkan.Matrix4x4 model, System.Collections.Generic.IReadOnlyDictionary<string, object> uniforms, Vulkan.RenderInfo info)>;
-using RenderTextureInfo = (Vulkan.Extent2D Extent, Vulkan.Framebuffer Framebuffer, Vulkan.Image Image);
-
 namespace Vulkan;
 
 public partial class Program 
@@ -23,15 +20,15 @@ public partial class Program
 	{
 		if (info == null) throw new ArgumentNullException();
 
-		info.File = Path.GetFullPath(info.File);
+		string path = Path.GetFullPath(info.File);
 		byte[]? code;
 
-		if (!shaderCode.ContainsKey(info.File)) 
+		if (!shaderCode.ContainsKey(path)) 
 		{
 			code = Compiler.Compile(ref info);
-			shaderCode.Add(info.File, (info, code!));
+			shaderCode.Add(path, (info, code!));
 		}
-		else (info, code) = shaderCode[info.File];
+		else (info, code) = shaderCode[path];
 
 		using ShaderModuleCreateInfo shaderModuleCreateInfo = new(
 			type: StructureType.ShaderModuleCreateInfo,
@@ -214,7 +211,7 @@ public partial class Program
 		Framebuffer framebuffer,
 		Extent2D extent,
 		Vector3 cameraPosition,
-		SceneObjects objects
+		IEnumerable<IRenderable> objects
 	)
 	{
 		using var renderPassInfo = new RenderPassBeginInfo(
@@ -252,8 +249,12 @@ public partial class Program
 
 		cmd.BeginRenderPass(renderPassInfo, SubpassContents.Inline);
 
-		foreach ((var model, var uniforms, var info) in objects) 
+		foreach (var obj in objects) 
 		{
+			var model = obj.Model;
+			var uniforms = obj.Uniforms;
+			var info = obj.Info;
+
 			Pipeline graphicsPipeline;
 
 			if (!graphicsPipelines.TryGetValue(info, out graphicsPipeline!)) 
@@ -296,8 +297,8 @@ public partial class Program
 
 			var textures = uniforms
 				.Select(x => x.Value)
-				.OfType<(Sampler sampler, ImageView imageView)>()
-				.Select(x => new DescriptorImageInfo(sampler: x.sampler, imageView: x.imageView, imageLayout: ImageLayout.ShaderReadOnlyOptimal))
+				.OfType<TextureInfo>()
+				.Select(x => new DescriptorImageInfo(sampler: x.Sampler, imageView: x.ImageView, imageLayout: ImageLayout.ShaderReadOnlyOptimal))
 				.ToArray()
 			;
 
@@ -325,7 +326,7 @@ public partial class Program
 	}
 
 	// if throws ErrorOutOfDateKhr or SuboptimalKhr it needs swapchain recreation (see https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation)
-	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, SceneObjects objects, RenderTextureInfo? texture = null) 
+	public virtual void DrawFrame(Matrix4x4 projection, Matrix4x4 view, IEnumerable<IRenderable> objects, RenderTextureInfo? texture = null) 
 	{
 		if (objects == null)
 			throw new ArgumentNullException();
