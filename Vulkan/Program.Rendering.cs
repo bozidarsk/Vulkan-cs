@@ -146,6 +146,10 @@ public partial class Program
 			maxDepthBounds: 1f
 		);
 
+		var srcFactor = obj.SourceBlendFactor ?? BlendFactor.One;
+		var destFactor = obj.DestinationBlendFactor ?? BlendFactor.Zero;
+		var blendOp = obj.BlendOp ?? BlendOp.Add;
+
 		using var colorBlend = new PipelineColorBlendStateCreateInfo(
 			type: StructureType.PipelineColorBlendStateCreateInfo,
 			next: default,
@@ -155,13 +159,13 @@ public partial class Program
 			attachments: 
 			[
 				new(
-					blendEnable: false,
-					srcColorBlendFactor: BlendFactor.One,
-					dstColorBlendFactor: BlendFactor.Zero,
-					colorBlendOp: BlendOp.Add,
-					srcAlphaBlendFactor: BlendFactor.One,
-					dstAlphaBlendFactor: BlendFactor.Zero,
-					alphaBlendOp: BlendOp.Add,
+					blendEnable: true,
+					srcColorBlendFactor: srcFactor,
+					dstColorBlendFactor: destFactor,
+					colorBlendOp: blendOp,
+					srcAlphaBlendFactor: srcFactor,
+					dstAlphaBlendFactor: destFactor,
+					alphaBlendOp: blendOp,
 					colorWriteMask: ColorComponent.R | ColorComponent.G | ColorComponent.B | ColorComponent.A
 				)
 			],
@@ -223,7 +227,7 @@ public partial class Program
 			clearValues: 
 			[
 				new(
-					color: new(float32: new(0.1f, 0.1f, 0.1f, 1f), int32: default, uint32: default),
+					color: new(float32: new(0.1f, 0.1f, 0.1f, 0), int32: default, uint32: default),
 					depthStencil: default
 				),
 				new(

@@ -116,21 +116,13 @@ public struct Matrix4x4
 	{
 		return Matrix4x4.Identity with 
 		{
-			xx = 2.0f / (right - left),
-			yy = 2.0f / (top - bottom),
+			xx = 2f / (right - left),
+			yy = -2f / (top - bottom),
+			zz = -2f / (near - far),
 
 			tx = -(right + left) / (right - left),
 			ty = -(top + bottom) / (top - bottom),
-
-			// #if VULKAN || DIRECTX
-			zz = 1.0f / (near - far),
 			tz = near / (near - far)
-			// #elif OPENGL
-			// zz = -2.0f / (far - near),
-			// tz = -(far + near) / (far - near)
-			// #else
-			// #error Unknown graphics api.
-			// #endif
 		};
 	}
 

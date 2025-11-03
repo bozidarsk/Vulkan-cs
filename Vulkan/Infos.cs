@@ -38,6 +38,7 @@ public record ShaderInfo(string File) : Info
 	public FrontFace? FrontFace { set; get; }
 	public BlendFactor? SourceBlendFactor { set; get; }
 	public BlendFactor? DestinationBlendFactor { set; get; }
+	public BlendOp? BlendOp { set; get; }
 	public ShaderLanguage? Language { set; get; }
 }
 
@@ -55,6 +56,7 @@ public sealed record RenderInfo(
 	public FrontFace? FrontFace => this.Shaders.Select(x => x.FrontFace).Where(x => x != null).FirstOrDefault();
 	public BlendFactor? SourceBlendFactor => this.Shaders.Select(x => x.SourceBlendFactor).Where(x => x != null).FirstOrDefault();
 	public BlendFactor? DestinationBlendFactor => this.Shaders.Select(x => x.DestinationBlendFactor).Where(x => x != null).FirstOrDefault();
+	public BlendOp? BlendOp => this.Shaders.Select(x => x.BlendOp).Where(x => x != null).FirstOrDefault();
 
 	public VertexInputBindingDescription[] BindingDescriptions => [
 		new(

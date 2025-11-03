@@ -61,6 +61,7 @@ public readonly struct Compiler : IDisposable
 
 		foreach (var x in GetShaderProperties(info.File)) 
 		{
+			// TODO: TryParse else goto case null
 			switch (x.Key) 
 			{
 				case "stage":
@@ -77,6 +78,23 @@ public readonly struct Compiler : IDisposable
 				case "frontface":
 					info.FrontFace = Enum.Parse<FrontFace>(x.Value, true);
 					break;
+				case "blend":
+					var factors = x.Value.Split(' ');
+					if (factors.Length == 3) 
+					{
+						info.SourceBlendFactor = Enum.Parse<BlendFactor>(factors[0], true);
+						info.BlendOp = Enum.Parse<BlendOp>(factors[1], true);
+						info.DestinationBlendFactor = Enum.Parse<BlendFactor>(factors[2], true);
+					}
+					else if (factors.Length == 2)
+					{
+						info.SourceBlendFactor = Enum.Parse<BlendFactor>(factors[0], true);
+						info.DestinationBlendFactor = Enum.Parse<BlendFactor>(factors[1], true);
+					}
+					else goto case null;
+					break;
+				case null:
+					throw new VulkanException($"Failed to process shader properties in '{info.File}'.");
 			}
 		}
 
