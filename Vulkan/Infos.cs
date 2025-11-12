@@ -28,7 +28,7 @@ public abstract record Info();
 
 public record TextureInfo(ImageView ImageView, Sampler Sampler) : Info;
 
-public record RenderTextureInfo(Extent2D Extent, Framebuffer Framebuffer, Image Image, ImageView ImageView, Sampler Sampler) : TextureInfo(ImageView, Sampler);
+public record RenderTextureInfo(Extent2D Extent, RenderPass RenderPass, Framebuffer Framebuffer, Image Image, ImageView ImageView, Sampler Sampler) : TextureInfo(ImageView, Sampler);
 
 public record ShaderInfo(string File) : Info
 {
@@ -40,6 +40,7 @@ public record ShaderInfo(string File) : Info
 	public BlendFactor? DestinationBlendFactor { set; get; }
 	public BlendOp? BlendOp { set; get; }
 	public ShaderLanguage? Language { set; get; }
+	public bool? DisableBlending { set; get; }
 }
 
 public sealed record RenderInfo(
@@ -57,6 +58,7 @@ public sealed record RenderInfo(
 	public BlendFactor? SourceBlendFactor => this.Shaders.Select(x => x.SourceBlendFactor).Where(x => x != null).FirstOrDefault();
 	public BlendFactor? DestinationBlendFactor => this.Shaders.Select(x => x.DestinationBlendFactor).Where(x => x != null).FirstOrDefault();
 	public BlendOp? BlendOp => this.Shaders.Select(x => x.BlendOp).Where(x => x != null).FirstOrDefault();
+	public bool? DisableBlending => this.Shaders.Select(x => x.DisableBlending).Where(x => x != null).FirstOrDefault();
 
 	public VertexInputBindingDescription[] BindingDescriptions => [
 		new(

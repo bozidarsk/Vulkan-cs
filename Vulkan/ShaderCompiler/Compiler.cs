@@ -91,6 +91,10 @@ public readonly struct Compiler : IDisposable
 						info.SourceBlendFactor = Enum.Parse<BlendFactor>(factors[0], true);
 						info.DestinationBlendFactor = Enum.Parse<BlendFactor>(factors[1], true);
 					}
+					else if (factors.Length == 1) 
+					{
+						info.DisableBlending = factors[0] == "disable" || factors[0] == "off" || factors[0] == "none";
+					}
 					else goto case null;
 					break;
 				case null:

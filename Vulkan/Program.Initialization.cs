@@ -644,8 +644,8 @@ public partial class Program : IDisposable
 		pipelineLayout.Dispose();
 		renderPass.Dispose();
 
-		foreach ((RenderInfo i, Pipeline p) in graphicsPipelines)
-			p.Dispose();
+		foreach (var x in graphicsPipelines.Values)
+			x.Dispose();
 
 		foreach (var x in framebuffers)
 			x.Dispose();

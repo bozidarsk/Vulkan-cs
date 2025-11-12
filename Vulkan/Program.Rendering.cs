@@ -40,7 +40,7 @@ public partial class Program
 		return shaderModuleCreateInfo.CreateShaderModule(device, allocator);
 	}
 
-	protected virtual Pipeline CreateGraphicsPipeline(RenderInfo obj) 
+	protected virtual Pipeline CreateGraphicsPipeline(RenderInfo obj, RenderPass renderPass) 
 	{
 		var modules = new ShaderModule[obj.Shaders.Length];
 
@@ -159,7 +159,7 @@ public partial class Program
 			attachments: 
 			[
 				new(
-					blendEnable: true,
+					blendEnable: !(obj.DisableBlending ?? false),
 					srcColorBlendFactor: srcFactor,
 					dstColorBlendFactor: destFactor,
 					colorBlendOp: blendOp,
@@ -212,6 +212,7 @@ public partial class Program
 	}
 
 	protected virtual void StartRenderPass(
+		RenderPass renderPass,
 		Framebuffer framebuffer,
 		Extent2D extent,
 		Vector3 cameraPosition,
@@ -227,7 +228,7 @@ public partial class Program
 			clearValues: 
 			[
 				new(
-					color: new(float32: new(0.1f, 0.1f, 0.1f, 0), int32: default, uint32: default),
+					color: new(float32: new(0, 0, 0, 0), int32: default, uint32: default),
 					depthStencil: default
 				),
 				new(
@@ -263,7 +264,7 @@ public partial class Program
 
 			if (!graphicsPipelines.TryGetValue(info, out graphicsPipeline!)) 
 			{
-				graphicsPipeline = CreateGraphicsPipeline(info);
+				graphicsPipeline = CreateGraphicsPipeline(info, renderPass);
 				graphicsPipelines[info] = graphicsPipeline;
 			}
 
@@ -272,8 +273,7 @@ public partial class Program
 			cmd.BindIndexBuffer(info.IndexBuffer, info.IndexType);
 			cmd.PushDescriptorSet(PipelineBindPoint.Graphics, pipelineLayout, globalDescriptorWrite);
 
-			var m = model;
-			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref m));
+			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref model));
 			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 64, size: 12, ref Unsafe.As<Vector3, byte>(ref cameraPosition));
 
 			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer? uniformsBuffer, out DeviceMemory? uniformsMemory);
@@ -359,10 +359,10 @@ public partial class Program
 		cmd.Begin(beginInfo);
 		if (texture is RenderTextureInfo rt) 
 		{
-			StartRenderPass(rt.Framebuffer, rt.Extent, cameraPosition, objects);
+			StartRenderPass(rt.RenderPass, rt.Framebuffer, rt.Extent, cameraPosition, objects);
 			TransitionImageLayout(rt.Image, ImageLayout.PresentSrc, ImageLayout.ShaderReadOnlyOptimal, cmd);
 		}
-		else StartRenderPass(framebuffers[imageIndex], extent, cameraPosition, objects);
+		else StartRenderPass(renderPass, framebuffers[imageIndex], extent, cameraPosition, objects);
 		cmd.End();
 
 		using var submitInfo = new SubmitInfo(
