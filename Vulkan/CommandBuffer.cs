@@ -230,6 +230,16 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBufferToImage(CommandBufferHandle commandBuffer, BufferHandle buffer, ImageHandle image, ImageLayout layout, uint regionCount, ref BufferImageCopy pRegions);
 	}
 
+	public void CopyImageToBuffer(Image image, Buffer buffer, ImageLayout layout, params BufferImageCopy[] regions) 
+	{
+		if (buffer == null || image == null || regions == null)
+			throw new ArgumentNullException();
+
+		vkCmdCopyImageToBuffer(commandBuffer, image.Handle, layout, buffer.Handle, (uint)regions.Length, ref MemoryMarshal.GetArrayDataReference(regions));
+
+		[DllImport(VK_LIB)] static extern void vkCmdCopyImageToBuffer(CommandBufferHandle commandBuffer, ImageHandle image, ImageLayout layout, BufferHandle buffer, uint regionCount, ref BufferImageCopy pRegions);
+	}
+
 	public unsafe void PipelineBarrier(
 		PipelineStage srcStage,
 		PipelineStage dstStage,

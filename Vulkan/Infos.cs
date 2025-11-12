@@ -22,6 +22,7 @@ public interface IRenderable : IInfoProvider<RenderInfo>
 {
 	Matrix4x4 Model { get; }
 	IReadOnlyDictionary<string, object> Uniforms { get; }
+	uint Id { get; }
 }
 
 public abstract record Info();

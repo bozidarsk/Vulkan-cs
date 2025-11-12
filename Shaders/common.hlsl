@@ -34,6 +34,7 @@ cbuffer PushConstants
 {
 	float4x4 MODEL;
 	float3 CAMERA_POSITION;
+	uint ID;
 }
 
 #endif

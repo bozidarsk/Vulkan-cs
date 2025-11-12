@@ -259,6 +259,7 @@ public partial class Program
 			var model = obj.Model;
 			var uniforms = obj.Uniforms;
 			var info = obj.Info;
+			var id = obj.Id;
 
 			Pipeline graphicsPipeline;
 
@@ -275,6 +276,7 @@ public partial class Program
 
 			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 0, size: 64, ref Unsafe.As<Matrix4x4, byte>(ref model));
 			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 64, size: 12, ref Unsafe.As<Vector3, byte>(ref cameraPosition));
+			cmd.PushConstants(pipelineLayout, ShaderStage.All, offset: 76, size: 4, ref Unsafe.As<uint, byte>(ref id));
 
 			var uniformsSize = CreateUniformsBuffer(uniforms, out Buffer? uniformsBuffer, out DeviceMemory? uniformsMemory);
 			bool hasUniforms = uniformsSize != 0;

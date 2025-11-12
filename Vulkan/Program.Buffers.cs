@@ -38,16 +38,25 @@ public partial class Program
 		memory.Bind(buffer);
 	}
 
-	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, CommandBuffer? cmd = null) 
 	{
-		var cmd = BeginSingleTimeCommand();
-		cmd.CopyBuffer(source, destination, size);
-		EndSingleTimeCommand(cmd);
+		bool createCmd = cmd == null;
+
+		if (createCmd)
+			cmd = BeginSingleTimeCommand();
+
+		cmd!.CopyBuffer(source, destination, size);
+
+		if (createCmd)
+			EndSingleTimeCommand(cmd);
 	}
 
-	public void CopyBufferToImage(Buffer buffer, Image image, int width, int height) 
+	public void CopyBufferToImage(Buffer buffer, Image image, int width, int height, ImageAspect aspect = ImageAspect.Color, CommandBuffer? cmd = null) 
 	{
-		var cmd = BeginSingleTimeCommand();
+		bool createCmd = cmd == null;
+
+		if (createCmd)
+			cmd = BeginSingleTimeCommand();
 
 		var region = new BufferImageCopy(
 			bufferOffset: 0,
@@ -63,9 +72,37 @@ public partial class Program
 			imageExtent: new(width: (uint)width, height: (uint)height, depth: 1)
 		);
 
-		cmd.CopyBufferToImage(buffer, image, ImageLayout.TransferDstOptimal, region);
+		cmd!.CopyBufferToImage(buffer, image, ImageLayout.TransferDstOptimal, region);
 
-		EndSingleTimeCommand(cmd);
+		if (createCmd)
+			EndSingleTimeCommand(cmd);
+	}
+
+	public void CopyImageToBuffer(Image image, Buffer buffer, int width, int height, ImageAspect aspect = ImageAspect.Color, CommandBuffer? cmd = null) 
+	{
+		bool createCmd = cmd == null;
+
+		if (createCmd)
+			cmd = BeginSingleTimeCommand();
+
+		var region = new BufferImageCopy(
+			bufferOffset: 0,
+			bufferRowLength: 0,
+			bufferImageHeight: 0,
+			imageSubresource: new(
+				aspect: aspect,
+				mipLevel: 0,
+				baseArrayLayer: 0,
+				layerCount: 1
+			),
+			imageOffset: new(x: 0, y: 0, z: 0),
+			imageExtent: new(width: (uint)width, height: (uint)height, depth: 1)
+		);
+
+		cmd!.CopyImageToBuffer(image, buffer, ImageLayout.TransferSrcOptimal, region);
+
+		if (createCmd)
+			EndSingleTimeCommand(cmd);
 	}
 
 	public unsafe void CreateVertexBuffer(Array data, out Buffer buffer, out DeviceMemory memory) 
@@ -257,6 +294,57 @@ public partial class Program
 		sampler = createInfo.CreateSampler(device, allocator);
 	}
 
+	public void TransitionImageLayout(
+		Image image,
+
+		ImageLayout from,
+		Access sourceAccess,
+		PipelineStage sourceStage,
+
+		ImageLayout to,
+		Access destinationAccess,
+		PipelineStage destinationStage,
+
+		CommandBuffer? cmd = null
+	)
+	{
+		bool createCmd = cmd == null;
+
+		if (createCmd)
+			cmd = BeginSingleTimeCommand();
+
+		var barrier = new ImageMemoryBarrier(
+			type: StructureType.ImageMemoryBarrier,
+			next: default,
+			srcAccess: sourceAccess,
+			dstAccess: destinationAccess,
+			oldLayout: from,
+			newLayout: to,
+			srcQueueFamilyIndex: ~0u,
+			dstQueueFamilyIndex: ~0u,
+			image: image,
+			subresourceRange: new(
+				aspect: ImageAspect.Color,
+				baseMipLevel: 0,
+				levelCount: 1,
+				baseArrayLayer: 0,
+				layerCount: 1
+			)
+		);
+
+		cmd!.PipelineBarrier(
+			srcStage: sourceStage,
+			dstStage: destinationStage,
+			dependencyFlags: default,
+			memoryBarriers: null,
+			bufferMemoryBarriers: null,
+			imageMemoryBarriers: [ barrier ]
+		);
+
+		if (createCmd)
+			EndSingleTimeCommand(cmd);
+	}
+
 	public void TransitionImageLayout(Image image, ImageLayout from, ImageLayout to, CommandBuffer? cmd = null) 
 	{
 		Access sourceAccess, destinationAccess;
@@ -326,44 +414,26 @@ public partial class Program
 			sourceStage = PipelineStage.BottomOfPipe;
 			destinationStage = PipelineStage.ColorAttachmentOutput;
 		}
+		else if (from == ImageLayout.TransferSrcOptimal && to == ImageLayout.ShaderReadOnlyOptimal)
+		{
+			sourceAccess = Access.TransferRead;
+			destinationAccess = Access.ShaderRead;
+
+			sourceStage = PipelineStage.Transfer;
+			destinationStage = PipelineStage.FragmentShader;
+		}
+		else if (from == ImageLayout.ShaderReadOnlyOptimal && to == ImageLayout.TransferSrcOptimal)
+		{
+			sourceAccess = Access.ShaderRead;
+			destinationAccess = Access.TransferRead;
+
+			sourceStage = PipelineStage.FragmentShader;
+			destinationStage = PipelineStage.Transfer;
+		}
 		else
 			throw new InvalidOperationException($"Unsupported layer transition from '{from}' to '{to}'.");
 
-		bool createCmd = cmd == null;
-
-		if (createCmd)
-			cmd = BeginSingleTimeCommand();
-
-		var barrier = new ImageMemoryBarrier(
-			type: StructureType.ImageMemoryBarrier,
-			next: default,
-			srcAccess: sourceAccess,
-			dstAccess: destinationAccess,
-			oldLayout: from,
-			newLayout: to,
-			srcQueueFamilyIndex: ~0u,
-			dstQueueFamilyIndex: ~0u,
-			image: image,
-			subresourceRange: new(
-				aspect: ImageAspect.Color,
-				baseMipLevel: 0,
-				levelCount: 1,
-				baseArrayLayer: 0,
-				layerCount: 1
-			)
-		);
-
-		cmd!.PipelineBarrier(
-			srcStage: sourceStage,
-			dstStage: destinationStage,
-			dependencyFlags: default,
-			memoryBarriers: null,
-			bufferMemoryBarriers: null,
-			imageMemoryBarriers: [ barrier ]
-		);
-
-		if (createCmd)
-			EndSingleTimeCommand(cmd);
+		TransitionImageLayout(image, from, sourceAccess, sourceStage, to, destinationAccess, destinationStage, cmd);
 	}
 
 	public CommandBuffer BeginSingleTimeCommand() 

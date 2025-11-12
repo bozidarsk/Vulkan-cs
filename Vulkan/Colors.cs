@@ -1,11 +1,20 @@
+using System.Numerics;
+
 namespace Vulkan;
 
 public struct Color 
 {
 	public float r, g, b, a;
 
-	public static readonly Color Black = new(0f, 0f, 0f, 0f);
-	public static readonly Color White = new(1f, 1f, 1f, 1f);
+	public static readonly Color Transparent = new(0, 0, 0, 0);
+	public static readonly Color Black       = new(0, 0, 0, 1);
+	public static readonly Color White       = new(1, 1, 1, 1);
+	public static readonly Color Red         = new(1, 0, 0, 1);
+	public static readonly Color Green       = new(0, 1, 0, 1);
+	public static readonly Color Blue        = new(0, 0, 1, 1);
+	public static readonly Color Yellow      = new(1, 1, 0, 1);
+	public static readonly Color Cyan        = new(0, 1, 1, 1);
+	public static readonly Color Magenta     = new(1, 0, 1, 1);
 
 	public static Color operator * (Color a, float x) => new(a.r * x, a.g * x, a.b * x, a.a * x);
 	public static Color operator / (Color a, float x) => new(a.r / x, a.g / x, a.b / x, a.a / x);
