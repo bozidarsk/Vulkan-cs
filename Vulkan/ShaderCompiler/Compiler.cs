@@ -61,44 +61,75 @@ public readonly struct Compiler : IDisposable
 
 		foreach (var x in GetShaderProperties(info.File)) 
 		{
-			// TODO: TryParse else goto case null
 			switch (x.Key) 
 			{
 				case "stage":
 					var tokens = x.Value.Split(' ');
-					info.Stage = Enum.Parse<ShaderStage>(tokens[0], true);
+
+					if ((tokens.Length != 1 && tokens.Length != 2) || !Enum.TryParse<ShaderStage>(tokens[0], true, out ShaderStage stage))
+						goto case null;
+
+					info.Stage = stage;
 					info.EntryPoint = (tokens.Length == 2) ? tokens[1] : "main";
 					break;
 				case "language":
-					info.Language = Enum.Parse<ShaderLanguage>(x.Value, true);
+					if (!Enum.TryParse<ShaderLanguage>(x.Value, true, out language))
+						goto case null;
+
+					info.Language = language;
 					break;
 				case "cull":
-					info.CullMode = Enum.Parse<CullMode>(x.Value, true);
+					if (!Enum.TryParse<CullMode>(x.Value, true, out CullMode cullMode))
+						goto case null;
+
+					info.CullMode =  cullMode;
 					break;
 				case "frontface":
-					info.FrontFace = Enum.Parse<FrontFace>(x.Value, true);
+					if (!Enum.TryParse<FrontFace>(x.Value, true, out FrontFace frontFace))
+						goto case null;
+
+					info.FrontFace =  frontFace;
 					break;
 				case "blend":
 					var factors = x.Value.Split(' ');
 					if (factors.Length == 3) 
 					{
-						info.SourceBlendFactor = Enum.Parse<BlendFactor>(factors[0], true);
-						info.BlendOp = Enum.Parse<BlendOp>(factors[1], true);
-						info.DestinationBlendFactor = Enum.Parse<BlendFactor>(factors[2], true);
+						BlendFactor factor;
+
+						if (Enum.TryParse<BlendFactor>(factors[0], true, out factor))
+							info.SourceBlendFactor = factor;
+						else goto case null;
+
+						if (Enum.TryParse<BlendOp>(factors[1], true, out BlendOp op))
+							info.BlendOp = op;
+						else goto case null;
+
+						if (Enum.TryParse<BlendFactor>(factors[2], true, out factor))
+							info.DestinationBlendFactor = factor;
+						else goto case null;
 					}
 					else if (factors.Length == 2)
 					{
-						info.SourceBlendFactor = Enum.Parse<BlendFactor>(factors[0], true);
-						info.DestinationBlendFactor = Enum.Parse<BlendFactor>(factors[1], true);
+						BlendFactor factor;
+
+						if (Enum.TryParse<BlendFactor>(factors[0], true, out factor))
+							info.SourceBlendFactor = factor;
+						else goto case null;
+
+						if (Enum.TryParse<BlendFactor>(factors[1], true, out factor))
+							info.DestinationBlendFactor = factor;
+						else goto case null;
 					}
 					else if (factors.Length == 1) 
 					{
-						info.DisableBlending = factors[0] == "disable" || factors[0] == "off" || factors[0] == "none";
+						if (factors[0] == "disable" || factors[0] == "off" || factors[0] == "none")
+							info.DisableBlending = true;
+						else goto case null;
 					}
 					else goto case null;
 					break;
 				case null:
-					throw new VulkanException($"Failed to process shader properties in '{info.File}'.");
+					throw new VulkanException($"Failed to process shader properties in '{info.File}'. (#pragma {x.Key} {x.Value})");
 			}
 		}
 
