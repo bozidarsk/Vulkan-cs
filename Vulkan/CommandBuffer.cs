@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
-using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
@@ -21,7 +20,11 @@ public sealed class CommandBuffer : IDisposable
 		if (writes == null)
 			throw new ArgumentNullException();
 
+		var vkCmdPushDescriptorSetKHR = Marshal.GetDelegateForFunctionPointer<PushDescriptorSetExtensionDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdPushDescriptorSetKHR"));
+
 		vkCmdPushDescriptorSetKHR(commandBuffer, bindPoint, layout.Handle, 0, (uint)writes.Length, ref MemoryMarshal.GetArrayDataReference(writes));
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 	}
 
 	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data)
@@ -187,6 +190,8 @@ public sealed class CommandBuffer : IDisposable
 		if (bindingDescriptions == null || attributeDescriptions == null)
 			throw new ArgumentNullException();
 
+		var vkCmdSetVertexInputEXT = Marshal.GetDelegateForFunctionPointer<SetVertexInputExtensionDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdSetVertexInputEXT"));
+
 		vkCmdSetVertexInputEXT(
 			commandBuffer,
 			(uint)bindingDescriptions.Length,
@@ -194,16 +199,26 @@ public sealed class CommandBuffer : IDisposable
 			(uint)attributeDescriptions.Length,
 			ref MemoryMarshal.GetArrayDataReference(attributeDescriptions)
 		);
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 	}
 
 	public void SetCullMode(CullMode mode)
 	{
+		var vkCmdSetCullModeEXT = Marshal.GetDelegateForFunctionPointer<SetCullModeExtensionDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdSetCullModeEXT"));
+
 		vkCmdSetCullModeEXT(commandBuffer, mode);
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 	}
 
 	public void SetFrontFace(FrontFace frontFace)
 	{
+		var vkCmdSetFrontFaceEXT = Marshal.GetDelegateForFunctionPointer<SetFrontFaceExtensionDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdSetFrontFaceEXT"));
+
 		vkCmdSetFrontFaceEXT(commandBuffer, frontFace);
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 	}
 
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0)

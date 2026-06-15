@@ -1,7 +1,7 @@
 using System;
+using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
-using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
@@ -17,10 +17,14 @@ public readonly struct DebugUtilsMessengerCreateInfo
 
 	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacksHandle allocator)
 	{
+		var vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerExtensionDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
+
 		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDebugUtilsMessenger(instance, allocator);
+
+		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(InstanceHandle instance, string name);
 	}
 
 	public DebugUtilsMessengerCreateInfo(
