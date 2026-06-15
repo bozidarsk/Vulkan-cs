@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct CommandBufferInheritanceInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.CommandBufferInheritanceInfo;
 	public readonly nint Next;
 	private readonly RenderPassHandle renderPass;
 	public readonly uint Subpass;
@@ -17,7 +17,6 @@ public readonly struct CommandBufferInheritanceInfo
 	public Framebuffer Framebuffer => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public CommandBufferInheritanceInfo(
-		StructureType type,
 		nint next,
 		RenderPass renderPass,
 		uint subpass,
@@ -27,7 +26,6 @@ public readonly struct CommandBufferInheritanceInfo
 		QueryPipelineStatisticFlags pipelineStatistics
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.renderPass = renderPass.Handle;
 		this.Subpass = subpass;

@@ -9,7 +9,7 @@ namespace Vulkan;
 
 public readonly struct InstanceCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.InstanceCreateInfo;
 	public readonly nint Next;
 	public readonly InstanceCreateFlags Flags;
 	private readonly Handle<ApplicationInfo> applicationInfo;
@@ -80,9 +80,8 @@ public readonly struct InstanceCreateInfo : IDisposable
 		enabledExtensionNames.Dispose();
 	}
 
-	public InstanceCreateInfo(StructureType type, nint next, InstanceCreateFlags flags, ApplicationInfo applicationInfo, string?[]? enabledLayerNames, string?[]? enabledExtensionNames)
+	public InstanceCreateInfo(nint next, InstanceCreateFlags flags, ApplicationInfo applicationInfo, string?[]? enabledLayerNames, string?[]? enabledExtensionNames)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

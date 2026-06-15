@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct ImageViewCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.ImageViewCreateInfo;
 	public readonly nint Next;
 	public readonly ImageViewCreateFlags Flags;
 	private readonly ImageHandle image;
@@ -29,7 +29,6 @@ public readonly struct ImageViewCreateInfo
 	}
 
 	public ImageViewCreateInfo(
-		StructureType type,
 		nint next,
 		ImageViewCreateFlags flags,
 		Image image,
@@ -39,7 +38,6 @@ public readonly struct ImageViewCreateInfo
 		ImageSubresourceRange subresourceRange
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.image = image.Handle;

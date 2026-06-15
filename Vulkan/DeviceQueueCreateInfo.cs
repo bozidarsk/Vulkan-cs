@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct DeviceQueueCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DeviceQueueCreateInfo;
 	public readonly nint Next;
 	public readonly DeviceQueueCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
@@ -18,9 +18,8 @@ public readonly struct DeviceQueueCreateInfo : IDisposable
 		queuePriorities.Dispose();
 	}
 
-	public DeviceQueueCreateInfo(StructureType type, nint next, DeviceQueueCreateFlags flags, uint queueFamilyIndex, float[]? queuePriorities)
+	public DeviceQueueCreateInfo(nint next, DeviceQueueCreateFlags flags, uint queueFamilyIndex, float[]? queuePriorities)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.QueueFamilyIndex = queueFamilyIndex;

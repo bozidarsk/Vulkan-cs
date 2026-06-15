@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public readonly struct FramebufferCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.FramebufferCreateInfo;
 	public readonly nint Next;
 	public readonly FramebufferCreateFlags Flags;
 	private readonly RenderPassHandle renderPass;
@@ -37,7 +37,6 @@ public readonly struct FramebufferCreateInfo : IDisposable
 	}
 
 	public FramebufferCreateInfo(
-		StructureType type,
 		nint next,
 		FramebufferCreateFlags flags,
 		RenderPass renderPass,
@@ -47,7 +46,6 @@ public readonly struct FramebufferCreateInfo : IDisposable
 		uint layers
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.renderPass = renderPass.Handle;

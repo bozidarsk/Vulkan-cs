@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct SemaphoreCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.SemaphoreCreateInfo;
 	public readonly nint Next;
 	public readonly SemaphoreCreateFlags Flags;
 
@@ -20,5 +20,5 @@ public readonly struct SemaphoreCreateInfo
 		[DllImport(VK_LIB)] static extern Result vkCreateSemaphore(DeviceHandle device, in SemaphoreCreateInfo createInfo, AllocationCallbacksHandle allocator, out SemaphoreHandle semaphore);
 	}
 
-	public SemaphoreCreateInfo(StructureType type, nint next, SemaphoreCreateFlags flags) => (this.Type, this.Next, this.Flags) = (type, next, flags);
+	public SemaphoreCreateInfo(nint next, SemaphoreCreateFlags flags) => (this.Next, this.Flags) = (next, flags);
 }

@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct FenceCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.FenceCreateInfo;
 	public readonly nint Next;
 	public readonly FenceCreateFlags Flags;
 
@@ -20,5 +20,5 @@ public readonly struct FenceCreateInfo
 		[DllImport(VK_LIB)] static extern Result vkCreateFence(DeviceHandle device, in FenceCreateInfo createInfo, AllocationCallbacksHandle allocator, out FenceHandle fence);
 	}
 
-	public FenceCreateInfo(StructureType type, nint next, FenceCreateFlags flags) => (this.Type, this.Next, this.Flags) = (type, next, flags);
+	public FenceCreateInfo(nint next, FenceCreateFlags flags) => (this.Next, this.Flags) = (next, flags);
 }

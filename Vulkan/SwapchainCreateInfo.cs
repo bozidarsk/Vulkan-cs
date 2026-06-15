@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct SwapchainCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.SwapchainCreateInfo;
 	public readonly nint Next;
 	public readonly SwapchainCreateFlags Flags;
 	public readonly Surface Surface;
@@ -46,7 +46,6 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	}
 
 	public SwapchainCreateInfo(
-		StructureType type,
 		nint next,
 		SwapchainCreateFlags flags,
 		Surface surface,
@@ -65,7 +64,6 @@ public readonly struct SwapchainCreateInfo : IDisposable
 		Swapchain? oldSwapchain
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.Surface = surface;

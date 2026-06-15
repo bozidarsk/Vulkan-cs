@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DescriptorSetLayoutCreateInfo;
 	public readonly nint Next;
 	public readonly DescriptorSetLayoutCreateFlags Flags;
 	private readonly uint bindingCount;
@@ -31,13 +31,11 @@ public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 	}
 
 	public DescriptorSetLayoutCreateInfo(
-		StructureType type,
 		nint next,
 		DescriptorSetLayoutCreateFlags flags,
 		DescriptorSetLayoutBinding[]? bindings
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

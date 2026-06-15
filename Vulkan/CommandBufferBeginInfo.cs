@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct CommandBufferBeginInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.CommandBufferBeginInfo;
 	public readonly nint Next;
 	public readonly CommandBufferUsage Usage;
 	private readonly Handle<CommandBufferInheritanceInfo> inheritanceInfo;
@@ -16,9 +16,8 @@ public readonly struct CommandBufferBeginInfo : IDisposable
 		inheritanceInfo.Dispose();
 	}
 
-	public CommandBufferBeginInfo(StructureType type, nint next, CommandBufferUsage usage, CommandBufferInheritanceInfo? inheritanceInfo)
+	public CommandBufferBeginInfo(nint next, CommandBufferUsage usage, CommandBufferInheritanceInfo? inheritanceInfo)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Usage = usage;
 		this.inheritanceInfo = (inheritanceInfo is CommandBufferInheritanceInfo x) ? new(x) : default;

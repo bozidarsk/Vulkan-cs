@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct BufferMemoryBarrier
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.BufferMemoryBarrier;
 	public readonly nint Next;
 	public readonly Access SrcAccess;
 	public readonly Access DstAccess;
@@ -17,7 +17,6 @@ public readonly struct BufferMemoryBarrier
 	public Buffer Buffer => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public BufferMemoryBarrier(
-		StructureType type,
 		nint next,
 		Access srcAccess,
 		Access dstAccess,
@@ -28,7 +27,6 @@ public readonly struct BufferMemoryBarrier
 		DeviceSize size
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.SrcAccess = srcAccess;
 		this.DstAccess = dstAccess;

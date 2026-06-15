@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public readonly struct CommandBufferAllocateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.CommandBufferAllocateInfo;
 	public readonly nint Next;
 	private readonly CommandPoolHandle commandPool;
 	public readonly CommandBufferLevel Level;
@@ -29,14 +29,12 @@ public readonly struct CommandBufferAllocateInfo
 	}
 
 	public CommandBufferAllocateInfo(
-		StructureType type,
 		nint next,
 		CommandPool commandPool,
 		CommandBufferLevel level,
 		uint commandBufferCount
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.commandPool = commandPool.Handle;
 		this.Level = level;

@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineVertexInputStateCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineVertexInputStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineVertexInputStateCreateFlags Flags;
 	public readonly uint vertexBindingDescriptionCount;
@@ -21,9 +21,8 @@ public readonly struct PipelineVertexInputStateCreateInfo : IDisposable
 		vertexAttributeDescriptions.Dispose();
 	}
 
-	public PipelineVertexInputStateCreateInfo(StructureType type, nint next, PipelineVertexInputStateCreateFlags flags, VertexInputBindingDescription[]? vertexBindingDescriptions, VertexInputAttributeDescription[]? vertexAttributeDescriptions)
+	public PipelineVertexInputStateCreateInfo(nint next, PipelineVertexInputStateCreateFlags flags, VertexInputBindingDescription[]? vertexBindingDescriptions, VertexInputAttributeDescription[]? vertexAttributeDescriptions)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

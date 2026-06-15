@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct DescriptorPoolCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DescriptorPoolCreateInfo;
 	public readonly nint Next;
 	public readonly DescriptorPoolCreateFlags Flags;
 	public readonly uint MaxSets;
@@ -32,14 +32,12 @@ public readonly struct DescriptorPoolCreateInfo : IDisposable
 	}
 
 	public DescriptorPoolCreateInfo(
-		StructureType type,
 		nint next,
 		DescriptorPoolCreateFlags flags,
 		uint maxSets,
 		DescriptorPoolSize[]? poolSizes
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.MaxSets = maxSets;

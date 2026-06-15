@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public readonly struct PipelineLayoutCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineLayoutCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineLayoutCreateFlags Flags;
 	private readonly uint setLayoutCount;
@@ -36,14 +36,12 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 	}
 
 	public PipelineLayoutCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineLayoutCreateFlags flags,
 		DescriptorSetLayout[]? setLayouts,
 		PushConstantRange[]? pushConstantRanges
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

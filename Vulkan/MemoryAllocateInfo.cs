@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct MemoryAllocateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.MemoryAllocateInfo;
 	public readonly nint Next;
 	public readonly DeviceSize AllocationSize;
 	public readonly uint MemoryTypeIndex;
@@ -22,13 +22,11 @@ public readonly struct MemoryAllocateInfo
 	}
 
 	public MemoryAllocateInfo(
-		StructureType type,
 		nint next,
 		DeviceSize allocationSize,
 		uint memoryTypeIndex
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.AllocationSize = allocationSize;
 		this.MemoryTypeIndex = memoryTypeIndex;

@@ -5,7 +5,7 @@ namespace Vulkan;
 
 public readonly struct PresentInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PresentInfo;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
 	private readonly Handle<SemaphoreHandle> waitSemaphores;
@@ -28,7 +28,6 @@ public readonly struct PresentInfo : IDisposable
 	}
 
 	public PresentInfo(
-		StructureType type,
 		nint next,
 		Semaphore[]? waitSemaphores,
 		Swapchain[]? swapchains,
@@ -39,7 +38,6 @@ public readonly struct PresentInfo : IDisposable
 		if (swapchains?.Length != imageIndices?.Length)
 			throw new ArgumentOutOfRangeException();
 
-		this.Type = type;
 		this.Next = next;
 
 		this.waitSemaphoreCount = (uint)(waitSemaphores?.Length ?? 0);

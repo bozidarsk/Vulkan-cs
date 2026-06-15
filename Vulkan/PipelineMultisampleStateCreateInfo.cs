@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineMultisampleStateCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineMultisampleStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineMultisampleStateCreateFlags Flags;
 	public readonly SampleCount RasterizationSamples;
@@ -22,7 +22,6 @@ public readonly struct PipelineMultisampleStateCreateInfo : IDisposable
 	}
 
 	public PipelineMultisampleStateCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineMultisampleStateCreateFlags flags,
 		SampleCount rasterizationSamples,
@@ -33,7 +32,6 @@ public readonly struct PipelineMultisampleStateCreateInfo : IDisposable
 		bool alphaToOneEnable
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.RasterizationSamples = rasterizationSamples;

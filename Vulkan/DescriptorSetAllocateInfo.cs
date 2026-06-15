@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public readonly struct DescriptorSetAllocateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DescriptorSetAllocateInfo;
 	public readonly nint Next;
 	private readonly DescriptorPoolHandle descriptorPool;
 	private readonly uint descriptorSetCount;
@@ -35,13 +35,11 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 	}
 
 	public DescriptorSetAllocateInfo(
-		StructureType type,
 		nint next,
 		DescriptorPool descriptorPool,
 		DescriptorSetLayout[]? setLayouts
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.descriptorPool = descriptorPool.Handle;
 

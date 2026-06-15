@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineShaderStageCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineShaderStageCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineShaderStageCreateFlags Flags;
 	public readonly ShaderStage Stage;
@@ -22,9 +22,8 @@ public readonly struct PipelineShaderStageCreateInfo : IDisposable
 		specializationInfo.Dispose();
 	}
 
-	public PipelineShaderStageCreateInfo(StructureType type, nint next, PipelineShaderStageCreateFlags flags, ShaderStage stage, ShaderModule module, string name, SpecializationInfo? specializationInfo)
+	public PipelineShaderStageCreateInfo(nint next, PipelineShaderStageCreateFlags flags, ShaderStage stage, ShaderModule module, string name, SpecializationInfo? specializationInfo)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.Stage = stage;

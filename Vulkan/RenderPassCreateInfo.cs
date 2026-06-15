@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct RenderPassCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.RenderPassCreateInfo;
 	public readonly nint Next;
 	public readonly RenderPassCreateFlags Flags;
 	public readonly uint attachmentCount;
@@ -39,7 +39,6 @@ public readonly struct RenderPassCreateInfo : IDisposable
 	}
 
 	public RenderPassCreateInfo(
-		StructureType type,
 		nint next,
 		RenderPassCreateFlags flags,
 		AttachmentDescription[]? attachments,
@@ -47,7 +46,6 @@ public readonly struct RenderPassCreateInfo : IDisposable
 		SubpassDependency[]? dependencies
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

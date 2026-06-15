@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct ImageMemoryBarrier
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.ImageMemoryBarrier;
 	public readonly nint Next;
 	public readonly Access SrcAccess;
 	public readonly Access DstAccess;
@@ -18,7 +18,6 @@ public readonly struct ImageMemoryBarrier
 	public Image Image => throw new NotImplementedException(); // cannot get allocator and device params
 
 	public ImageMemoryBarrier(
-		StructureType type,
 		nint next,
 		Access srcAccess,
 		Access dstAccess,
@@ -30,7 +29,6 @@ public readonly struct ImageMemoryBarrier
 		ImageSubresourceRange subresourceRange
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.SrcAccess = srcAccess;
 		this.DstAccess = dstAccess;

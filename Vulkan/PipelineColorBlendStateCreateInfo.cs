@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineColorBlendStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineColorBlendStateCreateFlags Flags;
 	public readonly bool32 LogicOpEnable;
@@ -21,7 +21,6 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 	}
 
 	public PipelineColorBlendStateCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineColorBlendStateCreateFlags flags,
 		bool logicOpEnable,
@@ -30,7 +29,6 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 		Color blendConstants
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.LogicOpEnable = logicOpEnable;

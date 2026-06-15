@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct GraphicsPipelineCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.GraphicsPipelineCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineCreateFlags Flags;
 	private readonly uint stageCount;
@@ -66,7 +66,6 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 	}
 
 	public GraphicsPipelineCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineCreateFlags flags,
 		PipelineShaderStageCreateInfo[]? stages,
@@ -86,7 +85,6 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 		int basePipelineIndex
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

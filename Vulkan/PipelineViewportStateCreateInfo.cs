@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineViewportStateCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineViewportStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineViewportStateCreateFlags Flags;
 	private readonly uint viewportCount;
@@ -21,9 +21,8 @@ public readonly struct PipelineViewportStateCreateInfo : IDisposable
 		scissors.Dispose();
 	}
 
-	public PipelineViewportStateCreateInfo(StructureType type, nint next, PipelineViewportStateCreateFlags flags, Viewport[]? viewports, Rect2D[]? scissors)
+	public PipelineViewportStateCreateInfo(nint next, PipelineViewportStateCreateFlags flags, Viewport[]? viewports, Rect2D[]? scissors)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

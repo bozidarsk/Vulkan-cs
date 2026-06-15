@@ -98,7 +98,6 @@ public sealed record RenderInfo(
 
 	public VertexInputBindingDescription2[] BindingDescriptions2 => this.BindingDescriptions.Select(x =>
 		new VertexInputBindingDescription2(
-			type: StructureType.VertexInputBindingDescription2Ext,
 			next: default,
 			description: x,
 			divisor: 1
@@ -107,7 +106,6 @@ public sealed record RenderInfo(
 
 	public VertexInputAttributeDescription2[] AttributeDescriptions2 => this.AttributeDescriptions.Select(x =>
 		new VertexInputAttributeDescription2(
-			type: StructureType.VertexInputAttributeDescription2Ext,
 			next: default,
 			description: x
 		)

@@ -8,7 +8,7 @@ namespace Vulkan;
 
 public readonly struct DeviceCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DeviceCreateInfo;
 	public readonly nint Next;
 	public readonly DeviceCreateFlags Flags;
 	private readonly uint queueCreateInfoCount;
@@ -49,9 +49,8 @@ public readonly struct DeviceCreateInfo : IDisposable
 		queueCreateInfos.Dispose();
 	}
 
-	public DeviceCreateInfo(StructureType type, nint next, DeviceCreateFlags flags, DeviceQueueCreateInfo[]? queueCreateInfos, string?[]? enabledLayerNames, string?[]? enabledExtensionNames, PhysicalDeviceFeatures enabledFeatures)
+	public DeviceCreateInfo(nint next, DeviceCreateFlags flags, DeviceQueueCreateInfo[]? queueCreateInfos, string?[]? enabledLayerNames, string?[]? enabledExtensionNames, PhysicalDeviceFeatures enabledFeatures)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

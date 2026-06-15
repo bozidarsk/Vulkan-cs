@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct RenderPassBeginInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.RenderPassBeginInfo;
 	public readonly nint Next;
 	private readonly RenderPassHandle renderPass;
 	private readonly FramebufferHandle framebuffer;
@@ -21,7 +21,6 @@ public readonly struct RenderPassBeginInfo : IDisposable
 	}
 
 	public RenderPassBeginInfo(
-		StructureType type,
 		nint next,
 		RenderPass renderPass,
 		Framebuffer framebuffer,
@@ -29,7 +28,6 @@ public readonly struct RenderPassBeginInfo : IDisposable
 		ClearValue[]? clearValues
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.renderPass = renderPass.Handle;
 		this.framebuffer = framebuffer.Handle;

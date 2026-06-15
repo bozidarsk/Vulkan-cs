@@ -5,7 +5,7 @@ namespace Vulkan;
 
 public readonly struct SubmitInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.SubmitInfo;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
 	private readonly Handle<SemaphoreHandle> waitSemaphores;
@@ -29,7 +29,6 @@ public readonly struct SubmitInfo : IDisposable
 	}
 
 	public SubmitInfo(
-		StructureType type,
 		nint next,
 		Semaphore[]? waitSemaphores,
 		PipelineStage[]? waitDstStageMasks,
@@ -40,7 +39,6 @@ public readonly struct SubmitInfo : IDisposable
 		if (waitSemaphores?.Length != waitDstStageMasks?.Length)
 			throw new ArgumentOutOfRangeException();
 
-		this.Type = type;
 		this.Next = next;
 
 		this.waitSemaphoreCount = (uint)(waitSemaphores?.Length ?? 0);

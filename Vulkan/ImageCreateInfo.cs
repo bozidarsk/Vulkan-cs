@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct ImageCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.ImageCreateInfo;
 	public readonly nint Next;
 	public readonly ImageCreateFlags Flags;
 	public readonly ImageType ImageType;
@@ -41,7 +41,6 @@ public readonly struct ImageCreateInfo : IDisposable
 	}
 
 	public ImageCreateInfo(
-		StructureType type,
 		nint next,
 		ImageCreateFlags flags,
 		ImageType imageType,
@@ -57,7 +56,6 @@ public readonly struct ImageCreateInfo : IDisposable
 		ImageLayout initialLayout
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.ImageType = imageType;

@@ -2,7 +2,7 @@ namespace Vulkan;
 
 public readonly struct PipelineRasterizationStateCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineRasterizationStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineRasterizationStateCreateFlags Flags;
 	public readonly bool32 DepthClampEnable;
@@ -17,7 +17,6 @@ public readonly struct PipelineRasterizationStateCreateInfo
 	public readonly float LineWidth;
 
 	public PipelineRasterizationStateCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineRasterizationStateCreateFlags flags,
 		bool depthClampEnable,
@@ -32,7 +31,6 @@ public readonly struct PipelineRasterizationStateCreateInfo
 		float lineWidth
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.DepthClampEnable = depthClampEnable;

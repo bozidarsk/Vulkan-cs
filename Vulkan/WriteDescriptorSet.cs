@@ -5,7 +5,7 @@ namespace Vulkan;
 
 public readonly struct WriteDescriptorSet : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.WriteDescriptorSet;
 	public readonly nint Next;
 	private readonly DescriptorSetHandle destinationSet;
 	public readonly uint DestinationBinding;
@@ -29,7 +29,6 @@ public readonly struct WriteDescriptorSet : IDisposable
 	}
 
 	public WriteDescriptorSet(
-		StructureType type,
 		nint next,
 		DescriptorSet? destinationSet,
 		uint destinationBinding,
@@ -41,7 +40,6 @@ public readonly struct WriteDescriptorSet : IDisposable
 	)
 
 	{
-		this.Type = type;
 		this.Next = next;
 		this.destinationSet = (destinationSet != null) ? destinationSet.Handle : default;
 		this.DestinationBinding = destinationBinding;

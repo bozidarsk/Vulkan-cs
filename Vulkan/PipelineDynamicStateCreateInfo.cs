@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct PipelineDynamicStateCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineDynamicStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineDynamicStateCreateFlags Flags;
 	private readonly uint dynamicStateCount;
@@ -18,13 +18,11 @@ public readonly struct PipelineDynamicStateCreateInfo : IDisposable
 	}
 
 	public PipelineDynamicStateCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineDynamicStateCreateFlags flags,
 		DynamicState[]? dynamicStates
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

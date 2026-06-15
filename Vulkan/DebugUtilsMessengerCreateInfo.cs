@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct DebugUtilsMessengerCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DebugUtilsMessengerCreateInfoExt;
 	public readonly nint Next;
 	public readonly DebugUtilsMessengerCreateFlags Flags;
 	public readonly DebugUtilsMessageSeverity MessageSeverity;
@@ -28,7 +28,6 @@ public readonly struct DebugUtilsMessengerCreateInfo
 	}
 
 	public DebugUtilsMessengerCreateInfo(
-		StructureType type,
 		nint next,
 		DebugUtilsMessengerCreateFlags flags,
 		DebugUtilsMessageSeverity messageSeverity,
@@ -37,7 +36,6 @@ public readonly struct DebugUtilsMessengerCreateInfo
 		nint userData
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.MessageSeverity = messageSeverity;

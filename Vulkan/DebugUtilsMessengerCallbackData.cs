@@ -1,12 +1,13 @@
 #pragma warning disable CS0649
 
 using System;
+using System.Linq;
 
 namespace Vulkan;
 
 public readonly struct DebugUtilsMessengerCallbackData : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DebugUtilsMessengerCallbackDataExt;
 	public readonly nint Next;
 	public readonly DebugUtilsMessengerCallbackDataFlags Flags;
 	private readonly cstring messageIdName;
@@ -27,10 +28,46 @@ public readonly struct DebugUtilsMessengerCallbackData : IDisposable
 
 	public void Dispose()
 	{
+		foreach (var x in queueLabels.ToArray(queueLabelCount) ?? [])
+			x.Dispose();
+
+		foreach (var x in cmdBufLabels.ToArray(cmdBufLabelCount) ?? [])
+			x.Dispose();
+
+		foreach (var x in objects.ToArray(objectCount) ?? [])
+			x.Dispose();
+
 		messageIdName.Dispose();
 		message.Dispose();
 		queueLabels.Dispose();
 		cmdBufLabels.Dispose();
 		objects.Dispose();
+	}
+
+	public DebugUtilsMessengerCallbackData(
+		nint next,
+		DebugUtilsMessengerCallbackDataFlags flags,
+		string? messageIdName,
+		int messageIdNumber,
+		string? message,
+		DebugUtilsLabel[]? queueLabels,
+		DebugUtilsLabel[]? cmdBufLabels,
+		DebugUtilsObjectNameInfo[]? objects
+	)
+	{
+		this.Next = next;
+		this.Flags = flags;
+		this.messageIdName = messageIdName;
+		this.MessageIdNumber = messageIdNumber;
+		this.message = message;
+
+		this.queueLabelCount = (uint)(queueLabels?.Length ?? 0);
+		this.queueLabels = new(queueLabels);
+
+		this.cmdBufLabelCount = (uint)(cmdBufLabels?.Length ?? 0);
+		this.cmdBufLabels = new(cmdBufLabels);
+
+		this.objectCount = (uint)(objects?.Length ?? 0);
+		this.objects = new(objects);
 	}
 }

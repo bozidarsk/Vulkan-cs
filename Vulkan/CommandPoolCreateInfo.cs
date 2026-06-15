@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct CommandPoolCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.CommandPoolCreateInfo;
 	public readonly nint Next;
 	public readonly CommandPoolCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
@@ -22,13 +22,11 @@ public readonly struct CommandPoolCreateInfo
 	}
 
 	public CommandPoolCreateInfo(
-		StructureType type,
 		nint next,
 		CommandPoolCreateFlags flags,
 		uint queueFamilyIndex
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.QueueFamilyIndex = queueFamilyIndex;

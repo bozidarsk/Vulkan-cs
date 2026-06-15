@@ -4,7 +4,7 @@ namespace Vulkan;
 
 public readonly struct ApplicationInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.ApplicationInfo;
 	public readonly nint Next;
 	private readonly cstring applicationName;
 	public readonly uint ApplicationVersion;
@@ -21,9 +21,8 @@ public readonly struct ApplicationInfo : IDisposable
 		engineName.Dispose();
 	}
 
-	public ApplicationInfo(StructureType type, nint next, string applicationName, uint applicationVersion, string engineName, uint engineVersion, uint apiVersion)
+	public ApplicationInfo(nint next, string applicationName, uint applicationVersion, string engineName, uint engineVersion, uint apiVersion)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.applicationName = applicationName;
 		this.ApplicationVersion = applicationVersion;

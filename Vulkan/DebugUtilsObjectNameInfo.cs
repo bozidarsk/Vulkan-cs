@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct DebugUtilsObjectNameInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.DebugUtilsObjectNameInfoExt;
 	public readonly nint Next;
 	public readonly ObjectType ObjectType;
 	public readonly ulong ObjectHandle;
@@ -19,5 +19,18 @@ public readonly struct DebugUtilsObjectNameInfo : IDisposable
 	public void Dispose()
 	{
 		objectName.Dispose();
+	}
+
+	public DebugUtilsObjectNameInfo(
+		nint next,
+		ObjectType objectType,
+		ulong objectHandle,
+		string? objectName
+	)
+	{
+		this.Next = next;
+		this.ObjectType = objectType;
+		this.ObjectHandle = objectHandle;
+		this.objectName = objectName;
 	}
 }

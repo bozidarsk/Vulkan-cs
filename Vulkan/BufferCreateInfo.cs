@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct BufferCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.BufferCreateInfo;
 	public readonly nint Next;
 	public readonly BufferCreateFlags Flags;
 	public readonly DeviceSize Size;
@@ -34,7 +34,6 @@ public readonly struct BufferCreateInfo : IDisposable
 	}
 
 	public BufferCreateInfo(
-		StructureType type,
 		nint next,
 		BufferCreateFlags flags,
 		DeviceSize size,
@@ -43,7 +42,6 @@ public readonly struct BufferCreateInfo : IDisposable
 		uint[]? queueFamilyIndices
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.Size = size;

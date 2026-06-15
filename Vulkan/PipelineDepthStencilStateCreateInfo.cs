@@ -2,7 +2,7 @@ namespace Vulkan;
 
 public readonly struct PipelineDepthStencilStateCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.PipelineDepthStencilStateCreateInfo;
 	public readonly nint Next;
 	public readonly PipelineDepthStencilStateCreateFlags Flags;
 	public readonly bool32 DepthTestEnable;
@@ -16,7 +16,6 @@ public readonly struct PipelineDepthStencilStateCreateInfo
 	public readonly float MaxDepthBounds;
 
 	public PipelineDepthStencilStateCreateInfo(
-		StructureType type,
 		nint next,
 		PipelineDepthStencilStateCreateFlags flags,
 		bool depthTestEnable,
@@ -30,7 +29,6 @@ public readonly struct PipelineDepthStencilStateCreateInfo
 		float maxDepthBounds
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.DepthTestEnable = depthTestEnable;

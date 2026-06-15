@@ -7,7 +7,7 @@ namespace Vulkan;
 
 public readonly struct ShaderModuleCreateInfo : IDisposable
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.ShaderModuleCreateInfo;
 	public readonly nint Next;
 	public readonly ShaderModuleCreateFlags Flags;
 	private readonly nuint codeSize;
@@ -30,12 +30,11 @@ public readonly struct ShaderModuleCreateInfo : IDisposable
 		code.Dispose();
 	}
 
-	public ShaderModuleCreateInfo(StructureType type, nint next, ShaderModuleCreateFlags flags, byte[] code)
+	public ShaderModuleCreateInfo(nint next, ShaderModuleCreateFlags flags, byte[] code)
 	{
 		if (code == null)
 			throw new ArgumentNullException();
 
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 

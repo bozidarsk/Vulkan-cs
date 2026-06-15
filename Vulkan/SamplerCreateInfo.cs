@@ -6,7 +6,7 @@ namespace Vulkan;
 
 public readonly struct SamplerCreateInfo
 {
-	public readonly StructureType Type;
+	public readonly StructureType Type = StructureType.SamplerCreateInfo;
 	public readonly nint Next;
 	public readonly SamplerCreateFlags Flags;
 	public readonly Filter MagFilter;
@@ -36,7 +36,6 @@ public readonly struct SamplerCreateInfo
 	}
 
 	public SamplerCreateInfo(
-		StructureType type,
 		nint next,
 		SamplerCreateFlags flags,
 		Filter magFilter,
@@ -56,7 +55,6 @@ public readonly struct SamplerCreateInfo
 		bool unnormalizedCoordinates
 	)
 	{
-		this.Type = type;
 		this.Next = next;
 		this.Flags = flags;
 		this.MagFilter = magFilter;
