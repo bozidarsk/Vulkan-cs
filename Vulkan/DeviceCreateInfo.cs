@@ -27,12 +27,12 @@ public readonly struct DeviceCreateInfo : IDisposable
 
 	public Device CreateDevice(PhysicalDevice physicalDevice, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateDevice(physicalDevice, in this, allocator?.Handle ?? default, out DeviceHandle handle);
+		Result result = vkCreateDevice(physicalDevice.Handle, in this, allocator?.Handle ?? default, out DeviceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDevice(allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateDevice(PhysicalDevice physicalDevice, in DeviceCreateInfo createInfo, AllocationCallbacksHandle allocator, out DeviceHandle device);
+		[DllImport(VK_LIB)] static extern Result vkCreateDevice(PhysicalDeviceHandle physicalDevice, in DeviceCreateInfo createInfo, AllocationCallbacksHandle allocator, out DeviceHandle device);
 	}
 
 	public void Dispose()

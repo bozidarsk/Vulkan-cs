@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 using static Vulkan.Constants;
 
@@ -13,7 +14,7 @@ public sealed class Instance : IDisposable
 
 	internal InstanceHandle Handle => instance;
 
-	public Surface Surface { private set; get; }
+	public Surface? Surface { private set; get; }
 
 	public unsafe PhysicalDevice[] PhysicalDevices
 	{
@@ -21,36 +22,36 @@ public sealed class Instance : IDisposable
 		{
 			Result result;
 
-			result = vkEnumeratePhysicalDevices(instance, out uint count, ref Unsafe.AsRef<PhysicalDevice>(default));
+			result = vkEnumeratePhysicalDevices(instance, out uint count, ref Unsafe.AsRef<PhysicalDeviceHandle>(default));
 			if (result != Result.Success) throw new VulkanException(result);
 
-			PhysicalDevice[] devices = new PhysicalDevice[count];
+			PhysicalDeviceHandle[] devices = new PhysicalDeviceHandle[count];
 
 			result = vkEnumeratePhysicalDevices(instance, out count, ref MemoryMarshal.GetArrayDataReference(devices));
 			if (result != Result.Success) throw new VulkanException(result);
 
-			return devices;
+			return devices.Select(x => x.GetPhysicalDevice()).ToArray();
 
-			[DllImport(VK_LIB)] static extern Result vkEnumeratePhysicalDevices(InstanceHandle instance, out uint count, ref PhysicalDevice pDevices);
+			[DllImport(VK_LIB)] static extern Result vkEnumeratePhysicalDevices(InstanceHandle instance, out uint count, ref PhysicalDeviceHandle pDevices);
 		}
 	}
 
 	public void CreateSurface(GLFW.Window window)
 	{
-		Result result = glfwCreateWindowSurface(instance, window, allocator?.Handle ?? default, out Surface surface);
+		Result result = glfwCreateWindowSurface(instance, window, allocator?.Handle ?? default, out SurfaceHandle surface);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		this.Surface = surface;
+		this.Surface = surface.GetSurface(this, allocator);
 
-		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, AllocationCallbacksHandle allocator, out Surface surface);
+		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, AllocationCallbacksHandle allocator, out SurfaceHandle surface);
 	}
 
 	public void Dispose()
 	{
-		vkDestroySurfaceKHR(instance, Surface, allocator?.Handle ?? default);
+		this.Surface?.Dispose();
+
 		vkDestroyInstance(instance, allocator?.Handle ?? default);
 
-		[DllImport(VK_LIB)] static extern void vkDestroySurfaceKHR(InstanceHandle instance, Surface surface, AllocationCallbacksHandle allocator);
 		[DllImport(VK_LIB)] static extern void vkDestroyInstance(InstanceHandle instance, AllocationCallbacksHandle allocator);
 	}
 

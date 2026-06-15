@@ -15,14 +15,17 @@ global using FramebufferHandle = Vulkan.Handle;
 global using ImageHandle = Vulkan.Handle;
 global using ImageViewHandle = Vulkan.Handle;
 global using InstanceHandle = Vulkan.Handle;
+global using PhysicalDeviceHandle = Vulkan.Handle;
 global using PipelineHandle = Vulkan.Handle;
 global using PipelineLayoutHandle = Vulkan.Handle;
+global using PipelineCacheHandle = Vulkan.Handle;
+global using QueueHandle = Vulkan.Handle;
 global using RenderPassHandle = Vulkan.Handle;
 global using SamplerHandle = Vulkan.Handle;
 global using SemaphoreHandle = Vulkan.Handle;
 global using ShaderModuleHandle = Vulkan.Handle;
+global using SurfaceHandle = Vulkan.Handle;
 global using SwapchainHandle = Vulkan.Handle;
-global using SwapchainPropertiesHandle = Vulkan.Handle;
 
 namespace Vulkan;
 
@@ -56,11 +59,15 @@ internal static class HandleExtensions
 	public static Image GetImage(this ImageHandle handle, Device device, AllocationCallbacks? allocator) => new Image(handle, device, allocator);
 	public static ImageView GetImageView(this ImageViewHandle handle, Device device, AllocationCallbacks? allocator) => new ImageView(handle, device, allocator);
 	public static Instance GetInstance(this InstanceHandle handle, AllocationCallbacks? allocator) => new Instance(handle, allocator);
+	public static PhysicalDevice GetPhysicalDevice(this PhysicalDeviceHandle handle) => new PhysicalDevice(handle);
 	public static Pipeline GetPipeline(this PipelineHandle handle, Device device, AllocationCallbacks? allocator) => new Pipeline(handle, device, allocator);
+	public static PipelineCache GetPipelineCache(this PipelineCacheHandle handle) => new PipelineCache(handle);
 	public static PipelineLayout GetPipelineLayout(this PipelineLayoutHandle handle, Device device, AllocationCallbacks? allocator) => new PipelineLayout(handle, device, allocator);
+	public static Queue GetQueue(this QueueHandle handle) => new Queue(handle);
 	public static RenderPass GetRenderPass(this RenderPassHandle handle, Device device, AllocationCallbacks? allocator) => new RenderPass(handle, device, allocator);
 	public static Sampler GetSampler(this SamplerHandle handle, Device device, AllocationCallbacks? allocator) => new Sampler(handle, device, allocator);
 	public static Semaphore GetSemaphore(this SemaphoreHandle handle, Device device, AllocationCallbacks? allocator) => new Semaphore(handle, device, allocator);
 	public static ShaderModule GetShaderModule(this ShaderModuleHandle handle, Device device, AllocationCallbacks? allocator) => new ShaderModule(handle, device, allocator);
+	public static Surface GetSurface(this SurfaceHandle handle, Instance instance, AllocationCallbacks? allocator) => new Surface(handle, instance, allocator);
 	public static Swapchain GetSwapchain(this SwapchainHandle handle, Device device, AllocationCallbacks? allocator) => new Swapchain(handle, device, allocator);
 }

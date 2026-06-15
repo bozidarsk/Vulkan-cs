@@ -4,43 +4,35 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct Queue
+public sealed class Queue
 {
-	private readonly nint handle;
+	private readonly QueueHandle queue;
+
+	internal QueueHandle Handle => queue;
 
 	public void Submit(Fence? fence, params SubmitInfo[] infos)
 	{
-		Result result = vkQueueSubmit(this, (uint)infos.Length, ref MemoryMarshal.GetArrayDataReference(infos), (fence != null) ? fence.Handle : default);
+		Result result = vkQueueSubmit(queue, (uint)infos.Length, ref MemoryMarshal.GetArrayDataReference(infos), (fence != null) ? fence.Handle : default);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkQueueSubmit(Queue queue, uint count, ref SubmitInfo pInfos, FenceHandle fence);
+		[DllImport(VK_LIB)] static extern Result vkQueueSubmit(QueueHandle queue, uint count, ref SubmitInfo pInfos, FenceHandle fence);
 	}
 
 	public void Present(PresentInfo info)
 	{
-		Result result = vkQueuePresentKHR(this, in info);
+		Result result = vkQueuePresentKHR(queue, in info);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkQueuePresentKHR(Queue queue, in PresentInfo info);
+		[DllImport(VK_LIB)] static extern Result vkQueuePresentKHR(QueueHandle queue, in PresentInfo info);
 	}
 
 	public void WaitIdle()
 	{
-		Result result = vkQueueWaitIdle(this);
+		Result result = vkQueueWaitIdle(queue);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		[DllImport(VK_LIB)] static extern Result vkQueueWaitIdle(Queue queue);
+		[DllImport(VK_LIB)] static extern Result vkQueueWaitIdle(QueueHandle queue);
 	}
 
-	public static bool operator ==(Queue a, Queue b) => a.handle == b.handle;
-	public static bool operator !=(Queue a, Queue b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is Queue x) ? x.handle == handle : false;
-
-	public static implicit operator nint(Queue x) => x.handle;
-	public static implicit operator Queue(nint x) => new(x);
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
-
-	private Queue(nint handle) => this.handle = handle;
+	internal Queue(QueueHandle queue) => this.queue = queue;
 }

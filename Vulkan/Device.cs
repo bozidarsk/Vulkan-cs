@@ -34,10 +34,11 @@ public sealed class Device : IDisposable
 
 	public Queue GetQueue(uint queueFamilyIndex, uint queueIndex)
 	{
-		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out Queue queue);
-		return queue;
+		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out QueueHandle queue);
 
-		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(DeviceHandle device, uint queueFamilyIndex, uint queueIndex, out Queue queue);
+		return queue.GetQueue();
+
+		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(DeviceHandle device, uint queueFamilyIndex, uint queueIndex, out QueueHandle queue);
 	}
 
 	public void WaitIdle()

@@ -48,7 +48,7 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 
 		return handle.GetPipeline(device, allocator);
 
-		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCache cache, uint count, in GraphicsPipelineCreateInfo createInfos, AllocationCallbacksHandle allocator, out PipelineHandle graphicsPipeline);
+		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCacheHandle cache, uint count, in GraphicsPipelineCreateInfo createInfos, AllocationCallbacksHandle allocator, out PipelineHandle graphicsPipeline);
 	}
 
 	public void Dispose()

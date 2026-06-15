@@ -10,7 +10,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	public readonly StructureType Type = StructureType.SwapchainCreateInfo;
 	public readonly nint Next;
 	public readonly SwapchainCreateFlags Flags;
-	public readonly Surface Surface;
+	private readonly SurfaceHandle surface;
 	public readonly uint MinImageCount;
 	public readonly Format ImageFormat;
 	public readonly ColorSpace ImageColorSpace;
@@ -26,6 +26,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	public readonly bool32 Clipped;
 	private readonly SwapchainHandle oldSwapchain;
 
+	public Surface Surface => throw new NotImplementedException(); // cannot get instance and allocator params
 	public Swapchain OldSwapchain => throw new NotImplementedException(); // cannot get device and allocator params
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
@@ -66,7 +67,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	{
 		this.Next = next;
 		this.Flags = flags;
-		this.Surface = surface;
+		this.surface = surface.Handle;
 		this.MinImageCount = minImageCount;
 		this.ImageFormat = imageFormat;
 		this.ImageColorSpace = imageColorSpace;

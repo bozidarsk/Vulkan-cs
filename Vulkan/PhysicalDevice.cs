@@ -5,18 +5,20 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct PhysicalDevice
+public sealed class PhysicalDevice
 {
-	private readonly nint handle;
+	private readonly PhysicalDeviceHandle physicalDevice;
+
+	internal PhysicalDeviceHandle Handle => physicalDevice;
 
 	public PhysicalDeviceMemoryProperties MemoryProperties
 	{
 		get
 		{
-			vkGetPhysicalDeviceMemoryProperties(this, out PhysicalDeviceMemoryProperties properties);
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice, out PhysicalDeviceMemoryProperties properties);
 			return properties;
 
-			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceMemoryProperties(PhysicalDevice physicalDevice, out PhysicalDeviceMemoryProperties properties);
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceMemoryProperties(PhysicalDeviceHandle physicalDevice, out PhysicalDeviceMemoryProperties properties);
 		}
 	}
 
@@ -24,10 +26,10 @@ public readonly struct PhysicalDevice
 	{
 		get
 		{
-			vkGetPhysicalDeviceProperties(this, out PhysicalDeviceProperties properties);
+			vkGetPhysicalDeviceProperties(physicalDevice, out PhysicalDeviceProperties properties);
 			return properties;
 
-			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceProperties(PhysicalDevice physicalDevice, out PhysicalDeviceProperties properties);
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceProperties(PhysicalDeviceHandle physicalDevice, out PhysicalDeviceProperties properties);
 		}
 	}
 
@@ -35,10 +37,10 @@ public readonly struct PhysicalDevice
 	{
 		get
 		{
-			vkGetPhysicalDeviceFeatures(this, out PhysicalDeviceFeaturesStruct features);
+			vkGetPhysicalDeviceFeatures(physicalDevice, out PhysicalDeviceFeaturesStruct features);
 			return features;
 
-			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFeatures(PhysicalDevice physicalDevice, out PhysicalDeviceFeaturesStruct features);
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFeatures(PhysicalDeviceHandle physicalDevice, out PhysicalDeviceFeaturesStruct features);
 		}
 	}
 
@@ -46,51 +48,41 @@ public readonly struct PhysicalDevice
 	{
 		get
 		{
-			vkGetPhysicalDeviceQueueFamilyProperties(this, out uint count, ref Unsafe.AsRef<QueueFamilyProperties>(default));
+			vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, out uint count, ref Unsafe.AsRef<QueueFamilyProperties>(default));
 			var queueFamilyProperties = new QueueFamilyProperties[count];
 
-			vkGetPhysicalDeviceQueueFamilyProperties(this, out count, ref MemoryMarshal.GetArrayDataReference(queueFamilyProperties));
+			vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, out count, ref MemoryMarshal.GetArrayDataReference(queueFamilyProperties));
 
 			return queueFamilyProperties;
 
-			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice physicalDevice, out uint count, ref QueueFamilyProperties pQueueFamilyProperties);
+			[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDeviceHandle physicalDevice, out uint count, ref QueueFamilyProperties pQueueFamilyProperties);
 		}
 	}
 
 	public FormatProperties GetFormatProperties(Format format)
 	{
-		vkGetPhysicalDeviceFormatProperties(this, format, out FormatProperties properties);
+		vkGetPhysicalDeviceFormatProperties(physicalDevice, format, out FormatProperties properties);
 		return properties;
 
-		[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFormatProperties(PhysicalDevice physicalDevice, Format format, out FormatProperties properties);
+		[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFormatProperties(PhysicalDeviceHandle physicalDevice, Format format, out FormatProperties properties);
 	}
 
 	public unsafe ExtensionProperties[] GetExtensionProperties(string? layerName)
 	{
 		Result result;
 
-		result = vkEnumerateDeviceExtensionProperties(this, layerName, out uint count, ref Unsafe.AsRef<ExtensionProperties>(default));
+		result = vkEnumerateDeviceExtensionProperties(physicalDevice, layerName, out uint count, ref Unsafe.AsRef<ExtensionProperties>(default));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		var properties = new ExtensionProperties[count];
 
-		result = vkEnumerateDeviceExtensionProperties(this, layerName, out count, ref MemoryMarshal.GetArrayDataReference(properties));
+		result = vkEnumerateDeviceExtensionProperties(physicalDevice, layerName, out count, ref MemoryMarshal.GetArrayDataReference(properties));
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return properties;
 
-		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDevice physicalDevice, string? layerName, out uint count, ref ExtensionProperties pProperties);
+		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDeviceHandle physicalDevice, string? layerName, out uint count, ref ExtensionProperties pProperties);
 	}
 
-	public static bool operator ==(PhysicalDevice a, PhysicalDevice b) => a.handle == b.handle;
-	public static bool operator !=(PhysicalDevice a, PhysicalDevice b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is PhysicalDevice x) ? x.handle == handle : false;
-
-	public static implicit operator nint(PhysicalDevice x) => x.handle;
-	public static implicit operator PhysicalDevice(nint x) => new(x);
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
-
-	private PhysicalDevice(nint handle) => this.handle = handle;
+	internal PhysicalDevice(PhysicalDeviceHandle physicalDevice) => this.physicalDevice = physicalDevice;
 }
