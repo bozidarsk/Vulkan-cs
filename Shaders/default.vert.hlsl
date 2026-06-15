@@ -2,7 +2,7 @@
 
 #include <common.hlsl>
 
-Fragment main(Vertex input) 
+Fragment main(Vertex input)
 {
 	Fragment output;
 

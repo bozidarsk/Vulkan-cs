@@ -3,7 +3,7 @@
 
 #include <common.hlsl>
 
-float4 main(Fragment input) 
+float4 main(Fragment input)
 {
 	float depth = input.position.z / input.position.w;
 

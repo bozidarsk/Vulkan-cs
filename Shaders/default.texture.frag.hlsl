@@ -6,7 +6,7 @@
 [vk::binding(2)] Texture2D texture0 : register(t0);
 [vk::binding(2)] SamplerState texture0Sampler : register(s0);
 
-float4 main(Fragment input) 
+float4 main(Fragment input)
 {
 	float2 uv = float2(1 - input.uv.x, input.uv.y);
 	float border = 0.01;

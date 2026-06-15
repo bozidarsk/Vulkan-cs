@@ -7,7 +7,7 @@
 #ifndef COMMON_HLSL
 #define COMMON_HLSL
 
-struct Vertex 
+struct Vertex
 {
 	float3 position;
 	float3 normal;
@@ -15,7 +15,7 @@ struct Vertex
 	float4 color;
 };
 
-struct Fragment 
+struct Fragment
 {
 	float4 position : SV_POSITION;
 	float3 normal;
@@ -30,7 +30,7 @@ cbuffer GlobalUniforms : register(b0)
 }
 
 [[vk::push_constant]]
-cbuffer PushConstants 
+cbuffer PushConstants
 {
 	float4x4 MODEL;
 	float3 CAMERA_POSITION;
