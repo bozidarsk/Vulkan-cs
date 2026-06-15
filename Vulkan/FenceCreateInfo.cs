@@ -10,9 +10,9 @@ public readonly struct FenceCreateInfo
 	public readonly nint Next;
 	public readonly FenceCreateFlags Flags;
 
-	public Fence CreateFence(Device device, AllocationCallbacksHandle allocator)
+	public Fence CreateFence(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateFence(device.Handle, in this, allocator, out FenceHandle handle);
+		Result result = vkCreateFence(device.Handle, in this, allocator?.Handle ?? default, out FenceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetFence(device, allocator);

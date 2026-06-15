@@ -10,7 +10,7 @@ public sealed class DeviceMemory : IDisposable
 {
 	private readonly DeviceMemoryHandle deviceMemory;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal DeviceMemoryHandle Handle => deviceMemory;
 
@@ -49,12 +49,12 @@ public sealed class DeviceMemory : IDisposable
 
 	public void Dispose()
 	{
-		vkFreeMemory(device.Handle, deviceMemory, allocator);
+		vkFreeMemory(device.Handle, deviceMemory, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkFreeMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, AllocationCallbacksHandle allocator);
 	}
 
-	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, AllocationCallbacksHandle allocator) =>
+	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, AllocationCallbacks? allocator) =>
 		(this.deviceMemory, this.device, this.allocator) = (deviceMemory, device, allocator)
 	;
 }

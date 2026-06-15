@@ -15,11 +15,11 @@ public readonly struct DebugUtilsMessengerCreateInfo
 	public readonly DebugUtilsMessengerCallback UserCallback;
 	public readonly nint UserData;
 
-	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacksHandle allocator)
+	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacks? allocator)
 	{
 		var vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerExtensionDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
 
-		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator, out DebugUtilsMessengerHandle handle);
+		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator?.Handle ?? default, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDebugUtilsMessenger(instance, allocator);

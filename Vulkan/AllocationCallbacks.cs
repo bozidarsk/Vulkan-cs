@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
@@ -18,30 +19,38 @@ public delegate void InternalAllocationNotificationDelegate(nint userData, nuint
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void InternalFreeNotificationDelegate(nint userData, nuint size, InternalAllocationType allocationType, SystemAllocationScope allocationScope);
 
-public readonly struct AllocationCallbacks
+public sealed class AllocationCallbacks : IDisposable
 {
-	public readonly nint UserData;
-	public readonly AllocationFunctionDelegate AllocationFunction;
-	public readonly ReallocationFunctionDelegate ReallocationFunction;
-	public readonly FreeFunctionDelegate FreeFunction;
-	public readonly InternalAllocationNotificationDelegate InternalAllocationNotification;
-	public readonly InternalFreeNotificationDelegate InternalFreeNotification;
-}
+	private readonly AllocationCallbacksHandle allocationCallbacks;
 
-public readonly struct AllocationCallbacksHandle
-{
-	private readonly nint value;
+	internal AllocationCallbacksHandle Handle => allocationCallbacks;
 
-	public static bool operator ==(AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value == b.value;
-	public static bool operator !=(AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value != b.value;
-	public override bool Equals(object? other) => (other is AllocationCallbacksHandle x) ? x.value == value : false;
+	public unsafe void Dispose()
+	{
+		fixed (AllocationCallbacksHandle* pAllocationCallbacks = &allocationCallbacks)
+			Marshal.FreeHGlobal(*(nint*)pAllocationCallbacks);
+	}
 
-	public override string ToString() => value.ToString();
-	public override int GetHashCode() => value.GetHashCode();
+	public unsafe AllocationCallbacks(
+		AllocationFunctionDelegate allocationFunction,
+		ReallocationFunctionDelegate reallocationFunction,
+		FreeFunctionDelegate freeFunction,
+		InternalAllocationNotificationDelegate internalAllocationNotification,
+		InternalFreeNotificationDelegate internalFreeNotification,
+		nint userData = 0
+	)
+	{
+		nint* data = (nint*)Marshal.AllocHGlobal(6 * sizeof(nint));
 
-	public AllocationCallbacksHandle() => this.value = 0;
+		// this is the layout of VkAllocationCallbacks:
+		data[0] = userData;
+		data[1] = Marshal.GetFunctionPointerForDelegate(allocationFunction ?? throw new ArgumentNullException());
+		data[2] = Marshal.GetFunctionPointerForDelegate(reallocationFunction ?? throw new ArgumentNullException());
+		data[3] = Marshal.GetFunctionPointerForDelegate(freeFunction ?? throw new ArgumentNullException());
+		data[4] = Marshal.GetFunctionPointerForDelegate(internalAllocationNotification ?? throw new ArgumentNullException());
+		data[5] = Marshal.GetFunctionPointerForDelegate(internalFreeNotification ?? throw new ArgumentNullException());
 
-	public unsafe AllocationCallbacksHandle(ref AllocationCallbacks allocator) =>
-		this.value = (nint)Unsafe.AsPointer<AllocationCallbacks>(ref allocator)
-	;
+		fixed (AllocationCallbacksHandle* pAllocationCallbacks = &allocationCallbacks)
+			*(nint*)pAllocationCallbacks = (nint)data;
+	}
 }

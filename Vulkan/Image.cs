@@ -9,7 +9,7 @@ public sealed class Image : IDisposable
 {
 	private readonly ImageHandle image;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal ImageHandle Handle => image;
 
@@ -26,12 +26,12 @@ public sealed class Image : IDisposable
 
 	public void Dispose()
 	{
-		vkDestroyImage(device.Handle, image, allocator);
+		vkDestroyImage(device.Handle, image, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyImage(DeviceHandle device, ImageHandle image, AllocationCallbacksHandle allocator);
 	}
 
-	internal Image(ImageHandle image, Device device, AllocationCallbacksHandle allocator) =>
+	internal Image(ImageHandle image, Device device, AllocationCallbacks? allocator) =>
 		(this.image, this.device, this.allocator) = (image, device, allocator)
 	;
 }

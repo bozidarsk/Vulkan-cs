@@ -10,7 +10,7 @@ public sealed class CommandPool : IDisposable
 {
 	private readonly CommandPoolHandle commandPool;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal CommandPoolHandle Handle => commandPool;
 
@@ -26,12 +26,12 @@ public sealed class CommandPool : IDisposable
 
 	public void Dispose()
 	{
-		vkDestroyCommandPool(device.Handle, commandPool, allocator);
+		vkDestroyCommandPool(device.Handle, commandPool, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyCommandPool(DeviceHandle device, CommandPoolHandle commandPool, AllocationCallbacksHandle allocator);
 	}
 
-	internal CommandPool(CommandPoolHandle commandPool, Device device, AllocationCallbacksHandle allocator) =>
+	internal CommandPool(CommandPoolHandle commandPool, Device device, AllocationCallbacks? allocator) =>
 		(this.commandPool, this.device, this.allocator) = (commandPool, device, allocator)
 	;
 }

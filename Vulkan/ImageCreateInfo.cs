@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
@@ -25,9 +26,9 @@ public readonly struct ImageCreateInfo : IDisposable
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
 
-	public Image CreateImage(Device device, AllocationCallbacksHandle allocator)
+	public Image CreateImage(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateImage(device.Handle, in this, allocator, out ImageHandle handle);
+		Result result = vkCreateImage(device.Handle, in this, allocator?.Handle ?? default, out ImageHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetImage(device, allocator);

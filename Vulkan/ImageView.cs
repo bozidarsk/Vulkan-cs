@@ -9,18 +9,18 @@ public sealed class ImageView : IDisposable
 {
 	private readonly ImageViewHandle imageView;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal ImageViewHandle Handle => imageView;
 
 	public void Dispose()
 	{
-		vkDestroyImageView(device.Handle, imageView, allocator);
+		vkDestroyImageView(device.Handle, imageView, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyImageView(DeviceHandle device, ImageViewHandle imageView, AllocationCallbacksHandle allocator);
 	}
 
-	internal ImageView(ImageViewHandle imageView, Device device, AllocationCallbacksHandle allocator) =>
+	internal ImageView(ImageViewHandle imageView, Device device, AllocationCallbacks? allocator) =>
 		(this.imageView, this.device, this.allocator) = (imageView, device, allocator)
 	;
 }

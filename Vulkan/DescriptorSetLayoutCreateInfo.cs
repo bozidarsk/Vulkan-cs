@@ -15,9 +15,9 @@ public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 
 	public DescriptorSetLayoutBinding[]? Bindings => bindings.ToArray(bindingCount);
 
-	public DescriptorSetLayout CreateDescriptorSetLayout(Device device, AllocationCallbacksHandle allocator)
+	public DescriptorSetLayout CreateDescriptorSetLayout(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateDescriptorSetLayout(device.Handle, in this, allocator, out DescriptorSetLayoutHandle handle);
+		Result result = vkCreateDescriptorSetLayout(device.Handle, in this, allocator?.Handle ?? default, out DescriptorSetLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDescriptorSetLayout(device, allocator);

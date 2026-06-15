@@ -41,9 +41,9 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 	public RenderPass RenderPass => throw new NotImplementedException(); // cannot get allocator and device params
 	public Pipeline BasePipeline => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public Pipeline CreateGraphicsPipeline(Device device, AllocationCallbacksHandle allocator)
+	public Pipeline CreateGraphicsPipeline(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateGraphicsPipelines(device.Handle, default, 1, in this, allocator, out PipelineHandle handle);
+		Result result = vkCreateGraphicsPipelines(device.Handle, default, 1, in this, allocator?.Handle ?? default, out PipelineHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetPipeline(device, allocator);

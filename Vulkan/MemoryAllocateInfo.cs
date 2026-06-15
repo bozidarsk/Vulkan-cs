@@ -11,9 +11,9 @@ public readonly struct MemoryAllocateInfo
 	public readonly DeviceSize AllocationSize;
 	public readonly uint MemoryTypeIndex;
 
-	public DeviceMemory CreateDeviceMemory(Device device, AllocationCallbacksHandle allocator)
+	public DeviceMemory CreateDeviceMemory(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkAllocateMemory(device.Handle, in this, allocator, out DeviceMemoryHandle handle);
+		Result result = vkAllocateMemory(device.Handle, in this, allocator?.Handle ?? default, out DeviceMemoryHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDeviceMemory(device, allocator);

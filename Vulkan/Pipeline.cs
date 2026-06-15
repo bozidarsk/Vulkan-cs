@@ -9,18 +9,18 @@ public sealed class Pipeline : IDisposable
 {
 	private readonly PipelineHandle pipeline;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal PipelineHandle Handle => pipeline;
 
 	public void Dispose()
 	{
-		vkDestroyPipeline(device.Handle, pipeline, allocator);
+		vkDestroyPipeline(device.Handle, pipeline, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyPipeline(DeviceHandle device, PipelineHandle pipeline, AllocationCallbacksHandle allocator);
 	}
 
-	internal Pipeline(PipelineHandle pipeline, Device device, AllocationCallbacksHandle allocator) =>
+	internal Pipeline(PipelineHandle pipeline, Device device, AllocationCallbacks? allocator) =>
 		(this.pipeline, this.device, this.allocator) = (pipeline, device, allocator)
 	;
 }

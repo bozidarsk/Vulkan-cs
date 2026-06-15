@@ -10,7 +10,7 @@ public sealed class Fence : IDisposable
 {
 	private readonly FenceHandle fence;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal FenceHandle Handle => fence;
 
@@ -30,12 +30,12 @@ public sealed class Fence : IDisposable
 
 	public void Dispose()
 	{
-		vkDestroyFence(device.Handle, fence, allocator);
+		vkDestroyFence(device.Handle, fence, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyFence(DeviceHandle device, FenceHandle fence, AllocationCallbacksHandle allocator);
 	}
 
-	internal Fence(FenceHandle fence, Device device, AllocationCallbacksHandle allocator) =>
+	internal Fence(FenceHandle fence, Device device, AllocationCallbacks? allocator) =>
 		(this.fence, this.device, this.allocator) = (fence, device, allocator)
 	;
 }

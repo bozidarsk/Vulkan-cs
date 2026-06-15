@@ -9,18 +9,18 @@ public sealed class DescriptorPool : IDisposable
 {
 	private readonly DescriptorPoolHandle descriptorPool;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal DescriptorPoolHandle Handle => descriptorPool;
 
 	public void Dispose()
 	{
-		vkDestroyDescriptorPool(device.Handle, descriptorPool, allocator);
+		vkDestroyDescriptorPool(device.Handle, descriptorPool, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorPool(DeviceHandle device, DescriptorPoolHandle descriptorPool, AllocationCallbacksHandle allocator);
 	}
 
-	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, AllocationCallbacksHandle allocator) =>
+	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, AllocationCallbacks? allocator) =>
 		(this.descriptorPool, this.device, this.allocator) = (descriptorPool, device, allocator)
 	;
 }

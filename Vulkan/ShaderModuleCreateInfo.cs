@@ -15,9 +15,9 @@ public readonly struct ShaderModuleCreateInfo : IDisposable
 
 	public byte[] Code => code.ToArray((uint)codeSize)!;
 
-	public ShaderModule CreateShaderModule(Device device, AllocationCallbacksHandle allocator)
+	public ShaderModule CreateShaderModule(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateShaderModule(device.Handle, in this, allocator, out ShaderModuleHandle handle);
+		Result result = vkCreateShaderModule(device.Handle, in this, allocator?.Handle ?? default, out ShaderModuleHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetShaderModule(device, allocator);

@@ -9,18 +9,18 @@ public sealed class Sampler : IDisposable
 {
 	private readonly SamplerHandle sampler;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal SamplerHandle Handle => sampler;
 
 	public void Dispose()
 	{
-		vkDestroySampler(device.Handle, sampler, allocator);
+		vkDestroySampler(device.Handle, sampler, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroySampler(DeviceHandle device, SamplerHandle sampler, AllocationCallbacksHandle allocator);
 	}
 
-	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacksHandle allocator) =>
+	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacks? allocator) =>
 		(this.sampler, this.device, this.allocator) = (sampler, device, allocator)
 	;
 }

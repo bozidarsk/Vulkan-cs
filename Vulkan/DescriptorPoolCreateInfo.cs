@@ -16,9 +16,9 @@ public readonly struct DescriptorPoolCreateInfo : IDisposable
 
 	public DescriptorPoolSize[]? PoolSizes => poolSizes.ToArray(poolSizeCount);
 
-	public DescriptorPool CreateDescriptorPool(Device device, AllocationCallbacksHandle allocator)
+	public DescriptorPool CreateDescriptorPool(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateDescriptorPool(device.Handle, in this, allocator, out DescriptorPoolHandle handle);
+		Result result = vkCreateDescriptorPool(device.Handle, in this, allocator?.Handle ?? default, out DescriptorPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDescriptorPool(device, allocator);

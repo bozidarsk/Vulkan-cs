@@ -10,9 +10,9 @@ public readonly struct SemaphoreCreateInfo
 	public readonly nint Next;
 	public readonly SemaphoreCreateFlags Flags;
 
-	public Semaphore CreateSemaphore(Device device, AllocationCallbacksHandle allocator)
+	public Semaphore CreateSemaphore(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateSemaphore(device.Handle, in this, allocator, out SemaphoreHandle handle);
+		Result result = vkCreateSemaphore(device.Handle, in this, allocator?.Handle ?? default, out SemaphoreHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetSemaphore(device, allocator);

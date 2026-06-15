@@ -9,18 +9,18 @@ public sealed class Framebuffer : IDisposable
 {
 	private readonly FramebufferHandle framebuffer;
 	private readonly Device device;
-	private readonly AllocationCallbacksHandle allocator;
+	private readonly AllocationCallbacks? allocator;
 
 	internal FramebufferHandle Handle => framebuffer;
 
 	public void Dispose()
 	{
-		vkDestroyFramebuffer(device.Handle, framebuffer, allocator);
+		vkDestroyFramebuffer(device.Handle, framebuffer, allocator?.Handle ?? default);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyFramebuffer(DeviceHandle device, FramebufferHandle framebuffer, AllocationCallbacksHandle allocator);
 	}
 
-	internal Framebuffer(FramebufferHandle framebuffer, Device device, AllocationCallbacksHandle allocator) =>
+	internal Framebuffer(FramebufferHandle framebuffer, Device device, AllocationCallbacks? allocator) =>
 		(this.framebuffer, this.device, this.allocator) = (framebuffer, device, allocator)
 	;
 }

@@ -25,9 +25,9 @@ public readonly struct DeviceCreateInfo : IDisposable
 	public DeviceQueueCreateInfo[]? QueueCreateInfos => queueCreateInfos.ToArray(queueCreateInfoCount);
 	public PhysicalDeviceFeatures EnabledFeatures => (PhysicalDeviceFeaturesStruct)enabledFeatures;
 
-	public Device CreateDevice(PhysicalDevice physicalDevice, AllocationCallbacksHandle allocator)
+	public Device CreateDevice(PhysicalDevice physicalDevice, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateDevice(physicalDevice, in this, allocator, out DeviceHandle handle);
+		Result result = vkCreateDevice(physicalDevice, in this, allocator?.Handle ?? default, out DeviceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetDevice(allocator);

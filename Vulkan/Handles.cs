@@ -1,3 +1,4 @@
+global using AllocationCallbacksHandle = Vulkan.Handle;
 global using BufferHandle = Vulkan.Handle;
 global using BufferViewHandle = Vulkan.Handle;
 global using CommandBufferHandle = Vulkan.Handle;
@@ -41,25 +42,25 @@ internal readonly struct Handle
 
 internal static class HandleExtensions
 {
-	public static Buffer GetBuffer(this BufferHandle handle, Device device, AllocationCallbacksHandle allocator) => new Buffer(handle, device, allocator);
+	public static Buffer GetBuffer(this BufferHandle handle, Device device, AllocationCallbacks? allocator) => new Buffer(handle, device, allocator);
 	public static CommandBuffer GetCommandBuffer(this CommandBufferHandle handle, Device device, CommandPool commandPool) => new CommandBuffer(handle, device, commandPool);
-	public static CommandPool GetCommandPool(this CommandPoolHandle handle, Device device, AllocationCallbacksHandle allocator) => new CommandPool(handle, device, allocator);
-	public static DescriptorPool GetDescriptorPool(this DescriptorPoolHandle handle, Device device, AllocationCallbacksHandle allocator) => new DescriptorPool(handle, device, allocator);
-	public static DebugUtilsMessenger GetDebugUtilsMessenger(this DebugUtilsMessengerHandle handle, Instance instance, AllocationCallbacksHandle allocator) => new DebugUtilsMessenger(handle, instance, allocator);
+	public static CommandPool GetCommandPool(this CommandPoolHandle handle, Device device, AllocationCallbacks? allocator) => new CommandPool(handle, device, allocator);
+	public static DescriptorPool GetDescriptorPool(this DescriptorPoolHandle handle, Device device, AllocationCallbacks? allocator) => new DescriptorPool(handle, device, allocator);
+	public static DebugUtilsMessenger GetDebugUtilsMessenger(this DebugUtilsMessengerHandle handle, Instance instance, AllocationCallbacks? allocator) => new DebugUtilsMessenger(handle, instance, allocator);
 	public static DescriptorSet GetDescriptorSet(this DescriptorSetHandle handle, Device device, DescriptorPool descriptorPool) => new DescriptorSet(handle, device, descriptorPool);
-	public static DescriptorSetLayout GetDescriptorSetLayout(this DescriptorSetLayoutHandle handle, Device device, AllocationCallbacksHandle allocator) => new DescriptorSetLayout(handle, device, allocator);
-	public static Device GetDevice(this DeviceHandle handle, AllocationCallbacksHandle allocator) => new Device(handle, allocator);
-	public static DeviceMemory GetDeviceMemory(this DeviceMemoryHandle handle, Device device, AllocationCallbacksHandle allocator) => new DeviceMemory(handle, device, allocator);
-	public static Fence GetFence(this FenceHandle handle, Device device, AllocationCallbacksHandle allocator) => new Fence(handle, device, allocator);
-	public static Framebuffer GetFramebuffer(this FramebufferHandle handle, Device device, AllocationCallbacksHandle allocator) => new Framebuffer(handle, device, allocator);
-	public static Image GetImage(this ImageHandle handle, Device device, AllocationCallbacksHandle allocator) => new Image(handle, device, allocator);
-	public static ImageView GetImageView(this ImageViewHandle handle, Device device, AllocationCallbacksHandle allocator) => new ImageView(handle, device, allocator);
-	public static Instance GetInstance(this InstanceHandle handle, AllocationCallbacksHandle allocator) => new Instance(handle, allocator);
-	public static Pipeline GetPipeline(this PipelineHandle handle, Device device, AllocationCallbacksHandle allocator) => new Pipeline(handle, device, allocator);
-	public static PipelineLayout GetPipelineLayout(this PipelineLayoutHandle handle, Device device, AllocationCallbacksHandle allocator) => new PipelineLayout(handle, device, allocator);
-	public static RenderPass GetRenderPass(this RenderPassHandle handle, Device device, AllocationCallbacksHandle allocator) => new RenderPass(handle, device, allocator);
-	public static Sampler GetSampler(this SamplerHandle handle, Device device, AllocationCallbacksHandle allocator) => new Sampler(handle, device, allocator);
-	public static Semaphore GetSemaphore(this SemaphoreHandle handle, Device device, AllocationCallbacksHandle allocator) => new Semaphore(handle, device, allocator);
-	public static ShaderModule GetShaderModule(this ShaderModuleHandle handle, Device device, AllocationCallbacksHandle allocator) => new ShaderModule(handle, device, allocator);
-	public static Swapchain GetSwapchain(this SwapchainHandle handle, Device device, AllocationCallbacksHandle allocator) => new Swapchain(handle, device, allocator);
+	public static DescriptorSetLayout GetDescriptorSetLayout(this DescriptorSetLayoutHandle handle, Device device, AllocationCallbacks? allocator) => new DescriptorSetLayout(handle, device, allocator);
+	public static Device GetDevice(this DeviceHandle handle, AllocationCallbacks? allocator) => new Device(handle, allocator);
+	public static DeviceMemory GetDeviceMemory(this DeviceMemoryHandle handle, Device device, AllocationCallbacks? allocator) => new DeviceMemory(handle, device, allocator);
+	public static Fence GetFence(this FenceHandle handle, Device device, AllocationCallbacks? allocator) => new Fence(handle, device, allocator);
+	public static Framebuffer GetFramebuffer(this FramebufferHandle handle, Device device, AllocationCallbacks? allocator) => new Framebuffer(handle, device, allocator);
+	public static Image GetImage(this ImageHandle handle, Device device, AllocationCallbacks? allocator) => new Image(handle, device, allocator);
+	public static ImageView GetImageView(this ImageViewHandle handle, Device device, AllocationCallbacks? allocator) => new ImageView(handle, device, allocator);
+	public static Instance GetInstance(this InstanceHandle handle, AllocationCallbacks? allocator) => new Instance(handle, allocator);
+	public static Pipeline GetPipeline(this PipelineHandle handle, Device device, AllocationCallbacks? allocator) => new Pipeline(handle, device, allocator);
+	public static PipelineLayout GetPipelineLayout(this PipelineLayoutHandle handle, Device device, AllocationCallbacks? allocator) => new PipelineLayout(handle, device, allocator);
+	public static RenderPass GetRenderPass(this RenderPassHandle handle, Device device, AllocationCallbacks? allocator) => new RenderPass(handle, device, allocator);
+	public static Sampler GetSampler(this SamplerHandle handle, Device device, AllocationCallbacks? allocator) => new Sampler(handle, device, allocator);
+	public static Semaphore GetSemaphore(this SemaphoreHandle handle, Device device, AllocationCallbacks? allocator) => new Semaphore(handle, device, allocator);
+	public static ShaderModule GetShaderModule(this ShaderModuleHandle handle, Device device, AllocationCallbacks? allocator) => new ShaderModule(handle, device, allocator);
+	public static Swapchain GetSwapchain(this SwapchainHandle handle, Device device, AllocationCallbacks? allocator) => new Swapchain(handle, device, allocator);
 }

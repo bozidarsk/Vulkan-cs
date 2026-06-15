@@ -19,9 +19,9 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params
 	public PushConstantRange[]? PushConstantRanges => pushConstantRanges.ToArray(pushConstantRangeCount);
 
-	public PipelineLayout CreatePipelineLayout(Device device, AllocationCallbacksHandle allocator)
+	public PipelineLayout CreatePipelineLayout(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreatePipelineLayout(device.Handle, in this, allocator, out PipelineLayoutHandle handle);
+		Result result = vkCreatePipelineLayout(device.Handle, in this, allocator?.Handle ?? default, out PipelineLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetPipelineLayout(device, allocator);

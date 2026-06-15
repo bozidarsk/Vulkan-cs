@@ -11,9 +11,9 @@ public readonly struct CommandPoolCreateInfo
 	public readonly CommandPoolCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
 
-	public CommandPool CreateCommandPool(Device device, AllocationCallbacksHandle allocator)
+	public CommandPool CreateCommandPool(Device device, AllocationCallbacks? allocator)
 	{
-		Result result = vkCreateCommandPool(device.Handle, in this, allocator, out CommandPoolHandle handle);
+		Result result = vkCreateCommandPool(device.Handle, in this, allocator?.Handle ?? default, out CommandPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		return handle.GetCommandPool(device, allocator);
