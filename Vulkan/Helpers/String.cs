@@ -13,8 +13,8 @@ internal readonly struct String : IDisposable
 
 	public string? Value => ToString();
 
-	public static implicit operator string? (cstring x) => x.ToString();
-	public static implicit operator cstring (string? x) => new(x);
+	public static implicit operator string?(cstring x) => x.ToString();
+	public static implicit operator cstring(string? x) => new(x);
 
 	public unsafe override string? ToString() => (x != default) ? new((sbyte*)x) : null;
 

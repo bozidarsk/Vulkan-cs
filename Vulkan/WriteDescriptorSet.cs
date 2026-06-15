@@ -21,7 +21,7 @@ public readonly struct WriteDescriptorSet : IDisposable
 	public DescriptorBufferInfo[]? BufferInfo => bufferInfos.ToArray(descriptorCount);
 	public BufferView[]? TexelBufferView => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		imageInfos.Dispose();
 		bufferInfos.Dispose();
@@ -48,19 +48,19 @@ public readonly struct WriteDescriptorSet : IDisposable
 		this.DestinationArrayElement = destinationArrayElement;
 		this.DescriptorType = descriptorType;
 
-		if (imageInfos != null) 
+		if (imageInfos != null)
 		{
 			this.descriptorCount = (uint)(imageInfos?.Length ?? 0);
 			this.imageInfos = new(imageInfos);
 		}
 
-		if (bufferInfos != null) 
+		if (bufferInfos != null)
 		{
 			this.descriptorCount = (uint)(bufferInfos?.Length ?? 0);
 			this.bufferInfos = new(bufferInfos);
 		}
 
-		if (texelBufferViews != null) 
+		if (texelBufferViews != null)
 		{
 			this.descriptorCount = (uint)(texelBufferViews?.Length ?? 0);
 			this.texelBufferViews = new(texelBufferViews?.Select(x => x.Handle).ToArray());

@@ -20,7 +20,7 @@ public readonly struct SubmitInfo : IDisposable
 	public CommandBuffer[]? CommandBuffers => throw new NotImplementedException(); // cannot get allocator and device params
 	public Semaphore[]? SignalSemaphores => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		waitSemaphores.Dispose();
 		waitDstStageMasks.Dispose();

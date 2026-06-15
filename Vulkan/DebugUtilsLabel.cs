@@ -15,7 +15,7 @@ public readonly struct DebugUtilsLabel : IDisposable
 
 	public override string? ToString() => LabelName;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		labelName.Dispose();
 	}

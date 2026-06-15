@@ -16,7 +16,7 @@ public readonly struct PipelineMultisampleStateCreateInfo : IDisposable
 
 	public SampleMask SampleMask => sampleMask;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		sampleMask.Dispose();
 	}

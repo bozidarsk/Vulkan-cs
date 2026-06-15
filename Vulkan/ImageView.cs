@@ -13,14 +13,14 @@ public sealed class ImageView : IDisposable
 
 	internal ImageViewHandle Handle => imageView;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyImageView(device.Handle, imageView, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyImageView(DeviceHandle device, ImageViewHandle imageView, AllocationCallbacksHandle allocator);
 	}
 
-	internal ImageView(ImageViewHandle imageView, Device device, AllocationCallbacksHandle allocator) => 
+	internal ImageView(ImageViewHandle imageView, Device device, AllocationCallbacksHandle allocator) =>
 		(this.imageView, this.device, this.allocator) = (imageView, device, allocator)
 	;
 }

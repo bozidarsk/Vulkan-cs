@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct Rect2D 
+public readonly struct Rect2D
 {
 	public readonly Offset2D Offset;
 	public readonly Extent2D Extent;

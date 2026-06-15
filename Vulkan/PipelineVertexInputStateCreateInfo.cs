@@ -15,13 +15,13 @@ public readonly struct PipelineVertexInputStateCreateInfo : IDisposable
 	public VertexInputBindingDescription[]? VertexBindingDescriptions => vertexBindingDescriptions.ToArray(vertexBindingDescriptionCount);
 	public VertexInputAttributeDescription[]? VertexAttributeDescriptions => vertexAttributeDescriptions.ToArray(vertexAttributeDescriptionCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vertexBindingDescriptions.Dispose();
 		vertexAttributeDescriptions.Dispose();
 	}
 
-	public PipelineVertexInputStateCreateInfo(StructureType type, nint next, PipelineVertexInputStateCreateFlags flags, VertexInputBindingDescription[]? vertexBindingDescriptions, VertexInputAttributeDescription[]? vertexAttributeDescriptions) 
+	public PipelineVertexInputStateCreateInfo(StructureType type, nint next, PipelineVertexInputStateCreateFlags flags, VertexInputBindingDescription[]? vertexBindingDescriptions, VertexInputAttributeDescription[]? vertexAttributeDescriptions)
 	{
 		this.Type = type;
 		this.Next = next;

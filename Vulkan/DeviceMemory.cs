@@ -14,7 +14,7 @@ public sealed class DeviceMemory : IDisposable
 
 	internal DeviceMemoryHandle Handle => deviceMemory;
 
-	public void Bind(Buffer buffer, DeviceSize offset = default) 
+	public void Bind(Buffer buffer, DeviceSize offset = default)
 	{
 		Result result = vkBindBufferMemory(device.Handle, buffer.Handle, deviceMemory, offset);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -22,7 +22,7 @@ public sealed class DeviceMemory : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkBindBufferMemory(DeviceHandle device, BufferHandle buffer, DeviceMemoryHandle memory, DeviceSize offset);
 	}
 
-	public void Bind(Image image, DeviceSize offset = default) 
+	public void Bind(Image image, DeviceSize offset = default)
 	{
 		Result result = vkBindImageMemory(device.Handle, image.Handle, deviceMemory, offset);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -30,7 +30,7 @@ public sealed class DeviceMemory : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkBindImageMemory(DeviceHandle device, ImageHandle image, DeviceMemoryHandle memory, DeviceSize offset);
 	}
 
-	public nint Map(DeviceSize size, DeviceSize offset, MemoryMapFlags flags) 
+	public nint Map(DeviceSize size, DeviceSize offset, MemoryMapFlags flags)
 	{
 		Result result = vkMapMemory(device.Handle, deviceMemory, offset, size, flags, out nint pointer);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -40,21 +40,21 @@ public sealed class DeviceMemory : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkMapMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, DeviceSize offset, DeviceSize size, MemoryMapFlags flags, out nint pDest);
 	}
 
-	public void Unmap() 
+	public void Unmap()
 	{
 		vkUnmapMemory(device.Handle, deviceMemory);
 
 		[DllImport(VK_LIB)] static extern Result vkUnmapMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkFreeMemory(device.Handle, deviceMemory, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkFreeMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, AllocationCallbacksHandle allocator);
 	}
 
-	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, AllocationCallbacksHandle allocator) => 
+	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, AllocationCallbacksHandle allocator) =>
 		(this.deviceMemory, this.device, this.allocator) = (deviceMemory, device, allocator)
 	;
 }

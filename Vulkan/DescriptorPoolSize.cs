@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct DescriptorPoolSize 
+public readonly struct DescriptorPoolSize
 {
 	public readonly DescriptorType Type;
 	public readonly uint DescriptorCount;

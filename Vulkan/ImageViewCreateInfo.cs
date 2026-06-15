@@ -5,7 +5,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct ImageViewCreateInfo 
+public readonly struct ImageViewCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
@@ -18,7 +18,7 @@ public readonly struct ImageViewCreateInfo
 
 	public Image Image => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public ImageView CreateImageView(Device device, AllocationCallbacksHandle allocator) 
+	public ImageView CreateImageView(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateImageView(device.Handle, in this, allocator, out ImageViewHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

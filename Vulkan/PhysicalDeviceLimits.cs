@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PhysicalDeviceLimits 
+public readonly struct PhysicalDeviceLimits
 {
 	public readonly uint MaxImageDimension1D;
 	public readonly uint MaxImageDimension2D;

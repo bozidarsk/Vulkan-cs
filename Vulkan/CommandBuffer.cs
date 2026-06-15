@@ -16,7 +16,7 @@ public sealed class CommandBuffer : IDisposable
 
 	internal CommandBufferHandle Handle => commandBuffer;
 
-	public void PushDescriptorSet(PipelineBindPoint bindPoint, PipelineLayout layout, params WriteDescriptorSet[] writes) 
+	public void PushDescriptorSet(PipelineBindPoint bindPoint, PipelineLayout layout, params WriteDescriptorSet[] writes)
 	{
 		if (writes == null)
 			throw new ArgumentNullException();
@@ -24,7 +24,7 @@ public sealed class CommandBuffer : IDisposable
 		vkCmdPushDescriptorSetKHR(commandBuffer, bindPoint, layout.Handle, 0, (uint)writes.Length, ref MemoryMarshal.GetArrayDataReference(writes));
 	}
 
-	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data) 
+	public void PushConstants(PipelineLayout layout, ShaderStage stage, uint offset, uint size, ref byte data)
 	{
 		vkCmdPushConstants(commandBuffer, layout.Handle, stage, offset, size, ref data);
 
@@ -38,7 +38,7 @@ public sealed class CommandBuffer : IDisposable
 		);
 	}
 
-	public unsafe void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout layout, DescriptorSet[] sets, uint[]? dynamicOffsets = null) 
+	public unsafe void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout layout, DescriptorSet[] sets, uint[]? dynamicOffsets = null)
 	{
 		if (sets == null)
 			throw new ArgumentNullException();
@@ -66,7 +66,7 @@ public sealed class CommandBuffer : IDisposable
 		);
 	}
 
-	public void BindVertexBuffers(params Buffer[] buffers) 
+	public void BindVertexBuffers(params Buffer[] buffers)
 	{
 		if (buffers == null)
 			throw new ArgumentNullException();
@@ -82,7 +82,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdBindVertexBuffers(CommandBufferHandle commandBuffer, uint firstBinding, uint bindingCount, ref BufferHandle pBuffers, ref DeviceSize pOffsets);
 	}
 
-	public void BindIndexBuffer(Buffer buffer, IndexType type) 
+	public void BindIndexBuffer(Buffer buffer, IndexType type)
 	{
 		vkCmdBindIndexBuffer(
 			commandBuffer,
@@ -94,7 +94,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdBindIndexBuffer(CommandBufferHandle commandBuffer, BufferHandle buffer, DeviceSize offset, IndexType type);
 	}
 
-	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size) 
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size)
 	{
 		if (source == null || destination == null)
 			throw new ArgumentNullException();
@@ -106,7 +106,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
 	}
 
-	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, params BufferCopy[] regions) 
+	public void CopyBuffer(Buffer source, Buffer destination, DeviceSize size, params BufferCopy[] regions)
 	{
 		if (source == null || destination == null || regions == null)
 			throw new ArgumentNullException();
@@ -116,7 +116,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBuffer(CommandBufferHandle commandBuffer, BufferHandle source, BufferHandle destination, uint regionCount, ref BufferCopy pRegions);
 	}
 
-	public void Reset(CommandBufferResetFlags flags) 
+	public void Reset(CommandBufferResetFlags flags)
 	{
 		Result result = vkResetCommandBuffer(commandBuffer, flags);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -124,7 +124,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkResetCommandBuffer(CommandBufferHandle commandBuffer, CommandBufferResetFlags flags);
 	}
 
-	public void Begin(CommandBufferBeginInfo beginInfo) 
+	public void Begin(CommandBufferBeginInfo beginInfo)
 	{
 		Result result = vkBeginCommandBuffer(commandBuffer, in beginInfo);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -132,7 +132,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkBeginCommandBuffer(CommandBufferHandle commandBuffer, in CommandBufferBeginInfo beginInfo);
 	}
 
-	public void End() 
+	public void End()
 	{
 		Result result = vkEndCommandBuffer(commandBuffer);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -140,7 +140,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkEndCommandBuffer(CommandBufferHandle commandBuffer);
 	}
 
-	public void BeginRenderPass(RenderPassBeginInfo renderPassInfo, SubpassContents contents) 
+	public void BeginRenderPass(RenderPassBeginInfo renderPassInfo, SubpassContents contents)
 	{
 		Result result = vkCmdBeginRenderPass(commandBuffer, in renderPassInfo, contents);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -148,21 +148,21 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCmdBeginRenderPass(CommandBufferHandle commandBuffer, in RenderPassBeginInfo renderPassInfo, SubpassContents contents);
 	}
 
-	public void EndRenderPass() 
+	public void EndRenderPass()
 	{
 		vkCmdEndRenderPass(commandBuffer);
 
 		[DllImport(VK_LIB)] static extern void vkCmdEndRenderPass(CommandBufferHandle commandBuffer);
 	}
 
-	public void BindPipeline(Pipeline pipeline, PipelineBindPoint bindPoint) 
+	public void BindPipeline(Pipeline pipeline, PipelineBindPoint bindPoint)
 	{
 		vkCmdBindPipeline(commandBuffer, bindPoint, pipeline.Handle);
 
 		[DllImport(VK_LIB)] static extern void vkCmdBindPipeline(CommandBufferHandle commandBuffer, PipelineBindPoint bindPoint, PipelineHandle pipeline);
 	}
 
-	public void SetViewports(params Viewport[] viewports) 
+	public void SetViewports(params Viewport[] viewports)
 	{
 		if (viewports == null)
 			throw new ArgumentNullException();
@@ -172,7 +172,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdSetViewport(CommandBufferHandle commandBuffer, uint first, uint count, ref Viewport pViewports);
 	}
 
-	public void SetScissors(params Rect2D[] scissors) 
+	public void SetScissors(params Rect2D[] scissors)
 	{
 		if (scissors == null)
 			throw new ArgumentNullException();
@@ -182,7 +182,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdSetScissor(CommandBufferHandle commandBuffer, uint first, uint count, ref Rect2D pScissors);
 	}
 
-	public void SetVertexInput(VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions) 
+	public void SetVertexInput(VertexInputBindingDescription2[] bindingDescriptions, VertexInputAttributeDescription2[] attributeDescriptions)
 	{
 		if (bindingDescriptions == null || attributeDescriptions == null)
 			throw new ArgumentNullException();
@@ -196,31 +196,31 @@ public sealed class CommandBuffer : IDisposable
 		);
 	}
 
-	public void SetCullMode(CullMode mode) 
+	public void SetCullMode(CullMode mode)
 	{
 		vkCmdSetCullModeEXT(commandBuffer, mode);
 	}
 
-	public void SetFrontFace(FrontFace frontFace) 
+	public void SetFrontFace(FrontFace frontFace)
 	{
 		vkCmdSetFrontFaceEXT(commandBuffer, frontFace);
 	}
 
-	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0) 
+	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0)
 	{
 		vkCmdDraw(commandBuffer, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);
 
 		[DllImport(VK_LIB)] static extern void vkCmdDraw(CommandBufferHandle commandBuffer, uint vertextCount, uint instanceCount, uint firstVertex, uint firstInstance);
 	}
 
-	public void DrawIndexed(int indexCount, int instanceCount = 1, int firstIndex = 0, int vertexOffset = 0, int firstInstance = 0) 
+	public void DrawIndexed(int indexCount, int instanceCount = 1, int firstIndex = 0, int vertexOffset = 0, int firstInstance = 0)
 	{
 		vkCmdDrawIndexed(commandBuffer, (uint)indexCount, (uint)instanceCount, (uint)firstIndex, vertexOffset, (uint)firstInstance);
 
 		[DllImport(VK_LIB)] static extern void vkCmdDrawIndexed(CommandBufferHandle commandBuffer, uint indexCount, uint instanceCount, uint firstIndex, int vertexOffset, uint firstInstance);
 	}
 
-	public void CopyBufferToImage(Buffer buffer, Image image, ImageLayout layout, params BufferImageCopy[] regions) 
+	public void CopyBufferToImage(Buffer buffer, Image image, ImageLayout layout, params BufferImageCopy[] regions)
 	{
 		if (buffer == null || image == null || regions == null)
 			throw new ArgumentNullException();
@@ -230,7 +230,7 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdCopyBufferToImage(CommandBufferHandle commandBuffer, BufferHandle buffer, ImageHandle image, ImageLayout layout, uint regionCount, ref BufferImageCopy pRegions);
 	}
 
-	public void CopyImageToBuffer(Image image, Buffer buffer, ImageLayout layout, params BufferImageCopy[] regions) 
+	public void CopyImageToBuffer(Image image, Buffer buffer, ImageLayout layout, params BufferImageCopy[] regions)
 	{
 		if (buffer == null || image == null || regions == null)
 			throw new ArgumentNullException();
@@ -278,7 +278,7 @@ public sealed class CommandBuffer : IDisposable
 
 	public void Dispose() => commandPool.FreeCommandBuffers(this);
 
-	internal CommandBuffer(CommandBufferHandle commandBuffer, Device device, CommandPool commandPool) => 
+	internal CommandBuffer(CommandBufferHandle commandBuffer, Device device, CommandPool commandPool) =>
 		(this.commandBuffer, this.device, this.commandPool) = (commandBuffer, device, commandPool)
 	;
 }

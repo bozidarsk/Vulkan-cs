@@ -25,7 +25,7 @@ public readonly struct DeviceCreateInfo : IDisposable
 	public DeviceQueueCreateInfo[]? QueueCreateInfos => queueCreateInfos.ToArray(queueCreateInfoCount);
 	public PhysicalDeviceFeatures EnabledFeatures => (PhysicalDeviceFeaturesStruct)enabledFeatures;
 
-	public Device CreateDevice(PhysicalDevice physicalDevice, AllocationCallbacksHandle allocator) 
+	public Device CreateDevice(PhysicalDevice physicalDevice, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateDevice(physicalDevice, in this, allocator, out DeviceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -35,7 +35,7 @@ public readonly struct DeviceCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCreateDevice(PhysicalDevice physicalDevice, in DeviceCreateInfo createInfo, AllocationCallbacksHandle allocator, out DeviceHandle device);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		foreach (var x in enabledLayerNames.ToArray(enabledLayerCount) ?? [])
 			x.Dispose();
@@ -49,7 +49,7 @@ public readonly struct DeviceCreateInfo : IDisposable
 		queueCreateInfos.Dispose();
 	}
 
-	public DeviceCreateInfo(StructureType type, nint next, DeviceCreateFlags flags, DeviceQueueCreateInfo[]? queueCreateInfos, string?[]? enabledLayerNames, string?[]? enabledExtensionNames, PhysicalDeviceFeatures enabledFeatures) 
+	public DeviceCreateInfo(StructureType type, nint next, DeviceCreateFlags flags, DeviceQueueCreateInfo[]? queueCreateInfos, string?[]? enabledLayerNames, string?[]? enabledExtensionNames, PhysicalDeviceFeatures enabledFeatures)
 	{
 		this.Type = type;
 		this.Next = next;

@@ -4,14 +4,14 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct CommandPoolCreateInfo 
+public readonly struct CommandPoolCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
 	public readonly CommandPoolCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
 
-	public CommandPool CreateCommandPool(Device device, AllocationCallbacksHandle allocator) 
+	public CommandPool CreateCommandPool(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateCommandPool(device.Handle, in this, allocator, out CommandPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

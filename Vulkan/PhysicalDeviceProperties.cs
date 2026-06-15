@@ -2,7 +2,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public struct PhysicalDeviceProperties 
+public struct PhysicalDeviceProperties
 {
 	public readonly uint ApiVersion;
 	public readonly uint DriverVersion;

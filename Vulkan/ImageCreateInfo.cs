@@ -25,7 +25,7 @@ public readonly struct ImageCreateInfo : IDisposable
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
 
-	public Image CreateImage(Device device, AllocationCallbacksHandle allocator) 
+	public Image CreateImage(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateImage(device.Handle, in this, allocator, out ImageHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -35,7 +35,7 @@ public readonly struct ImageCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCreateImage(DeviceHandle device, in ImageCreateInfo createInfo, AllocationCallbacksHandle allocator, out ImageHandle image);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		queueFamilyIndices.Dispose();
 	}

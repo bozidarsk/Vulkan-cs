@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PhysicalDeviceExtendedDynamicStateFeatures 
+public readonly struct PhysicalDeviceExtendedDynamicStateFeatures
 {
 	public readonly StructureType Type;
 	public readonly nint Next;

@@ -21,7 +21,7 @@ public readonly struct RenderPassCreateInfo : IDisposable
 	public SubpassDescription[]? Subpasses => subpasses.ToArray(subpassCount);
 	public SubpassDependency[]? Dependencies => dependencies.ToArray(dependencyCount);
 
-	public RenderPass CreateRenderPass(Device device, AllocationCallbacksHandle allocator) 
+	public RenderPass CreateRenderPass(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateRenderPass(device.Handle, in this, allocator, out RenderPassHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -31,7 +31,7 @@ public readonly struct RenderPassCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCreateRenderPass(DeviceHandle device, in RenderPassCreateInfo createInfo, AllocationCallbacksHandle allocator, out RenderPassHandle renderPass);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		attachments.Dispose();
 		subpasses.Dispose();

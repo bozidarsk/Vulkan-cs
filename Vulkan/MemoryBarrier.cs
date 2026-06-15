@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct MemoryBarrier 
+public readonly struct MemoryBarrier
 {
 	public readonly StructureType Type;
 	public readonly nint Next;

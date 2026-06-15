@@ -13,7 +13,7 @@ public sealed class Device : IDisposable
 
 	internal DeviceHandle Handle => device;
 
-	public unsafe void UpdateDescriptorSets(WriteDescriptorSet[]? writes, WriteDescriptorSet[]? copies) 
+	public unsafe void UpdateDescriptorSets(WriteDescriptorSet[]? writes, WriteDescriptorSet[]? copies)
 	{
 		vkUpdateDescriptorSets(
 			device,
@@ -32,7 +32,7 @@ public sealed class Device : IDisposable
 		);
 	}
 
-	public Queue GetQueue(uint queueFamilyIndex, uint queueIndex) 
+	public Queue GetQueue(uint queueFamilyIndex, uint queueIndex)
 	{
 		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out Queue queue);
 		return queue;
@@ -40,21 +40,21 @@ public sealed class Device : IDisposable
 		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(DeviceHandle device, uint queueFamilyIndex, uint queueIndex, out Queue queue);
 	}
 
-	public void WaitIdle() 
+	public void WaitIdle()
 	{
 		vkDeviceWaitIdle(device);
 
 		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(DeviceHandle device);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyDevice(device, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyDevice(DeviceHandle device, AllocationCallbacksHandle allocator);
 	}
 
-	internal Device(DeviceHandle device, AllocationCallbacksHandle allocator) => 
+	internal Device(DeviceHandle device, AllocationCallbacksHandle allocator) =>
 		(this.device, this.allocator) = (device, allocator)
 	;
 }

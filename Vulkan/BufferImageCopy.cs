@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct BufferImageCopy 
+public readonly struct BufferImageCopy
 {
 	public readonly DeviceSize BufferOffset;
 	public readonly uint BufferRowLength;

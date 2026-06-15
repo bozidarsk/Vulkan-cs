@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public enum ComponentSwizzle 
+public enum ComponentSwizzle
 {
 	Identity = 0,
 	Zero = 1,

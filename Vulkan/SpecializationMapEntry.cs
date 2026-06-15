@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct SpecializationMapEntry 
+public readonly struct SpecializationMapEntry
 {
 	public readonly uint ConstantID;
 	public readonly uint Offset;

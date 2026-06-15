@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct ClearDepthStencilValue 
+public readonly struct ClearDepthStencilValue
 {
 	public readonly float Depth;
 	public readonly uint Stencil;

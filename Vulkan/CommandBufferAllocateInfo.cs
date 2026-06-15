@@ -6,7 +6,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct CommandBufferAllocateInfo 
+public readonly struct CommandBufferAllocateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
@@ -16,7 +16,7 @@ public readonly struct CommandBufferAllocateInfo
 
 	public CommandPool CommandPool => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public CommandBuffer[] CreateCommandBuffers(Device device, CommandPool commandPool) 
+	public CommandBuffer[] CreateCommandBuffers(Device device, CommandPool commandPool)
 	{
 		var commandBuffers = new CommandBufferHandle[this.CommandBufferCount];
 

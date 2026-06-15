@@ -47,7 +47,7 @@ internal delegate void SetCullModeDelegate(CommandBufferHandle commandBuffer, Cu
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void SetFrontFaceDelegate(CommandBufferHandle commandBuffer, FrontFace frontFace);
 
-internal static class ExtensionDelegates 
+internal static class ExtensionDelegates
 {
 	public static CreateDebugUtilsMessengerDelegate vkCreateDebugUtilsMessengerEXT { private set; get; }
 	public static DestroyDebugUtilsMessengerDelegate vkDestroyDebugUtilsMessengerEXT { private set; get; }
@@ -56,7 +56,7 @@ internal static class ExtensionDelegates
 	public static SetCullModeDelegate vkCmdSetCullModeEXT { private set; get; }
 	public static SetFrontFaceDelegate vkCmdSetFrontFaceEXT { private set; get; }
 
-	public static void Initialize(Instance instance) 
+	public static void Initialize(Instance instance)
 	{
 		vkCreateDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<CreateDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkCreateDebugUtilsMessengerEXT"));
 		vkDestroyDebugUtilsMessengerEXT = Marshal.GetDelegateForFunctionPointer<DestroyDebugUtilsMessengerDelegate>(vkGetInstanceProcAddr(instance.Handle, "vkDestroyDebugUtilsMessengerEXT"));

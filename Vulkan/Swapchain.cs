@@ -15,7 +15,7 @@ public sealed class Swapchain : IDisposable
 
 	internal SwapchainHandle Handle => swapchain;
 
-	public uint GetNextImage(Semaphore semaphore) 
+	public uint GetNextImage(Semaphore semaphore)
 	{
 		Result result = vkAcquireNextImageKHR(device.Handle, swapchain, ulong.MaxValue, semaphore.Handle, default, out uint imageIndex);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -25,7 +25,7 @@ public sealed class Swapchain : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkAcquireNextImageKHR(DeviceHandle device, SwapchainHandle swapchain, ulong timeout, SemaphoreHandle semaphore, FenceHandle fence, out uint imageIndex);
 	}
 
-	public unsafe Image[] GetImages() 
+	public unsafe Image[] GetImages()
 	{
 		vkGetSwapchainImagesKHR(device.Handle, swapchain, out uint count, ref Unsafe.AsRef<ImageHandle>(default));
 		var images = new ImageHandle[count];
@@ -38,14 +38,14 @@ public sealed class Swapchain : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkGetSwapchainImagesKHR(DeviceHandle device, SwapchainHandle swapchain, out uint count, ref ImageHandle pImages);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroySwapchainKHR(device.Handle, swapchain, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(DeviceHandle device, SwapchainHandle swapchain, AllocationCallbacksHandle allocator);
 	}
 
-	internal Swapchain(SwapchainHandle swapchain, Device device, AllocationCallbacksHandle allocator) => 
+	internal Swapchain(SwapchainHandle swapchain, Device device, AllocationCallbacksHandle allocator) =>
 		(this.swapchain, this.device, this.allocator) = (swapchain, device, allocator)
 	;
 }

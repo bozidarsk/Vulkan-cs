@@ -13,14 +13,14 @@ public sealed class Framebuffer : IDisposable
 
 	internal FramebufferHandle Handle => framebuffer;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyFramebuffer(device.Handle, framebuffer, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyFramebuffer(DeviceHandle device, FramebufferHandle framebuffer, AllocationCallbacksHandle allocator);
 	}
 
-	internal Framebuffer(FramebufferHandle framebuffer, Device device, AllocationCallbacksHandle allocator) => 
+	internal Framebuffer(FramebufferHandle framebuffer, Device device, AllocationCallbacksHandle allocator) =>
 		(this.framebuffer, this.device, this.allocator) = (framebuffer, device, allocator)
 	;
 }

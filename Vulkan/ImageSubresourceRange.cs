@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct ImageSubresourceRange 
+public readonly struct ImageSubresourceRange
 {
 	public readonly ImageAspect Aspect;
 	public readonly uint BaseMipLevel;

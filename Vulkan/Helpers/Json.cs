@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Vulkan.Helpers;
 
-internal static class Json 
+internal static class Json
 {
 	public static readonly JsonSerializerOptions SerializerOptions;
 
@@ -22,9 +22,9 @@ internal static class Json
 
 	public static string Serialize<T>(T value) => JsonSerializer.Serialize<T>(value, Json.SerializerOptions);
 
-	static Json() 
+	static Json()
 	{
-		Json.SerializerOptions = new() 
+		Json.SerializerOptions = new()
 		{
 			IncludeFields = true,
 			IgnoreReadOnlyProperties = false,

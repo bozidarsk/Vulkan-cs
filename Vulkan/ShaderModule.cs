@@ -13,14 +13,14 @@ public sealed class ShaderModule : IDisposable
 
 	internal ShaderModuleHandle Handle => shaderModule;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyShaderModule(device.Handle, shaderModule, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyShaderModule(DeviceHandle device, ShaderModuleHandle shaderModule, AllocationCallbacksHandle allocator);
 	}
 
-	internal ShaderModule(ShaderModuleHandle shaderModule, Device device, AllocationCallbacksHandle allocator) => 
+	internal ShaderModule(ShaderModuleHandle shaderModule, Device device, AllocationCallbacksHandle allocator) =>
 		(this.shaderModule, this.device, this.allocator) = (shaderModule, device, allocator)
 	;
 }

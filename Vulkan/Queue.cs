@@ -4,11 +4,11 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct Queue 
+public readonly struct Queue
 {
 	private readonly nint handle;
 
-	public void Submit(Fence? fence, params SubmitInfo[] infos) 
+	public void Submit(Fence? fence, params SubmitInfo[] infos)
 	{
 		Result result = vkQueueSubmit(this, (uint)infos.Length, ref MemoryMarshal.GetArrayDataReference(infos), (fence != null) ? fence.Handle : default);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -16,7 +16,7 @@ public readonly struct Queue
 		[DllImport(VK_LIB)] static extern Result vkQueueSubmit(Queue queue, uint count, ref SubmitInfo pInfos, FenceHandle fence);
 	}
 
-	public void Present(PresentInfo info) 
+	public void Present(PresentInfo info)
 	{
 		Result result = vkQueuePresentKHR(this, in info);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -24,7 +24,7 @@ public readonly struct Queue
 		[DllImport(VK_LIB)] static extern Result vkQueuePresentKHR(Queue queue, in PresentInfo info);
 	}
 
-	public void WaitIdle() 
+	public void WaitIdle()
 	{
 		Result result = vkQueueWaitIdle(this);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -32,12 +32,12 @@ public readonly struct Queue
 		[DllImport(VK_LIB)] static extern Result vkQueueWaitIdle(Queue queue);
 	}
 
-	public static bool operator == (Queue a, Queue b) => a.handle == b.handle;
-	public static bool operator != (Queue a, Queue b) => a.handle != b.handle;
+	public static bool operator ==(Queue a, Queue b) => a.handle == b.handle;
+	public static bool operator !=(Queue a, Queue b) => a.handle != b.handle;
 	public override bool Equals(object? other) => (other is Queue x) ? x.handle == handle : false;
 
-	public static implicit operator nint (Queue x) => x.handle;
-	public static implicit operator Queue (nint x) => new(x);
+	public static implicit operator nint(Queue x) => x.handle;
+	public static implicit operator Queue(nint x) => new(x);
 
 	public override string ToString() => handle.ToString();
 	public override int GetHashCode() => handle.GetHashCode();

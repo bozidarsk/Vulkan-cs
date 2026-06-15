@@ -13,14 +13,14 @@ public sealed class Sampler : IDisposable
 
 	internal SamplerHandle Handle => sampler;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroySampler(device.Handle, sampler, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroySampler(DeviceHandle device, SamplerHandle sampler, AllocationCallbacksHandle allocator);
 	}
 
-	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacksHandle allocator) => 
+	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacksHandle allocator) =>
 		(this.sampler, this.device, this.allocator) = (sampler, device, allocator)
 	;
 }

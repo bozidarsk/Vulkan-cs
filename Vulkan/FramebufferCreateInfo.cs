@@ -21,7 +21,7 @@ public readonly struct FramebufferCreateInfo : IDisposable
 	public RenderPass RenderPass => throw new NotImplementedException(); // cannot get allocator and device params
 	public ImageView[]? Attachments => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public Framebuffer CreateFramebuffer(Device device, AllocationCallbacksHandle allocator) 
+	public Framebuffer CreateFramebuffer(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateFramebuffer(device.Handle, in this, allocator, out FramebufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -31,7 +31,7 @@ public readonly struct FramebufferCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCreateFramebuffer(DeviceHandle device, in FramebufferCreateInfo createInfo, AllocationCallbacksHandle allocator, out FramebufferHandle framebuffer);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		attachments.Dispose();
 	}

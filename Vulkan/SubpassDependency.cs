@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct SubpassDependency 
+public readonly struct SubpassDependency
 {
 	public readonly uint SrcSubpass;
 	public readonly uint DstSubpass;

@@ -19,7 +19,7 @@ public readonly struct PresentInfo : IDisposable
 	public uint[]? ImageIndices => imageIndices.ToArray(swapchainCount);
 	public Result[]? Results => results.ToArray(swapchainCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		waitSemaphores.Dispose();
 		swapchains.Dispose();

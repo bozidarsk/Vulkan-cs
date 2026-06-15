@@ -27,19 +27,19 @@ namespace Vulkan;
 
 #pragma warning disable CS0649
 
-internal readonly struct Handle 
+internal readonly struct Handle
 {
 	private readonly nint value;
 
-	public static bool operator == (Handle a, Handle b) => a.value == b.value;
-	public static bool operator != (Handle a, Handle b) => a.value != b.value;
+	public static bool operator ==(Handle a, Handle b) => a.value == b.value;
+	public static bool operator !=(Handle a, Handle b) => a.value != b.value;
 	public override bool Equals(object? other) => (other is Handle x) ? x.value == value : false;
 
 	public override string ToString() => value.ToString();
 	public override int GetHashCode() => value.GetHashCode();
 }
 
-internal static class HandleExtensions 
+internal static class HandleExtensions
 {
 	public static Buffer GetBuffer(this BufferHandle handle, Device device, AllocationCallbacksHandle allocator) => new Buffer(handle, device, allocator);
 	public static CommandBuffer GetCommandBuffer(this CommandBufferHandle handle, Device device, CommandPool commandPool) => new CommandBuffer(handle, device, commandPool);

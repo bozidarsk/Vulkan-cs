@@ -14,7 +14,7 @@ public sealed class CommandPool : IDisposable
 
 	internal CommandPoolHandle Handle => commandPool;
 
-	public void FreeCommandBuffers(params CommandBuffer[] buffers) 
+	public void FreeCommandBuffers(params CommandBuffer[] buffers)
 	{
 		if (buffers == null)
 			throw new ArgumentNullException();
@@ -24,14 +24,14 @@ public sealed class CommandPool : IDisposable
 		[DllImport(VK_LIB)] static extern void vkFreeCommandBuffers(DeviceHandle device, CommandPoolHandle commandPool, uint bufferCount, ref CommandBufferHandle pBuffers);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyCommandPool(device.Handle, commandPool, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyCommandPool(DeviceHandle device, CommandPoolHandle commandPool, AllocationCallbacksHandle allocator);
 	}
 
-	internal CommandPool(CommandPoolHandle commandPool, Device device, AllocationCallbacksHandle allocator) => 
+	internal CommandPool(CommandPoolHandle commandPool, Device device, AllocationCallbacksHandle allocator) =>
 		(this.commandPool, this.device, this.allocator) = (commandPool, device, allocator)
 	;
 }

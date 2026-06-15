@@ -13,12 +13,12 @@ public readonly struct DeviceQueueCreateInfo : IDisposable
 
 	public float[]? QueuePriorities => queuePriorities.ToArray(queueCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		queuePriorities.Dispose();
 	}
 
-	public DeviceQueueCreateInfo(StructureType type, nint next, DeviceQueueCreateFlags flags, uint queueFamilyIndex, float[]? queuePriorities) 
+	public DeviceQueueCreateInfo(StructureType type, nint next, DeviceQueueCreateFlags flags, uint queueFamilyIndex, float[]? queuePriorities)
 	{
 		this.Type = type;
 		this.Next = next;

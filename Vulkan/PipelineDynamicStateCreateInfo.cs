@@ -12,7 +12,7 @@ public readonly struct PipelineDynamicStateCreateInfo : IDisposable
 
 	public DynamicState[]? DynamicStates => dynamicStates.ToArray(dynamicStateCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		dynamicStates.Dispose();
 	}

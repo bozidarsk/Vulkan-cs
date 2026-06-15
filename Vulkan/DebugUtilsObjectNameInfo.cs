@@ -16,7 +16,7 @@ public readonly struct DebugUtilsObjectNameInfo : IDisposable
 
 	public override string? ToString() => ObjectName;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		objectName.Dispose();
 	}

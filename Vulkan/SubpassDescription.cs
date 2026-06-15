@@ -21,7 +21,7 @@ public readonly struct SubpassDescription : IDisposable
 	public AttachmentReference DepthStencilAttachment => depthStencilAttachment;
 	public uint[]? PreserveAttachments => preserveAttachments.ToArray(preserveAttachmentCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		inputAttachments.Dispose();
 		colorAttachments.Dispose();

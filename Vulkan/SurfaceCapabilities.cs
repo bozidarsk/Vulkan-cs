@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct SurfaceCapabilities 
+public readonly struct SurfaceCapabilities
 {
 	public readonly uint MinImageCount;
 	public readonly uint MaxImageCount;

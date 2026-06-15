@@ -1,16 +1,16 @@
 namespace Vulkan;
 
-public readonly struct AttachmentDescription 
+public readonly struct AttachmentDescription
 {
-	public readonly	AttachmentDescriptionFlags Flags;
-	public readonly	Format Format;
-	public readonly	SampleCount Samples;
-	public readonly	AttachmentLoadOp LoadOp;
-	public readonly	AttachmentStoreOp StoreOp;
-	public readonly	AttachmentLoadOp StencilLoadOp;
-	public readonly	AttachmentStoreOp StencilStoreOp;
-	public readonly	ImageLayout InitialLayout;
-	public readonly	ImageLayout FinalLayout;
+	public readonly AttachmentDescriptionFlags Flags;
+	public readonly Format Format;
+	public readonly SampleCount Samples;
+	public readonly AttachmentLoadOp LoadOp;
+	public readonly AttachmentStoreOp StoreOp;
+	public readonly AttachmentLoadOp StencilLoadOp;
+	public readonly AttachmentStoreOp StencilStoreOp;
+	public readonly ImageLayout InitialLayout;
+	public readonly ImageLayout FinalLayout;
 
 	public AttachmentDescription(
 		AttachmentDescriptionFlags flags,

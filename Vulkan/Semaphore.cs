@@ -13,14 +13,14 @@ public sealed class Semaphore : IDisposable
 
 	internal SemaphoreHandle Handle => semaphore;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroySemaphore(device.Handle, semaphore, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroySemaphore(DeviceHandle device, SemaphoreHandle semaphore, AllocationCallbacksHandle allocator);
 	}
 
-	internal Semaphore(SemaphoreHandle semaphore, Device device, AllocationCallbacksHandle allocator) => 
+	internal Semaphore(SemaphoreHandle semaphore, Device device, AllocationCallbacksHandle allocator) =>
 		(this.semaphore, this.device, this.allocator) = (semaphore, device, allocator)
 	;
 }

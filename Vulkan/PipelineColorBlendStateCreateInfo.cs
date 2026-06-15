@@ -15,7 +15,7 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 
 	public PipelineColorBlendAttachmentState[]? Attachments => attachments.ToArray(attachmentCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		attachments.Dispose();
 	}

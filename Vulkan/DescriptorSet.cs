@@ -13,14 +13,14 @@ public sealed class DescriptorSet : IDisposable
 
 	internal DescriptorSetHandle Handle => descriptorSet;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkFreeDescriptorSets(device.Handle, descriptorPool.Handle, 1, in descriptorSet);
 
 		[DllImport(VK_LIB)] static extern void vkFreeDescriptorSets(DeviceHandle device, DescriptorPoolHandle descriptorPool, uint count, in DescriptorSetHandle pDescriptorSets);
 	}
 
-	internal DescriptorSet(DescriptorSetHandle descriptorSet, Device device, DescriptorPool descriptorPool) => 
+	internal DescriptorSet(DescriptorSetHandle descriptorSet, Device device, DescriptorPool descriptorPool) =>
 		(this.descriptorSet, this.device, this.descriptorPool) = (descriptorSet, device, descriptorPool)
 	;
 }

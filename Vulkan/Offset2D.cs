@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct Offset2D 
+public readonly struct Offset2D
 {
 	public readonly int x;
 	public readonly int y;

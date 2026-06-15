@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public partial struct Vector2 
+public partial struct Vector2
 {
 	public Vector2 xx => new(x, x);
 	public Vector2 xy => new(x, y);
@@ -8,7 +8,7 @@ public partial struct Vector2
 	public Vector2 yy => new(y, y);
 }
 
-public partial struct Vector3 
+public partial struct Vector3
 {
 	public Vector2 xx => new(x, x);
 	public Vector3 xxx => new(x, x, x);
@@ -48,7 +48,7 @@ public partial struct Vector3
 	public Vector3 zzz => new(z, z, z);
 }
 
-public partial struct Vector4 
+public partial struct Vector4
 {
 	public Vector2 xx => new(x, x);
 	public Vector3 xxx => new(x, x, x);
@@ -388,7 +388,7 @@ public partial struct Vector4
 	public Vector4 wwww => new(w, w, w, w);
 }
 
-public partial struct Vector2Int 
+public partial struct Vector2Int
 {
 	public Vector2Int xx => new(x, x);
 	public Vector2Int xy => new(x, y);
@@ -396,7 +396,7 @@ public partial struct Vector2Int
 	public Vector2Int yy => new(y, y);
 }
 
-public partial struct Vector3Int 
+public partial struct Vector3Int
 {
 	public Vector2Int xx => new(x, x);
 	public Vector3Int xxx => new(x, x, x);
@@ -436,7 +436,7 @@ public partial struct Vector3Int
 	public Vector3Int zzz => new(z, z, z);
 }
 
-public partial struct Vector4Int 
+public partial struct Vector4Int
 {
 	public Vector2Int xx => new(x, x);
 	public Vector3Int xxx => new(x, x, x);

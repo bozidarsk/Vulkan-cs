@@ -13,14 +13,14 @@ public sealed class BufferView : IDisposable
 
 	internal BufferViewHandle Handle => bufferView;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyBufferView(device.Handle, bufferView, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(DeviceHandle device, BufferViewHandle bufferView, AllocationCallbacksHandle allocator);
 	}
 
-	internal BufferView(BufferViewHandle bufferView, Device device, AllocationCallbacksHandle allocator) => 
+	internal BufferView(BufferViewHandle bufferView, Device device, AllocationCallbacksHandle allocator) =>
 		(this.bufferView, this.device, this.allocator) = (bufferView, device, allocator)
 	;
 }

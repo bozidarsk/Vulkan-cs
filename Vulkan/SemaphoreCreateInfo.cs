@@ -4,13 +4,13 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct SemaphoreCreateInfo 
+public readonly struct SemaphoreCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
 	public readonly SemaphoreCreateFlags Flags;
 
-	public Semaphore CreateSemaphore(Device device, AllocationCallbacksHandle allocator) 
+	public Semaphore CreateSemaphore(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateSemaphore(device.Handle, in this, allocator, out SemaphoreHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

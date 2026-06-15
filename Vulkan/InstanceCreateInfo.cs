@@ -23,7 +23,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 	public string?[]? EnabledLayerNames => enabledLayerNames.ToArray(enabledLayerCount)?.Select(x => (string?)x).ToArray();
 	public string?[]? EnabledExtensionNames => enabledExtensionNames.ToArray(enabledExtensionCount)?.Select(x => (string?)x).ToArray();
 
-	public static unsafe LayerProperties[] GetLayerProperties() 
+	public static unsafe LayerProperties[] GetLayerProperties()
 	{
 		Result result;
 
@@ -40,7 +40,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceLayerProperties(out uint count, ref LayerProperties pProperties);
 	}
 
-	public static unsafe ExtensionProperties[] GetExtensionProperties(string? layerName) 
+	public static unsafe ExtensionProperties[] GetExtensionProperties(string? layerName)
 	{
 		Result result;
 
@@ -57,7 +57,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkEnumerateInstanceExtensionProperties(string? layerName, out uint count, ref ExtensionProperties pExtensions);
 	}
 
-	public Instance CreateInstance(AllocationCallbacksHandle allocator) 
+	public Instance CreateInstance(AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateInstance(in this, allocator, out InstanceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -67,7 +67,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, AllocationCallbacksHandle allocator, out InstanceHandle instance);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		foreach (var x in enabledLayerNames.ToArray(enabledLayerCount) ?? [])
 			x.Dispose();
@@ -80,7 +80,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 		enabledExtensionNames.Dispose();
 	}
 
-	public InstanceCreateInfo(StructureType type, nint next, InstanceCreateFlags flags, ApplicationInfo applicationInfo, string?[]? enabledLayerNames, string?[]? enabledExtensionNames) 
+	public InstanceCreateInfo(StructureType type, nint next, InstanceCreateFlags flags, ApplicationInfo applicationInfo, string?[]? enabledLayerNames, string?[]? enabledExtensionNames)
 	{
 		this.Type = type;
 		this.Next = next;

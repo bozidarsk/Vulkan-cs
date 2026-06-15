@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PhysicalDeviceSparseProperties 
+public readonly struct PhysicalDeviceSparseProperties
 {
 	public readonly bool32 ResidencyStandard2DBlockShape;
 	public readonly bool32 ResidencyStandard2DMultisampleBlockShape;

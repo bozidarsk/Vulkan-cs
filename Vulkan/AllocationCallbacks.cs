@@ -18,7 +18,7 @@ public delegate void InternalAllocationNotificationDelegate(nint userData, nuint
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 public delegate void InternalFreeNotificationDelegate(nint userData, nuint size, InternalAllocationType allocationType, SystemAllocationScope allocationScope);
 
-public readonly struct AllocationCallbacks 
+public readonly struct AllocationCallbacks
 {
 	public readonly nint UserData;
 	public readonly AllocationFunctionDelegate AllocationFunction;
@@ -28,12 +28,12 @@ public readonly struct AllocationCallbacks
 	public readonly InternalFreeNotificationDelegate InternalFreeNotification;
 }
 
-public readonly struct AllocationCallbacksHandle 
+public readonly struct AllocationCallbacksHandle
 {
 	private readonly nint value;
 
-	public static bool operator == (AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value == b.value;
-	public static bool operator != (AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value != b.value;
+	public static bool operator ==(AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value == b.value;
+	public static bool operator !=(AllocationCallbacksHandle a, AllocationCallbacksHandle b) => a.value != b.value;
 	public override bool Equals(object? other) => (other is AllocationCallbacksHandle x) ? x.value == value : false;
 
 	public override string ToString() => value.ToString();
@@ -41,7 +41,7 @@ public readonly struct AllocationCallbacksHandle
 
 	public AllocationCallbacksHandle() => this.value = 0;
 
-	public unsafe AllocationCallbacksHandle(ref AllocationCallbacks allocator) => 
+	public unsafe AllocationCallbacksHandle(ref AllocationCallbacks allocator) =>
 		this.value = (nint)Unsafe.AsPointer<AllocationCallbacks>(ref allocator)
 	;
 }

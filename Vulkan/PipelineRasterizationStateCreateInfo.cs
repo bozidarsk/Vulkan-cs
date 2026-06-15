@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PipelineRasterizationStateCreateInfo 
+public readonly struct PipelineRasterizationStateCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;

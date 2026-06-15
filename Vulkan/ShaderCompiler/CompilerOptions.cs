@@ -11,11 +11,11 @@ public readonly struct CompilerOptions : IDisposable
 {
 	private readonly nint handle;
 
-	public IEnumerable<(string, string)> MacroDefinitions 
+	public IEnumerable<(string, string)> MacroDefinitions
 	{
-		set 
+		set
 		{
-			foreach (var x in value) 
+			foreach (var x in value)
 			{
 				(string n, string v) = x;
 				shaderc_compile_options_add_macro_definition(this, n, (nuint)n.Length, v, (nuint)v.Length);
@@ -25,11 +25,11 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public IEnumerable<(Limit, int)> Limits 
+	public IEnumerable<(Limit, int)> Limits
 	{
-		set 
+		set
 		{
-			foreach (var x in value) 
+			foreach (var x in value)
 			{
 				(Limit n, int v) = x;
 				shaderc_compile_options_set_target_spirv(this, n, v);
@@ -39,9 +39,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public ShaderLanguage ShaderLanguage 
+	public ShaderLanguage ShaderLanguage
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_source_language(this, value);
 
@@ -49,9 +49,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public OptimizationLevel OptimizationLevel 
+	public OptimizationLevel OptimizationLevel
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_optimization_level(this, value);
 
@@ -59,9 +59,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public (TargetEnvironment, EnvironmentVersion) TargetEnvironment 
+	public (TargetEnvironment, EnvironmentVersion) TargetEnvironment
 	{
-		set 
+		set
 		{
 			(TargetEnvironment target, EnvironmentVersion version) = value;
 
@@ -71,30 +71,30 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-// // Sets a descriptor set and binding for an HLSL register in the given stage.
-// // This method keeps a copy of the string data.
-// SHADERC_EXPORT void shaderc_compile_options_set_hlsl_register_set_and_binding_for_stage(
-//     shaderc_compile_options_t options, shaderc_shader_kind shader_kind,
-//     const char* reg, const char* set, const char* binding);
-// // Like shaderc_compile_options_set_hlsl_register_set_and_binding_for_stage,
-// // but affects all shader stages.
-// SHADERC_EXPORT void shaderc_compile_options_set_hlsl_register_set_and_binding(
-//     shaderc_compile_options_t options, const char* reg, const char* set,
-//     const char* binding);
-// SHADERC_EXPORT void shaderc_compile_options_set_binding_base(
-//     shaderc_compile_options_t options,
-//     shaderc_uniform_kind kind,
-//     uint32_t base);
-// // Like shaderc_compile_options_set_binding_base, but only takes effect when
-// // compiling a given shader stage.  The stage is assumed to be one of vertex,
-// // fragment, tessellation evaluation, tesselation control, geometry, or compute.
-// SHADERC_EXPORT void shaderc_compile_options_set_binding_base_for_stage(
-//     shaderc_compile_options_t options, shaderc_shader_kind shader_kind,
-//     shaderc_uniform_kind kind, uint32_t base);
+	// // Sets a descriptor set and binding for an HLSL register in the given stage.
+	// // This method keeps a copy of the string data.
+	// SHADERC_EXPORT void shaderc_compile_options_set_hlsl_register_set_and_binding_for_stage(
+	//     shaderc_compile_options_t options, shaderc_shader_kind shader_kind,
+	//     const char* reg, const char* set, const char* binding);
+	// // Like shaderc_compile_options_set_hlsl_register_set_and_binding_for_stage,
+	// // but affects all shader stages.
+	// SHADERC_EXPORT void shaderc_compile_options_set_hlsl_register_set_and_binding(
+	//     shaderc_compile_options_t options, const char* reg, const char* set,
+	//     const char* binding);
+	// SHADERC_EXPORT void shaderc_compile_options_set_binding_base(
+	//     shaderc_compile_options_t options,
+	//     shaderc_uniform_kind kind,
+	//     uint32_t base);
+	// // Like shaderc_compile_options_set_binding_base, but only takes effect when
+	// // compiling a given shader stage.  The stage is assumed to be one of vertex,
+	// // fragment, tessellation evaluation, tesselation control, geometry, or compute.
+	// SHADERC_EXPORT void shaderc_compile_options_set_binding_base_for_stage(
+	//     shaderc_compile_options_t options, shaderc_shader_kind shader_kind,
+	//     shaderc_uniform_kind kind, uint32_t base);
 
-	public SPIRVVersion SPIRVVersion 
+	public SPIRVVersion SPIRVVersion
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_optimization_level(this, value);
 
@@ -102,9 +102,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool GenerateDebugInfo 
+	public bool GenerateDebugInfo
 	{
-		set 
+		set
 		{
 			if (value)
 				shaderc_compile_options_set_generate_debug_info(this);
@@ -113,9 +113,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool WarningsAsErrors 
+	public bool WarningsAsErrors
 	{
-		set 
+		set
 		{
 			if (value)
 				shaderc_compile_options_set_warnings_as_errors(this);
@@ -124,9 +124,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool SuppressWarnings 
+	public bool SuppressWarnings
 	{
-		set 
+		set
 		{
 			if (value)
 				shaderc_compile_options_set_suppress_warnings(this);
@@ -135,9 +135,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool AutoBindUniforms 
+	public bool AutoBindUniforms
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_auto_bind_uniforms(this, value);
 
@@ -145,9 +145,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool AutoCombinedImageSampler 
+	public bool AutoCombinedImageSampler
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_auto_combined_image_sampler(this, value);
 
@@ -155,9 +155,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool HLSLIOMapping 
+	public bool HLSLIOMapping
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_hlsl_io_mapping(this, value);
 
@@ -165,9 +165,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool HLSLOffsets 
+	public bool HLSLOffsets
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_hlsl_offsets(this, value);
 
@@ -175,9 +175,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool PreserveBindings 
+	public bool PreserveBindings
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_preserve_bindings(this, value);
 
@@ -185,9 +185,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool AutoMapLocations 
+	public bool AutoMapLocations
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_auto_map_locations(this, value);
 
@@ -195,9 +195,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool HLSLFunctionality1 
+	public bool HLSLFunctionality1
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_hlsl_functionality1(this, value);
 
@@ -205,9 +205,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool HLSL16BitTypes 
+	public bool HLSL16BitTypes
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_hlsl_16bit_types(this, value);
 
@@ -215,9 +215,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool VulkanRulesRelaxed 
+	public bool VulkanRulesRelaxed
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_vulkan_rules_relaxed(this, value);
 
@@ -225,9 +225,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool InvertY 
+	public bool InvertY
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_invert_y(this, value);
 
@@ -235,9 +235,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public bool NanClamp 
+	public bool NanClamp
 	{
-		set 
+		set
 		{
 			shaderc_compile_options_set_nan_clamp(this, value);
 
@@ -245,9 +245,9 @@ public readonly struct CompilerOptions : IDisposable
 		}
 	}
 
-	public string[] IncludeDirectories 
+	public string[] IncludeDirectories
 	{
-		set 
+		set
 		{
 			if (value == null)
 				throw new ArgumentNullException();
@@ -266,21 +266,21 @@ public readonly struct CompilerOptions : IDisposable
 
 	private static Dictionary<CompilerOptions, string[]> includeDirectoriesMap = new();
 
-	private static readonly IncludeResolverDelegate includeResolver = (options, requestedSource, type, requestingSource, includeDepth) => 
+	private static readonly IncludeResolverDelegate includeResolver = (options, requestedSource, type, requestingSource, includeDepth) =>
 	{
 		string filename, content;
 
-		switch (type) 
+		switch (type)
 		{
 			case IncludeType.Relative:
 				filename = Path.GetFullPath(Path.Join(Path.GetDirectoryName(requestingSource), requestedSource), requestingSource);
 				content = File.ReadAllText(filename);
 				break;
 			case IncludeType.Standard:
-				foreach (var dir in includeDirectoriesMap[options]) 
+				foreach (var dir in includeDirectoriesMap[options])
 				{
 					filename = Path.GetFullPath(Path.Join(dir, requestedSource));
-					if (File.Exists(filename)) 
+					if (File.Exists(filename))
 					{
 						content = File.ReadAllText(filename);
 						goto ret;
@@ -294,7 +294,7 @@ public readonly struct CompilerOptions : IDisposable
 				throw new InvalidOperationException($"Unsupported IncludeType '{type}'.");
 		}
 
-		ret:
+	ret:
 		return new(
 			new IncludeResult(
 				filename: filename,
@@ -304,13 +304,13 @@ public readonly struct CompilerOptions : IDisposable
 		);
 	};
 
-	private static readonly IncludeResultReleaserDelegate includeResultReleaser = (options, result) => 
+	private static readonly IncludeResultReleaserDelegate includeResultReleaser = (options, result) =>
 	{
 		((IncludeResult)result).Dispose();
 		result.Dispose();
 	};
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		shaderc_compile_options_release(this);
 		includeDirectoriesMap.Remove(this);
@@ -318,16 +318,16 @@ public readonly struct CompilerOptions : IDisposable
 		[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_release(CompilerOptions options);
 	}
 
-	public static bool operator == (CompilerOptions a, CompilerOptions b) => a.handle == b.handle;
-	public static bool operator != (CompilerOptions a, CompilerOptions b) => a.handle != b.handle;
+	public static bool operator ==(CompilerOptions a, CompilerOptions b) => a.handle == b.handle;
+	public static bool operator !=(CompilerOptions a, CompilerOptions b) => a.handle != b.handle;
 	public override bool Equals(object? other) => (other is CompilerOptions x) ? x.handle == handle : false;
 
-	public static implicit operator nint (CompilerOptions x) => x.handle;
+	public static implicit operator nint(CompilerOptions x) => x.handle;
 
 	public override string ToString() => handle.ToString();
 	public override int GetHashCode() => handle.GetHashCode();
 
-	public CompilerOptions() 
+	public CompilerOptions()
 	{
 		this.handle = shaderc_compile_options_initialize();
 

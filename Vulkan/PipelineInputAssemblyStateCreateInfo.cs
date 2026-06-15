@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PipelineInputAssemblyStateCreateInfo 
+public readonly struct PipelineInputAssemblyStateCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
@@ -8,7 +8,7 @@ public readonly struct PipelineInputAssemblyStateCreateInfo
 	public readonly PrimitiveTopology Topology;
 	public readonly bool32 PrimitiveRestartEnable;
 
-	public PipelineInputAssemblyStateCreateInfo(StructureType type, nint next, PipelineInputAssemblyStateCreateFlags flags, PrimitiveTopology topology, bool primitiveRestartEnable) 
+	public PipelineInputAssemblyStateCreateInfo(StructureType type, nint next, PipelineInputAssemblyStateCreateFlags flags, PrimitiveTopology topology, bool primitiveRestartEnable)
 	{
 		this.Type = type;
 		this.Next = next;

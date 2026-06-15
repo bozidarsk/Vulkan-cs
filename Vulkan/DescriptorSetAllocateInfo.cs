@@ -17,7 +17,7 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 	public DescriptorPool DescriptorPool => throw new NotImplementedException(); // cannot get allocator and device params
 	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public DescriptorSet[] CreateDescriptorSets(Device device, DescriptorPool descriptorPool) 
+	public DescriptorSet[] CreateDescriptorSets(Device device, DescriptorPool descriptorPool)
 	{
 		var descriptorSetHandles = new DescriptorSetHandle[descriptorSetCount];
 
@@ -29,7 +29,7 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkAllocateDescriptorSets(DeviceHandle device, in DescriptorSetAllocateInfo createInfo, ref DescriptorSetHandle pDescriptorSets);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		setLayouts.Dispose();
 	}

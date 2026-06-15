@@ -11,12 +11,12 @@ public readonly struct CommandBufferBeginInfo : IDisposable
 
 	public CommandBufferInheritanceInfo InheritanceInfo => inheritanceInfo;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		inheritanceInfo.Dispose();
 	}
 
-	public CommandBufferBeginInfo(StructureType type, nint next, CommandBufferUsage usage, CommandBufferInheritanceInfo? inheritanceInfo) 
+	public CommandBufferBeginInfo(StructureType type, nint next, CommandBufferUsage usage, CommandBufferInheritanceInfo? inheritanceInfo)
 	{
 		this.Type = type;
 		this.Next = next;

@@ -15,13 +15,13 @@ public readonly struct ApplicationInfo : IDisposable
 	public string? ApplicationName => applicationName;
 	public string? EngineName => engineName;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		applicationName.Dispose();
 		engineName.Dispose();
 	}
 
-	public ApplicationInfo(StructureType type, nint next, string applicationName, uint applicationVersion, string engineName, uint engineVersion, uint apiVersion) 
+	public ApplicationInfo(StructureType type, nint next, string applicationName, uint applicationVersion, string engineName, uint engineVersion, uint apiVersion)
 	{
 		this.Type = type;
 		this.Next = next;

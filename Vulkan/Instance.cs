@@ -15,9 +15,9 @@ public sealed class Instance : IDisposable
 
 	public Surface Surface { private set; get; }
 
-	public unsafe PhysicalDevice[] PhysicalDevices 
+	public unsafe PhysicalDevice[] PhysicalDevices
 	{
-		get 
+		get
 		{
 			Result result;
 
@@ -35,7 +35,7 @@ public sealed class Instance : IDisposable
 		}
 	}
 
-	public void CreateSurface(GLFW.Window window) 
+	public void CreateSurface(GLFW.Window window)
 	{
 		Result result = glfwCreateWindowSurface(instance, window, allocator, out Surface surface);
 		if (result != Result.Success) throw new VulkanException(result);
@@ -45,7 +45,7 @@ public sealed class Instance : IDisposable
 		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, AllocationCallbacksHandle allocator, out Surface surface);
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroySurfaceKHR(instance, Surface, allocator);
 		vkDestroyInstance(instance, allocator);
@@ -54,7 +54,7 @@ public sealed class Instance : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyInstance(InstanceHandle instance, AllocationCallbacksHandle allocator);
 	}
 
-	internal Instance(InstanceHandle instance, AllocationCallbacksHandle allocator) => 
+	internal Instance(InstanceHandle instance, AllocationCallbacksHandle allocator) =>
 		(this.instance, this.allocator) = (instance, allocator)
 	;
 }

@@ -4,14 +4,14 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct MemoryAllocateInfo 
+public readonly struct MemoryAllocateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
 	public readonly DeviceSize AllocationSize;
 	public readonly uint MemoryTypeIndex;
 
-	public DeviceMemory CreateDeviceMemory(Device device, AllocationCallbacksHandle allocator) 
+	public DeviceMemory CreateDeviceMemory(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkAllocateMemory(device.Handle, in this, allocator, out DeviceMemoryHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

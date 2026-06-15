@@ -13,14 +13,14 @@ public sealed class DescriptorSetLayout : IDisposable
 
 	internal DescriptorSetLayoutHandle Handle => descriptorSetLayout;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyDescriptorSetLayout(device.Handle, descriptorSetLayout, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorSetLayout(DeviceHandle device, DescriptorSetLayoutHandle descriptorSetLayout, AllocationCallbacksHandle allocator);
 	}
 
-	internal DescriptorSetLayout(DescriptorSetLayoutHandle descriptorSetLayout, Device device, AllocationCallbacksHandle allocator) => 
+	internal DescriptorSetLayout(DescriptorSetLayoutHandle descriptorSetLayout, Device device, AllocationCallbacksHandle allocator) =>
 		(this.descriptorSetLayout, this.device, this.allocator) = (descriptorSetLayout, device, allocator)
 	;
 }

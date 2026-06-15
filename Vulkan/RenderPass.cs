@@ -13,14 +13,14 @@ public sealed class RenderPass : IDisposable
 
 	internal RenderPassHandle Handle => renderPass;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyRenderPass(device.Handle, renderPass, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(DeviceHandle device, RenderPassHandle renderPass, AllocationCallbacksHandle allocator);
 	}
 
-	internal RenderPass(RenderPassHandle renderPass, Device device, AllocationCallbacksHandle allocator) => 
+	internal RenderPass(RenderPassHandle renderPass, Device device, AllocationCallbacksHandle allocator) =>
 		(this.renderPass, this.device, this.allocator) = (renderPass, device, allocator)
 	;
 }

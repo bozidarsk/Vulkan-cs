@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct VertexInputBindingDescription2 
+public readonly struct VertexInputBindingDescription2
 {
 	public readonly StructureType Type;
 	public readonly nint Next;

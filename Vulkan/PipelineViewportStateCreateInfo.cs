@@ -15,13 +15,13 @@ public readonly struct PipelineViewportStateCreateInfo : IDisposable
 	public Viewport[]? Viewports => viewports.ToArray(viewportCount);
 	public Rect2D[]? Scissors => scissors.ToArray(scissorCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		viewports.Dispose();
 		scissors.Dispose();
 	}
 
-	public PipelineViewportStateCreateInfo(StructureType type, nint next, PipelineViewportStateCreateFlags flags, Viewport[]? viewports, Rect2D[]? scissors) 
+	public PipelineViewportStateCreateInfo(StructureType type, nint next, PipelineViewportStateCreateFlags flags, Viewport[]? viewports, Rect2D[]? scissors)
 	{
 		this.Type = type;
 		this.Next = next;

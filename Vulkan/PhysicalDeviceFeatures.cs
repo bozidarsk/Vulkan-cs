@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Vulkan;
 
-internal readonly struct PhysicalDeviceFeaturesStruct 
+internal readonly struct PhysicalDeviceFeaturesStruct
 {
 	private readonly uint RobustBufferAccess;
 	private readonly uint FullDrawIndexUint32;
@@ -63,12 +63,12 @@ internal readonly struct PhysicalDeviceFeaturesStruct
 	private readonly uint VariableMultisampleRate;
 	private readonly uint InheritedQueries;
 
-	public static implicit operator PhysicalDeviceFeatures (PhysicalDeviceFeaturesStruct x) => x.Value;
-	public static implicit operator PhysicalDeviceFeaturesStruct (PhysicalDeviceFeatures x) => new(x);
+	public static implicit operator PhysicalDeviceFeatures(PhysicalDeviceFeaturesStruct x) => x.Value;
+	public static implicit operator PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures x) => new(x);
 
-	public PhysicalDeviceFeatures Value 
+	public PhysicalDeviceFeatures Value
 	{
-		get 
+		get
 		{
 			PhysicalDeviceFeatures value = default;
 
@@ -80,7 +80,7 @@ internal readonly struct PhysicalDeviceFeaturesStruct
 		}
 	}
 
-	public PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures value) 
+	public PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures value)
 	{
 		foreach (FieldInfo x in this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField))
 			if (value.HasFlag(Enum.Parse<PhysicalDeviceFeatures>(x.Name)))
@@ -89,7 +89,7 @@ internal readonly struct PhysicalDeviceFeaturesStruct
 }
 
 [Flags]
-public enum PhysicalDeviceFeatures 
+public enum PhysicalDeviceFeatures
 {
 	RobustBufferAccess = 1 << 1,
 	FullDrawIndexUint32 = 1 << 2,

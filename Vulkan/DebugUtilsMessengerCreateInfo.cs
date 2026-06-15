@@ -5,7 +5,7 @@ using static Vulkan.ExtensionDelegates;
 
 namespace Vulkan;
 
-public readonly struct DebugUtilsMessengerCreateInfo 
+public readonly struct DebugUtilsMessengerCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
@@ -15,7 +15,7 @@ public readonly struct DebugUtilsMessengerCreateInfo
 	public readonly DebugUtilsMessengerCallback UserCallback;
 	public readonly nint UserData;
 
-	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacksHandle allocator) 
+	public DebugUtilsMessenger CreateDebugUtilsMessanger(Instance instance, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

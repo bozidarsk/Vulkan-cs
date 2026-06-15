@@ -13,9 +13,9 @@ public sealed class Image : IDisposable
 
 	internal ImageHandle Handle => image;
 
-	public MemoryRequirements MemoryRequirements 
+	public MemoryRequirements MemoryRequirements
 	{
-		get 
+		get
 		{
 			vkGetImageMemoryRequirements(device.Handle, image, out MemoryRequirements requirements);
 			return requirements;
@@ -24,14 +24,14 @@ public sealed class Image : IDisposable
 		}
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyImage(device.Handle, image, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyImage(DeviceHandle device, ImageHandle image, AllocationCallbacksHandle allocator);
 	}
 
-	internal Image(ImageHandle image, Device device, AllocationCallbacksHandle allocator) => 
+	internal Image(ImageHandle image, Device device, AllocationCallbacksHandle allocator) =>
 		(this.image, this.device, this.allocator) = (image, device, allocator)
 	;
 }

@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct Extent3D 
+public readonly struct Extent3D
 {
 	public readonly uint Width;
 	public readonly uint Height;

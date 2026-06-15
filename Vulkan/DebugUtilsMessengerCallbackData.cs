@@ -25,7 +25,7 @@ public readonly struct DebugUtilsMessengerCallbackData : IDisposable
 	public DebugUtilsLabel[]? CommandBufferLabels => cmdBufLabels.ToArray(cmdBufLabelCount);
 	public DebugUtilsObjectNameInfo[]? Objects => objects.ToArray(objectCount);
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		messageIdName.Dispose();
 		message.Dispose();

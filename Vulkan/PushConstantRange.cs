@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PushConstantRange 
+public readonly struct PushConstantRange
 {
 	public readonly ShaderStage Stage;
 	public readonly uint Offset;

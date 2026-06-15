@@ -13,9 +13,9 @@ public sealed class Buffer : IDisposable
 
 	internal BufferHandle Handle => buffer;
 
-	public MemoryRequirements MemoryRequirements 
+	public MemoryRequirements MemoryRequirements
 	{
-		get 
+		get
 		{
 			vkGetBufferMemoryRequirements(device.Handle, buffer, out MemoryRequirements requirements);
 			return requirements;
@@ -24,14 +24,14 @@ public sealed class Buffer : IDisposable
 		}
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyBuffer(device.Handle, buffer, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(DeviceHandle device, BufferHandle buffer, AllocationCallbacksHandle allocator);
 	}
 
-	internal Buffer(BufferHandle buffer, Device device, AllocationCallbacksHandle allocator) => 
+	internal Buffer(BufferHandle buffer, Device device, AllocationCallbacksHandle allocator) =>
 		(this.buffer, this.device, this.allocator) = (buffer, device, allocator)
 	;
 }

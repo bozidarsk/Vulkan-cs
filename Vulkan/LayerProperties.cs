@@ -2,7 +2,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public struct LayerProperties 
+public struct LayerProperties
 {
 	private unsafe fixed sbyte layerName[VK_MAX_EXTENSION_NAME_SIZE];
 	public readonly uint SpecVersion;

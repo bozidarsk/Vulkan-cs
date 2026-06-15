@@ -13,14 +13,14 @@ public sealed class PipelineLayout : IDisposable
 
 	internal PipelineLayoutHandle Handle => pipelineLayout;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyPipelineLayout(device.Handle, pipelineLayout, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyPipelineLayout(DeviceHandle device, PipelineLayoutHandle pipelineLayout, AllocationCallbacksHandle allocator);
 	}
 
-	internal PipelineLayout(PipelineLayoutHandle pipelineLayout, Device device, AllocationCallbacksHandle allocator) => 
+	internal PipelineLayout(PipelineLayoutHandle pipelineLayout, Device device, AllocationCallbacksHandle allocator) =>
 		(this.pipelineLayout, this.device, this.allocator) = (pipelineLayout, device, allocator)
 	;
 }

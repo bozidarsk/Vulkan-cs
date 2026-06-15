@@ -4,13 +4,13 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct FenceCreateInfo 
+public readonly struct FenceCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
 	public readonly FenceCreateFlags Flags;
 
-	public Fence CreateFence(Device device, AllocationCallbacksHandle allocator) 
+	public Fence CreateFence(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateFence(device.Handle, in this, allocator, out FenceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

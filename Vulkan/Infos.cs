@@ -8,7 +8,7 @@ using Vulkan.ShaderCompiler;
 
 namespace Vulkan;
 
-public interface IInfoProvider 
+public interface IInfoProvider
 {
 	Info Info { get; }
 }
@@ -69,15 +69,15 @@ public sealed record RenderInfo(
 		)
 	];
 
-	public VertexInputAttributeDescription[] AttributeDescriptions => 
+	public VertexInputAttributeDescription[] AttributeDescriptions =>
 		this.VertexType
 		.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
 		.Index()
-		.Select(x => 
+		.Select(x =>
 			new VertexInputAttributeDescription(
 				location: (uint)x.Item1,
 				binding: 0,
-				format: x.Item2.FieldType.FullName! switch 
+				format: x.Item2.FieldType.FullName! switch
 				{
 					"System.Single" => Format.R32SFloat,
 					"System.Double" => Format.R64SFloat,
@@ -96,7 +96,7 @@ public sealed record RenderInfo(
 		.ToArray()
 	;
 
-	public VertexInputBindingDescription2[] BindingDescriptions2 => this.BindingDescriptions.Select(x => 
+	public VertexInputBindingDescription2[] BindingDescriptions2 => this.BindingDescriptions.Select(x =>
 		new VertexInputBindingDescription2(
 			type: StructureType.VertexInputBindingDescription2Ext,
 			next: default,
@@ -105,7 +105,7 @@ public sealed record RenderInfo(
 		)
 	).ToArray();
 
-	public VertexInputAttributeDescription2[] AttributeDescriptions2 => this.AttributeDescriptions.Select(x => 
+	public VertexInputAttributeDescription2[] AttributeDescriptions2 => this.AttributeDescriptions.Select(x =>
 		new VertexInputAttributeDescription2(
 			type: StructureType.VertexInputAttributeDescription2Ext,
 			next: default,

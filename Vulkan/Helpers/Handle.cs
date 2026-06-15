@@ -12,11 +12,11 @@ internal unsafe readonly struct Handle<T> : IDisposable where T : struct
 
 	public bool IsNull => pointer == default;
 
-	public static implicit operator nint (Handle<T> handle) => (nint)handle.pointer;
-	public static implicit operator T* (Handle<T> handle) => handle.pointer;
-	public static implicit operator T (Handle<T> handle) => !handle.IsNull ? *handle.pointer : throw new NullReferenceException();
+	public static implicit operator nint(Handle<T> handle) => (nint)handle.pointer;
+	public static implicit operator T*(Handle<T> handle) => handle.pointer;
+	public static implicit operator T(Handle<T> handle) => !handle.IsNull ? *handle.pointer : throw new NullReferenceException();
 
-	public T[]? ToArray(uint length) 
+	public T[]? ToArray(uint length)
 	{
 		if (IsNull)
 			return null;
@@ -34,7 +34,7 @@ internal unsafe readonly struct Handle<T> : IDisposable where T : struct
 	public override string ToString() => ((nint)pointer).ToString();
 
 	public Handle(int length = 1) => this.pointer = (length > 0) ? (T*)Marshal.AllocHGlobal(sizeof(T) * length) : default;
-	public Handle(uint length = 1) : this((int)length) {}
+	public Handle(uint length = 1) : this((int)length) { }
 	public Handle(params T[]? array) : this(array?.Length ?? 0)
 	{
 		for (int i = 0; i < (array?.Length ?? 0); i++)

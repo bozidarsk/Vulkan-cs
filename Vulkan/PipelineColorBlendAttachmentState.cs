@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PipelineColorBlendAttachmentState 
+public readonly struct PipelineColorBlendAttachmentState
 {
 	public readonly bool32 BlendEnable;
 	public readonly BlendFactor SrcColorBlendFactor;

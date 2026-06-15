@@ -16,13 +16,13 @@ public readonly struct PipelineShaderStageCreateInfo : IDisposable
 	public string? Name => name;
 	public SpecializationInfo SpecializationInfo => specializationInfo;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		name.Dispose();
 		specializationInfo.Dispose();
 	}
 
-	public PipelineShaderStageCreateInfo(StructureType type, nint next, PipelineShaderStageCreateFlags flags, ShaderStage stage, ShaderModule module, string name, SpecializationInfo? specializationInfo) 
+	public PipelineShaderStageCreateInfo(StructureType type, nint next, PipelineShaderStageCreateFlags flags, ShaderStage stage, ShaderModule module, string name, SpecializationInfo? specializationInfo)
 	{
 		this.Type = type;
 		this.Next = next;

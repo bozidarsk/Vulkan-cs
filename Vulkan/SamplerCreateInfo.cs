@@ -4,7 +4,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct SamplerCreateInfo 
+public readonly struct SamplerCreateInfo
 {
 	public readonly StructureType Type;
 	public readonly nint Next;
@@ -25,7 +25,7 @@ public readonly struct SamplerCreateInfo
 	public readonly BorderColor BorderColor;
 	public readonly bool32 UnnormalizedCoordinates;
 
-	public Sampler CreateSampler(Device device, AllocationCallbacksHandle allocator) 
+	public Sampler CreateSampler(Device device, AllocationCallbacksHandle allocator)
 	{
 		Result result = vkCreateSampler(device.Handle, in this, allocator, out SamplerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);

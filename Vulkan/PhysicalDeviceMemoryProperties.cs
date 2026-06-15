@@ -4,7 +4,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public unsafe struct PhysicalDeviceMemoryProperties 
+public unsafe struct PhysicalDeviceMemoryProperties
 {
 	private uint memoryTypeCount;
 	private fixed byte memoryTypes[VK_MAX_MEMORY_TYPES * 8];

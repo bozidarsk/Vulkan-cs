@@ -18,13 +18,13 @@ public readonly struct IncludeResult : IDisposable
 	// User data to be passed along with this request.
 	public readonly nint UserData;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		filename.Dispose();
 		content.Dispose();
 	}
 
-	public IncludeResult(string filename, string content, nint userData) 
+	public IncludeResult(string filename, string content, nint userData)
 	{
 		this.filename = filename;
 		this.filenameLength = (nuint)filename.Length;

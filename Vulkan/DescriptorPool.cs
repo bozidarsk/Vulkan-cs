@@ -13,14 +13,14 @@ public sealed class DescriptorPool : IDisposable
 
 	internal DescriptorPoolHandle Handle => descriptorPool;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyDescriptorPool(device.Handle, descriptorPool, allocator);
 
 		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorPool(DeviceHandle device, DescriptorPoolHandle descriptorPool, AllocationCallbacksHandle allocator);
 	}
 
-	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, AllocationCallbacksHandle allocator) => 
+	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, AllocationCallbacksHandle allocator) =>
 		(this.descriptorPool, this.device, this.allocator) = (descriptorPool, device, allocator)
 	;
 }

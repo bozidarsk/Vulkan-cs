@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct ClearValue 
+public readonly struct ClearValue
 {
 	public readonly ClearColorValue Color;
 	public readonly ClearDepthStencilValue DepthStencil;

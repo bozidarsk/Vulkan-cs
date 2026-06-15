@@ -15,7 +15,7 @@ public readonly struct RenderPassBeginInfo : IDisposable
 	public RenderPass RenderPass => throw new NotImplementedException(); // cannot get allocator and device params
 	public Framebuffer Framebuffer => throw new NotImplementedException(); // cannot get allocator and device params
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		clearValues.Dispose();
 	}

@@ -2,7 +2,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public struct ExtensionProperties 
+public struct ExtensionProperties
 {
 	private unsafe fixed sbyte extensionName[VK_MAX_EXTENSION_NAME_SIZE];
 	public readonly uint SpecVersion;

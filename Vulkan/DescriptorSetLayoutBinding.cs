@@ -2,7 +2,7 @@ using System;
 
 namespace Vulkan;
 
-public readonly struct DescriptorSetLayoutBinding 
+public readonly struct DescriptorSetLayoutBinding
 {
 	public readonly uint Binding;
 	public readonly DescriptorType DescriptorType;

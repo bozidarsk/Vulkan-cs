@@ -5,13 +5,13 @@ using static Vulkan.Constants;
 
 namespace Vulkan;
 
-public readonly struct PhysicalDevice 
+public readonly struct PhysicalDevice
 {
 	private readonly nint handle;
 
-	public PhysicalDeviceMemoryProperties MemoryProperties 
+	public PhysicalDeviceMemoryProperties MemoryProperties
 	{
-		get 
+		get
 		{
 			vkGetPhysicalDeviceMemoryProperties(this, out PhysicalDeviceMemoryProperties properties);
 			return properties;
@@ -20,9 +20,9 @@ public readonly struct PhysicalDevice
 		}
 	}
 
-	public PhysicalDeviceProperties Properties 
+	public PhysicalDeviceProperties Properties
 	{
-		get 
+		get
 		{
 			vkGetPhysicalDeviceProperties(this, out PhysicalDeviceProperties properties);
 			return properties;
@@ -31,9 +31,9 @@ public readonly struct PhysicalDevice
 		}
 	}
 
-	public PhysicalDeviceFeatures Features 
+	public PhysicalDeviceFeatures Features
 	{
-		get 
+		get
 		{
 			vkGetPhysicalDeviceFeatures(this, out PhysicalDeviceFeaturesStruct features);
 			return features;
@@ -42,9 +42,9 @@ public readonly struct PhysicalDevice
 		}
 	}
 
-	public unsafe QueueFamilyProperties[] QueueFamilyProperties 
+	public unsafe QueueFamilyProperties[] QueueFamilyProperties
 	{
-		get 
+		get
 		{
 			vkGetPhysicalDeviceQueueFamilyProperties(this, out uint count, ref Unsafe.AsRef<QueueFamilyProperties>(default));
 			var queueFamilyProperties = new QueueFamilyProperties[count];
@@ -57,7 +57,7 @@ public readonly struct PhysicalDevice
 		}
 	}
 
-	public FormatProperties GetFormatProperties(Format format) 
+	public FormatProperties GetFormatProperties(Format format)
 	{
 		vkGetPhysicalDeviceFormatProperties(this, format, out FormatProperties properties);
 		return properties;
@@ -65,7 +65,7 @@ public readonly struct PhysicalDevice
 		[DllImport(VK_LIB)] static extern void vkGetPhysicalDeviceFormatProperties(PhysicalDevice physicalDevice, Format format, out FormatProperties properties);
 	}
 
-	public unsafe ExtensionProperties[] GetExtensionProperties(string? layerName) 
+	public unsafe ExtensionProperties[] GetExtensionProperties(string? layerName)
 	{
 		Result result;
 
@@ -82,16 +82,15 @@ public readonly struct PhysicalDevice
 		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDevice physicalDevice, string? layerName, out uint count, ref ExtensionProperties pProperties);
 	}
 
-	public static bool operator == (PhysicalDevice a, PhysicalDevice b) => a.handle == b.handle;
-	public static bool operator != (PhysicalDevice a, PhysicalDevice b) => a.handle != b.handle;
+	public static bool operator ==(PhysicalDevice a, PhysicalDevice b) => a.handle == b.handle;
+	public static bool operator !=(PhysicalDevice a, PhysicalDevice b) => a.handle != b.handle;
 	public override bool Equals(object? other) => (other is PhysicalDevice x) ? x.handle == handle : false;
 
-	public static implicit operator nint (PhysicalDevice x) => x.handle;
-	public static implicit operator PhysicalDevice (nint x) => new(x);
+	public static implicit operator nint(PhysicalDevice x) => x.handle;
+	public static implicit operator PhysicalDevice(nint x) => new(x);
 
 	public override string ToString() => handle.ToString();
 	public override int GetHashCode() => handle.GetHashCode();
 
 	private PhysicalDevice(nint handle) => this.handle = handle;
 }
-

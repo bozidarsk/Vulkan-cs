@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct Viewport 
+public readonly struct Viewport
 {
 	public readonly float x;
 	public readonly float y;
@@ -9,7 +9,7 @@ public readonly struct Viewport
 	public readonly float MinDepth;
 	public readonly float MaxDepth;
 
-	public Viewport(float x, float y, float width, float height, float minDepth, float maxDepth) => 
+	public Viewport(float x, float y, float width, float height, float minDepth, float maxDepth) =>
 		(this.x, this.y, this.Width, this.Height, this.MinDepth, this.MaxDepth) = (x, y, width, height, minDepth, maxDepth)
-	; 
+	;
 }

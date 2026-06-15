@@ -2,7 +2,7 @@ using System;
 
 namespace Vulkan;
 
-public readonly struct ImageMemoryBarrier 
+public readonly struct ImageMemoryBarrier
 {
 	public readonly StructureType Type;
 	public readonly nint Next;

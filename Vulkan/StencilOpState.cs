@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct StencilOpState 
+public readonly struct StencilOpState
 {
 	public readonly StencilOp FailOp;
 	public readonly StencilOp PassOp;

@@ -13,12 +13,12 @@ public sealed class DebugUtilsMessenger : IDisposable
 
 	internal DebugUtilsMessengerHandle Handle => debugUtilsMessenger;
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		vkDestroyDebugUtilsMessengerEXT(instance.Handle, debugUtilsMessenger, allocator);
 	}
 
-	internal DebugUtilsMessenger(DebugUtilsMessengerHandle debugUtilsMessenger, Instance instance, AllocationCallbacksHandle allocator) => 
+	internal DebugUtilsMessenger(DebugUtilsMessengerHandle debugUtilsMessenger, Instance instance, AllocationCallbacksHandle allocator) =>
 		(this.debugUtilsMessenger, this.instance, this.allocator) = (debugUtilsMessenger, instance, allocator)
 	;
 }

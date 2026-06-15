@@ -2,7 +2,7 @@ using System;
 
 namespace Vulkan;
 
-public readonly struct DescriptorBufferInfo 
+public readonly struct DescriptorBufferInfo
 {
 	private readonly BufferHandle buffer;
 	public readonly DeviceSize Offset;

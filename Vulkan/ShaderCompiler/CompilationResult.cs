@@ -11,9 +11,9 @@ public readonly struct CompilationResult : IDisposable
 {
 	private readonly nint handle;
 
-	public unsafe string Text 
+	public unsafe string Text
 	{
-		get 
+		get
 		{
 			return new((sbyte*)shaderc_result_get_bytes(this), 0, (int)shaderc_result_get_length(this));
 
@@ -22,9 +22,9 @@ public readonly struct CompilationResult : IDisposable
 		}
 	}
 
-	public byte[] Data 
+	public byte[] Data
 	{
-		get 
+		get
 		{
 			int length = (int)shaderc_result_get_length(this);
 			var code = new byte[length];
@@ -38,9 +38,9 @@ public readonly struct CompilationResult : IDisposable
 		}
 	}
 
-	public CompilationStatus Status 
+	public CompilationStatus Status
 	{
-		get 
+		get
 		{
 			return shaderc_result_get_compilation_status(this);
 
@@ -48,9 +48,9 @@ public readonly struct CompilationResult : IDisposable
 		}
 	}
 
-	public unsafe string ErrorMessage 
+	public unsafe string ErrorMessage
 	{
-		get 
+		get
 		{
 			return new(shaderc_result_get_error_message(this));
 
@@ -58,18 +58,18 @@ public readonly struct CompilationResult : IDisposable
 		}
 	}
 
-	public void Dispose() 
+	public void Dispose()
 	{
 		shaderc_result_release(this);
 
 		[DllImport(SHADERC_LIB)] static extern void shaderc_result_release(CompilationResult result);
 	}
 
-	public static bool operator == (CompilationResult a, CompilationResult b) => a.handle == b.handle;
-	public static bool operator != (CompilationResult a, CompilationResult b) => a.handle != b.handle;
+	public static bool operator ==(CompilationResult a, CompilationResult b) => a.handle == b.handle;
+	public static bool operator !=(CompilationResult a, CompilationResult b) => a.handle != b.handle;
 	public override bool Equals(object? other) => (other is CompilationResult x) ? x.handle == handle : false;
 
-	public static implicit operator nint (CompilationResult x) => x.handle;
+	public static implicit operator nint(CompilationResult x) => x.handle;
 
 	public override string ToString() => handle.ToString();
 	public override int GetHashCode() => handle.GetHashCode();

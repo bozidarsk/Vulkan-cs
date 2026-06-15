@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct QueueFamilyProperties 
+public readonly struct QueueFamilyProperties
 {
 	public readonly QueueFlags QueueFlags;
 	public readonly uint QueueCount;
