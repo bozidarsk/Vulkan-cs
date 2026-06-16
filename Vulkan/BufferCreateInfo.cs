@@ -14,7 +14,7 @@ public readonly struct BufferCreateInfo : IDisposable
 	public readonly BufferUsage Usage;
 	public readonly SharingMode SharingMode;
 	private readonly uint queueFamilyIndexCount;
-	private readonly Handle<uint> queueFamilyIndices;
+	private readonly Box<uint> queueFamilyIndices;
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);
 

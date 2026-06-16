@@ -8,7 +8,7 @@ public readonly struct PipelineDynamicStateCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineDynamicStateCreateFlags Flags;
 	private readonly uint dynamicStateCount;
-	private readonly Handle<DynamicState> dynamicStates;
+	private readonly Box<DynamicState> dynamicStates;
 
 	public DynamicState[]? DynamicStates => dynamicStates.ToArray(dynamicStateCount);
 

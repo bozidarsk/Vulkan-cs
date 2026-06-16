@@ -11,11 +11,11 @@ public readonly struct RenderPassCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly RenderPassCreateFlags Flags;
 	public readonly uint attachmentCount;
-	private readonly Handle<AttachmentDescription> attachments;
+	private readonly Box<AttachmentDescription> attachments;
 	public readonly uint subpassCount;
-	private readonly Handle<SubpassDescription> subpasses;
+	private readonly Box<SubpassDescription> subpasses;
 	public readonly uint dependencyCount;
-	private readonly Handle<SubpassDependency> dependencies;
+	private readonly Box<SubpassDependency> dependencies;
 
 	public AttachmentDescription[]? Attachments => attachments.ToArray(attachmentCount);
 	public SubpassDescription[]? Subpasses => subpasses.ToArray(subpassCount);

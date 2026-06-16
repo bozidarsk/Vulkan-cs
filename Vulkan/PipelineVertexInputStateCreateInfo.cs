@@ -8,9 +8,9 @@ public readonly struct PipelineVertexInputStateCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineVertexInputStateCreateFlags Flags;
 	public readonly uint vertexBindingDescriptionCount;
-	private readonly Handle<VertexInputBindingDescription> vertexBindingDescriptions;
+	private readonly Box<VertexInputBindingDescription> vertexBindingDescriptions;
 	public readonly uint vertexAttributeDescriptionCount;
-	private readonly Handle<VertexInputAttributeDescription> vertexAttributeDescriptions;
+	private readonly Box<VertexInputAttributeDescription> vertexAttributeDescriptions;
 
 	public VertexInputBindingDescription[]? VertexBindingDescriptions => vertexBindingDescriptions.ToArray(vertexBindingDescriptionCount);
 	public VertexInputAttributeDescription[]? VertexAttributeDescriptions => vertexAttributeDescriptions.ToArray(vertexAttributeDescriptionCount);

@@ -12,12 +12,12 @@ public readonly struct DeviceCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly DeviceCreateFlags Flags;
 	private readonly uint queueCreateInfoCount;
-	private readonly Handle<DeviceQueueCreateInfo> queueCreateInfos;
+	private readonly Box<DeviceQueueCreateInfo> queueCreateInfos;
 	private readonly uint enabledLayerCount;
-	private readonly Handle<cstring> enabledLayerNames;
+	private readonly Box<cstring> enabledLayerNames;
 	private readonly uint enabledExtensionCount;
-	private readonly Handle<cstring> enabledExtensionNames;
-	private readonly Handle<PhysicalDeviceFeaturesStruct> enabledFeatures;
+	private readonly Box<cstring> enabledExtensionNames;
+	private readonly Box<PhysicalDeviceFeaturesStruct> enabledFeatures;
 
 	public string?[]? EnabledLayerNames => enabledLayerNames.ToArray(enabledLayerCount)?.Select(x => (string?)x).ToArray();
 	public string?[]? EnabledExtensionNames => enabledExtensionNames.ToArray(enabledExtensionCount)?.Select(x => (string?)x).ToArray();
@@ -57,7 +57,7 @@ public readonly struct DeviceCreateInfo : IDisposable
 		this.queueCreateInfoCount = (uint)(queueCreateInfos?.Length ?? 0);
 		this.queueCreateInfos = new(queueCreateInfos);
 
-		this.enabledFeatures = new Handle<PhysicalDeviceFeaturesStruct>(enabledFeatures);
+		this.enabledFeatures = new Box<PhysicalDeviceFeaturesStruct>(enabledFeatures);
 
 		this.enabledLayerCount = (uint)(enabledLayerNames?.Length ?? 0);
 		this.enabledLayerNames = new(enabledLayerNames?.Select(x => (cstring)x).ToArray());

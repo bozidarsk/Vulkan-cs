@@ -12,7 +12,7 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 	public readonly nint Next;
 	private readonly DescriptorPoolHandle descriptorPool;
 	private readonly uint descriptorSetCount;
-	private readonly Handle<DescriptorSetLayoutHandle> setLayouts;
+	private readonly Box<DescriptorSetLayoutHandle> setLayouts;
 
 	public DescriptorPool DescriptorPool => throw new NotImplementedException(); // cannot get allocator and device params
 	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params

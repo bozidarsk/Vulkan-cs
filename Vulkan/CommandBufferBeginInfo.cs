@@ -7,7 +7,7 @@ public readonly struct CommandBufferBeginInfo : IDisposable
 	public readonly StructureType Type = StructureType.CommandBufferBeginInfo;
 	public readonly nint Next;
 	public readonly CommandBufferUsage Usage;
-	private readonly Handle<CommandBufferInheritanceInfo> inheritanceInfo;
+	private readonly Box<CommandBufferInheritanceInfo> inheritanceInfo;
 
 	public CommandBufferInheritanceInfo InheritanceInfo => inheritanceInfo;
 

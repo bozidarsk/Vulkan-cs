@@ -8,11 +8,11 @@ public readonly struct PresentInfo : IDisposable
 	public readonly StructureType Type = StructureType.PresentInfo;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
-	private readonly Handle<SemaphoreHandle> waitSemaphores;
+	private readonly Box<SemaphoreHandle> waitSemaphores;
 	private readonly uint swapchainCount;
-	private readonly Handle<SwapchainHandle> swapchains;
-	private readonly Handle<uint> imageIndices;
-	private readonly Handle<Result> results;
+	private readonly Box<SwapchainHandle> swapchains;
+	private readonly Box<uint> imageIndices;
+	private readonly Box<Result> results;
 
 	public Semaphore[]? WaitSemaphores => throw new NotImplementedException(); // cannot get device and allocator params
 	public Swapchain[]? Swapchains => throw new NotImplementedException(); // cannot get device and allocator params

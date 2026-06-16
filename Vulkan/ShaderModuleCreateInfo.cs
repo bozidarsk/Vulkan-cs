@@ -11,7 +11,7 @@ public readonly struct ShaderModuleCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly ShaderModuleCreateFlags Flags;
 	private readonly nuint codeSize;
-	private readonly Handle<byte> code;
+	private readonly Box<byte> code;
 
 	public byte[] Code => code.ToArray((uint)codeSize)!;
 

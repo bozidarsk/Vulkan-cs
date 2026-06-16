@@ -12,11 +12,11 @@ public readonly struct InstanceCreateInfo : IDisposable
 	public readonly StructureType Type = StructureType.InstanceCreateInfo;
 	public readonly nint Next;
 	public readonly InstanceCreateFlags Flags;
-	private readonly Handle<ApplicationInfo> applicationInfo;
+	private readonly Box<ApplicationInfo> applicationInfo;
 	private readonly uint enabledLayerCount;
-	private readonly Handle<cstring> enabledLayerNames;
+	private readonly Box<cstring> enabledLayerNames;
 	private readonly uint enabledExtensionCount;
-	private readonly Handle<cstring> enabledExtensionNames;
+	private readonly Box<cstring> enabledExtensionNames;
 
 	public readonly ApplicationInfo ApplicationInfo => applicationInfo;
 

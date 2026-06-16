@@ -12,9 +12,9 @@ public readonly struct WriteDescriptorSet : IDisposable
 	public readonly uint DestinationArrayElement;
 	private readonly uint descriptorCount;
 	public readonly DescriptorType DescriptorType;
-	private readonly Handle<DescriptorImageInfo> imageInfos;
-	private readonly Handle<DescriptorBufferInfo> bufferInfos;
-	private readonly Handle<BufferViewHandle> texelBufferViews;
+	private readonly Box<DescriptorImageInfo> imageInfos;
+	private readonly Box<DescriptorBufferInfo> bufferInfos;
+	private readonly Box<BufferViewHandle> texelBufferViews;
 
 	public DescriptorSet DestinationSet => throw new NotImplementedException(); // cannot get allocator and device params
 	public DescriptorImageInfo[]? ImageInfo => imageInfos.ToArray(descriptorCount);

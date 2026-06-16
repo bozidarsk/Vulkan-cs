@@ -12,9 +12,9 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineLayoutCreateFlags Flags;
 	private readonly uint setLayoutCount;
-	private readonly Handle<DescriptorSetLayoutHandle> setLayouts;
+	private readonly Box<DescriptorSetLayoutHandle> setLayouts;
 	private readonly uint pushConstantRangeCount;
-	private readonly Handle<PushConstantRange> pushConstantRanges;
+	private readonly Box<PushConstantRange> pushConstantRanges;
 
 	public DescriptorSetLayout[]? SetLayouts => throw new NotImplementedException(); // cannot get allocator and device params
 	public PushConstantRange[]? PushConstantRanges => pushConstantRanges.ToArray(pushConstantRangeCount);

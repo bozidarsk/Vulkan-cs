@@ -8,12 +8,12 @@ public readonly struct SubmitInfo : IDisposable
 	public readonly StructureType Type = StructureType.SubmitInfo;
 	public readonly nint Next;
 	private readonly uint waitSemaphoreCount;
-	private readonly Handle<SemaphoreHandle> waitSemaphores;
-	private readonly Handle<PipelineStage> waitDstStageMasks;
+	private readonly Box<SemaphoreHandle> waitSemaphores;
+	private readonly Box<PipelineStage> waitDstStageMasks;
 	private readonly uint commandBufferCount;
-	private readonly Handle<CommandBufferHandle> commandBuffers;
+	private readonly Box<CommandBufferHandle> commandBuffers;
 	private readonly uint signalSemaphoreCount;
-	private readonly Handle<SemaphoreHandle> signalSemaphores;
+	private readonly Box<SemaphoreHandle> signalSemaphores;
 
 	public Semaphore[]? WaitSemaphores => throw new NotImplementedException(); // cannot get allocator and device params
 	public PipelineStage[]? WaitDstStage => throw new NotImplementedException(); // cannot get allocator and device params

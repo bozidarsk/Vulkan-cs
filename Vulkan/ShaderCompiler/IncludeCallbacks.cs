@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Vulkan.ShaderCompiler;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate Handle<IncludeResult> IncludeResolverDelegate(
+internal delegate Box<IncludeResult> IncludeResolverDelegate(
 	CompilerOptions options,
 	[MarshalAs(UnmanagedType.LPStr)] string pRequestedSource,
 	IncludeType type,
@@ -14,5 +14,5 @@ internal delegate Handle<IncludeResult> IncludeResolverDelegate(
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void IncludeResultReleaserDelegate(
 	CompilerOptions options,
-	Handle<IncludeResult> result
+	Box<IncludeResult> result
 );

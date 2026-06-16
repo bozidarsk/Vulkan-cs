@@ -9,7 +9,7 @@ public readonly struct DeviceQueueCreateInfo : IDisposable
 	public readonly DeviceQueueCreateFlags Flags;
 	public readonly uint QueueFamilyIndex;
 	private readonly uint queueCount;
-	private readonly Handle<float> queuePriorities;
+	private readonly Box<float> queuePriorities;
 
 	public float[]? QueuePriorities => queuePriorities.ToArray(queueCount);
 

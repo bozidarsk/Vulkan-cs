@@ -10,7 +10,7 @@ public readonly struct PipelineMultisampleStateCreateInfo : IDisposable
 	public readonly SampleCount RasterizationSamples;
 	public readonly bool32 SampleShadingEnable;
 	public readonly float MinSampleShading;
-	private readonly Handle<SampleMask> sampleMask;
+	private readonly Box<SampleMask> sampleMask;
 	public readonly bool32 AlphaToCoverageEnable;
 	public readonly bool32 AlphaToOneEnable;
 

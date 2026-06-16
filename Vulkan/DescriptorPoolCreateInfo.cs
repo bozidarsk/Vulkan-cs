@@ -12,7 +12,7 @@ public readonly struct DescriptorPoolCreateInfo : IDisposable
 	public readonly DescriptorPoolCreateFlags Flags;
 	public readonly uint MaxSets;
 	private readonly uint poolSizeCount;
-	private readonly Handle<DescriptorPoolSize> poolSizes;
+	private readonly Box<DescriptorPoolSize> poolSizes;
 
 	public DescriptorPoolSize[]? PoolSizes => poolSizes.ToArray(poolSizeCount);
 

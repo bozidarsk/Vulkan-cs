@@ -11,7 +11,7 @@ public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly DescriptorSetLayoutCreateFlags Flags;
 	private readonly uint bindingCount;
-	private readonly Handle<DescriptorSetLayoutBinding> bindings;
+	private readonly Box<DescriptorSetLayoutBinding> bindings;
 
 	public DescriptorSetLayoutBinding[]? Bindings => bindings.ToArray(bindingCount);
 

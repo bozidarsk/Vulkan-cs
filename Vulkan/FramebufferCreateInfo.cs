@@ -13,7 +13,7 @@ public readonly struct FramebufferCreateInfo : IDisposable
 	public readonly FramebufferCreateFlags Flags;
 	private readonly RenderPassHandle renderPass;
 	private readonly uint attachmentCount;
-	private readonly Handle<ImageViewHandle> attachments;
+	private readonly Box<ImageViewHandle> attachments;
 	public readonly uint Width;
 	public readonly uint Height;
 	public readonly uint Layers;

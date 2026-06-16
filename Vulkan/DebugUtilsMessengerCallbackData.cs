@@ -14,11 +14,11 @@ public readonly struct DebugUtilsMessengerCallbackData : IDisposable
 	public readonly int MessageIdNumber;
 	private readonly cstring message;
 	private readonly uint queueLabelCount;
-	private readonly Handle<DebugUtilsLabel> queueLabels;
+	private readonly Box<DebugUtilsLabel> queueLabels;
 	private readonly uint cmdBufLabelCount;
-	private readonly Handle<DebugUtilsLabel> cmdBufLabels;
+	private readonly Box<DebugUtilsLabel> cmdBufLabels;
 	private readonly uint objectCount;
-	private readonly Handle<DebugUtilsObjectNameInfo> objects;
+	private readonly Box<DebugUtilsObjectNameInfo> objects;
 
 	public string? MessageIdName => messageIdName;
 	public string? Message => message;

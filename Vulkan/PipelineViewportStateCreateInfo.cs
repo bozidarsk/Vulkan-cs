@@ -8,9 +8,9 @@ public readonly struct PipelineViewportStateCreateInfo : IDisposable
 	public readonly nint Next;
 	public readonly PipelineViewportStateCreateFlags Flags;
 	private readonly uint viewportCount;
-	private readonly Handle<Viewport> viewports;
+	private readonly Box<Viewport> viewports;
 	private readonly uint scissorCount;
-	private readonly Handle<Rect2D> scissors;
+	private readonly Box<Rect2D> scissors;
 
 	public Viewport[]? Viewports => viewports.ToArray(viewportCount);
 	public Rect2D[]? Scissors => scissors.ToArray(scissorCount);

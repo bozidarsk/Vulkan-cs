@@ -7,13 +7,13 @@ public readonly struct SubpassDescription : IDisposable
 	public readonly SubpassDescriptionFlags Flags;
 	public readonly PipelineBindPoint PipelineBindPoint;
 	private readonly uint inputAttachmentCount;
-	private readonly Handle<AttachmentReference> inputAttachments;
+	private readonly Box<AttachmentReference> inputAttachments;
 	private readonly uint colorAttachmentCount;
-	private readonly Handle<AttachmentReference> colorAttachments;
-	private readonly Handle<AttachmentReference> resolveAttachments;
-	private readonly Handle<AttachmentReference> depthStencilAttachment;
+	private readonly Box<AttachmentReference> colorAttachments;
+	private readonly Box<AttachmentReference> resolveAttachments;
+	private readonly Box<AttachmentReference> depthStencilAttachment;
 	private readonly uint preserveAttachmentCount;
-	private readonly Handle<uint> preserveAttachments;
+	private readonly Box<uint> preserveAttachments;
 
 	public AttachmentReference[]? InputAttachments => inputAttachments.ToArray(inputAttachmentCount);
 	public AttachmentReference[]? ColorAttachments => colorAttachments.ToArray(colorAttachmentCount);

@@ -10,7 +10,7 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 	public readonly bool32 LogicOpEnable;
 	public readonly LogicOp LogicOp;
 	private readonly uint attachmentCount;
-	private readonly Handle<PipelineColorBlendAttachmentState> attachments;
+	private readonly Box<PipelineColorBlendAttachmentState> attachments;
 	public readonly Color BlendConstants;
 
 	public PipelineColorBlendAttachmentState[]? Attachments => attachments.ToArray(attachmentCount);

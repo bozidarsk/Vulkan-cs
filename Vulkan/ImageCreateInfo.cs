@@ -21,7 +21,7 @@ public readonly struct ImageCreateInfo : IDisposable
 	public readonly ImageUsage Usage;
 	public readonly SharingMode SharingMode;
 	private readonly uint queueFamilyIndexCount;
-	private readonly Handle<uint> queueFamilyIndices;
+	private readonly Box<uint> queueFamilyIndices;
 	public readonly ImageLayout InitialLayout;
 
 	public uint[]? QueueFamilyIndices => queueFamilyIndices.ToArray(queueFamilyIndexCount);

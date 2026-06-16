@@ -10,7 +10,7 @@ public readonly struct PipelineShaderStageCreateInfo : IDisposable
 	public readonly ShaderStage Stage;
 	private readonly ShaderModuleHandle module;
 	private readonly cstring name;
-	private readonly Handle<SpecializationInfo> specializationInfo;
+	private readonly Box<SpecializationInfo> specializationInfo;
 
 	public ShaderModule Module => throw new NotImplementedException(); // cannot get device and allocator params
 	public string? Name => name;

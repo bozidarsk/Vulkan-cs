@@ -5,9 +5,9 @@ namespace Vulkan;
 public readonly struct SpecializationInfo : IDisposable
 {
 	private readonly uint mapEntryCount;
-	private readonly Handle<SpecializationMapEntry> mapEntries;
+	private readonly Box<SpecializationMapEntry> mapEntries;
 	private readonly nuint dataSize;
-	private readonly Handle<byte> data;
+	private readonly Box<byte> data;
 
 	public SpecializationMapEntry[]? MapEntries => mapEntries.ToArray(mapEntryCount);
 	public byte[]? Data => data.ToArray((uint)dataSize);

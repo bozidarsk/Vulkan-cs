@@ -19,7 +19,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 	public readonly ImageUsage ImageUsage;
 	public readonly SharingMode ImageSharingMode;
 	private readonly uint queueFamilyIndexCount;
-	private readonly Handle<uint> queueFamilyIndices;
+	private readonly Box<uint> queueFamilyIndices;
 	public readonly SurfaceTransformFlags PreTransform;
 	public readonly CompositeAlphaFlags CompositeAlpha;
 	public readonly PresentMode PresentMode;

@@ -10,7 +10,7 @@ public readonly struct RenderPassBeginInfo : IDisposable
 	private readonly FramebufferHandle framebuffer;
 	public readonly Rect2D RenderArea;
 	private readonly uint clearValueCount;
-	private readonly Handle<ClearValue> clearValues;
+	private readonly Box<ClearValue> clearValues;
 
 	public RenderPass RenderPass => throw new NotImplementedException(); // cannot get allocator and device params
 	public Framebuffer Framebuffer => throw new NotImplementedException(); // cannot get allocator and device params
