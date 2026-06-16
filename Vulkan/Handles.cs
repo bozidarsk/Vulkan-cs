@@ -3,7 +3,6 @@ global using BufferHandle = Vulkan.Handle;
 global using BufferViewHandle = Vulkan.Handle;
 global using CommandBufferHandle = Vulkan.Handle;
 global using CommandPoolHandle = Vulkan.Handle;
-global using DebugEventArgsHandle = Vulkan.Handle;
 global using DebugUtilsMessengerHandle = Vulkan.Handle;
 global using DescriptorPoolHandle = Vulkan.Handle;
 global using DescriptorSetHandle = Vulkan.Handle;
