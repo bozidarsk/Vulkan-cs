@@ -42,15 +42,18 @@ public sealed class AllocationCallbacks : IDisposable
 		nint userData = 0
 	)
 	{
+		if (allocationFunction == null || reallocationFunction == null || freeFunction == null || internalAllocationNotification == null || internalFreeNotification == null)
+			throw new ArgumentNullException();
+
 		nint* data = (nint*)Marshal.AllocHGlobal(6 * sizeof(nint));
 
 		// this is the layout of VkAllocationCallbacks:
 		data[0] = userData;
-		data[1] = Marshal.GetFunctionPointerForDelegate(allocationFunction ?? throw new ArgumentNullException());
-		data[2] = Marshal.GetFunctionPointerForDelegate(reallocationFunction ?? throw new ArgumentNullException());
-		data[3] = Marshal.GetFunctionPointerForDelegate(freeFunction ?? throw new ArgumentNullException());
-		data[4] = Marshal.GetFunctionPointerForDelegate(internalAllocationNotification ?? throw new ArgumentNullException());
-		data[5] = Marshal.GetFunctionPointerForDelegate(internalFreeNotification ?? throw new ArgumentNullException());
+		data[1] = Marshal.GetFunctionPointerForDelegate(allocationFunction!);
+		data[2] = Marshal.GetFunctionPointerForDelegate(reallocationFunction!);
+		data[3] = Marshal.GetFunctionPointerForDelegate(freeFunction!);
+		data[4] = Marshal.GetFunctionPointerForDelegate(internalAllocationNotification!);
+		data[5] = Marshal.GetFunctionPointerForDelegate(internalFreeNotification!);
 
 		fixed (AllocationCallbacksHandle* pAllocationCallbacks = &allocationCallbacks)
 			*(nint*)pAllocationCallbacks = (nint)data;
