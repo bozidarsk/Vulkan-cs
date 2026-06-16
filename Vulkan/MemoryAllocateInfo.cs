@@ -16,7 +16,7 @@ public readonly struct MemoryAllocateInfo
 		Result result = vkAllocateMemory(device.Handle, in this, allocator?.Handle ?? default, out DeviceMemoryHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetDeviceMemory(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkAllocateMemory(DeviceHandle device, in MemoryAllocateInfo createInfo, AllocationCallbacksHandle allocator, out DeviceMemoryHandle deviceMemory);
 	}

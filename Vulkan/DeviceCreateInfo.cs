@@ -30,7 +30,7 @@ public readonly struct DeviceCreateInfo : IDisposable
 		Result result = vkCreateDevice(physicalDevice.Handle, in this, allocator?.Handle ?? default, out DeviceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetDevice(allocator);
+		return new(handle, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateDevice(PhysicalDeviceHandle physicalDevice, in DeviceCreateInfo createInfo, AllocationCallbacksHandle allocator, out DeviceHandle device);
 	}

@@ -36,7 +36,7 @@ public readonly struct SwapchainCreateInfo : IDisposable
 		Result result = vkCreateSwapchainKHR(device.Handle, in this, allocator?.Handle ?? default, out SwapchainHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetSwapchain(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateSwapchainKHR(DeviceHandle device, in SwapchainCreateInfo createInfo, AllocationCallbacksHandle allocator, out SwapchainHandle swapchain);
 	}

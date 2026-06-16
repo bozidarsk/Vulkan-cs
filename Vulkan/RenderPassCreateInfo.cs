@@ -26,7 +26,7 @@ public readonly struct RenderPassCreateInfo : IDisposable
 		Result result = vkCreateRenderPass(device.Handle, in this, allocator?.Handle ?? default, out RenderPassHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetRenderPass(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateRenderPass(DeviceHandle device, in RenderPassCreateInfo createInfo, AllocationCallbacksHandle allocator, out RenderPassHandle renderPass);
 	}

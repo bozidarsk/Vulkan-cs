@@ -23,7 +23,7 @@ public readonly struct BufferCreateInfo : IDisposable
 		Result result = vkCreateBuffer(device.Handle, in this, allocator?.Handle ?? default, out BufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetBuffer(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateBuffer(DeviceHandle device, in BufferCreateInfo createInfo, AllocationCallbacksHandle allocator, out BufferHandle buffer);
 	}

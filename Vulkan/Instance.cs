@@ -30,7 +30,7 @@ public sealed class Instance : IDisposable
 			result = vkEnumeratePhysicalDevices(instance, out count, ref MemoryMarshal.GetArrayDataReference(devices));
 			if (result != Result.Success) throw new VulkanException(result);
 
-			return devices.Select(x => x.GetPhysicalDevice()).ToArray();
+			return devices.Select(x => new PhysicalDevice(x)).ToArray();
 
 			[DllImport(VK_LIB)] static extern Result vkEnumeratePhysicalDevices(InstanceHandle instance, out uint count, ref PhysicalDeviceHandle pDevices);
 		}
@@ -41,7 +41,7 @@ public sealed class Instance : IDisposable
 		Result result = glfwCreateWindowSurface(instance, window, allocator?.Handle ?? default, out SurfaceHandle surface);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		this.Surface = surface.GetSurface(this, allocator);
+		this.Surface = new(surface, this, allocator);
 
 		[DllImport(GLFW_LIB)] static extern Result glfwCreateWindowSurface(InstanceHandle instance, nint window, AllocationCallbacksHandle allocator, out SurfaceHandle surface);
 	}

@@ -26,7 +26,7 @@ public readonly struct FramebufferCreateInfo : IDisposable
 		Result result = vkCreateFramebuffer(device.Handle, in this, allocator?.Handle ?? default, out FramebufferHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetFramebuffer(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateFramebuffer(DeviceHandle device, in FramebufferCreateInfo createInfo, AllocationCallbacksHandle allocator, out FramebufferHandle framebuffer);
 	}

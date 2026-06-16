@@ -23,7 +23,7 @@ public readonly struct CommandBufferAllocateInfo
 		Result result = vkAllocateCommandBuffers(device.Handle, in this, ref MemoryMarshal.GetArrayDataReference(commandBuffers));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return commandBuffers.Select(x => x.GetCommandBuffer(device, commandPool)).ToArray();
+		return commandBuffers.Select(x => new CommandBuffer(x, device, commandPool)).ToArray();
 
 		[DllImport(VK_LIB)] static extern Result vkAllocateCommandBuffers(DeviceHandle device, in CommandBufferAllocateInfo createInfo, ref CommandBufferHandle pCommandBuffers);
 	}

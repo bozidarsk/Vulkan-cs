@@ -30,7 +30,7 @@ public readonly struct SamplerCreateInfo
 		Result result = vkCreateSampler(device.Handle, in this, allocator?.Handle ?? default, out SamplerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetSampler(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateSampler(DeviceHandle device, in SamplerCreateInfo createInfo, AllocationCallbacksHandle allocator, out SamplerHandle sampler);
 	}

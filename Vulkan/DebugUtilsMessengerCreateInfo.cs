@@ -22,7 +22,7 @@ public readonly struct DebugUtilsMessengerCreateInfo
 		Result result = vkCreateDebugUtilsMessengerEXT(instance.Handle, in this, allocator?.Handle ?? default, out DebugUtilsMessengerHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetDebugUtilsMessenger(instance, allocator);
+		return new(handle, instance, allocator);
 
 		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(InstanceHandle instance, string name);
 	}

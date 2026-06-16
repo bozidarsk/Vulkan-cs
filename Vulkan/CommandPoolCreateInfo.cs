@@ -16,7 +16,7 @@ public readonly struct CommandPoolCreateInfo
 		Result result = vkCreateCommandPool(device.Handle, in this, allocator?.Handle ?? default, out CommandPoolHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetCommandPool(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateCommandPool(DeviceHandle device, in CommandPoolCreateInfo createInfo, AllocationCallbacksHandle allocator, out CommandPoolHandle commandPool);
 	}

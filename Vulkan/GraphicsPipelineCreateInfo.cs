@@ -46,7 +46,7 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 		Result result = vkCreateGraphicsPipelines(device.Handle, default, 1, in this, allocator?.Handle ?? default, out PipelineHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetPipeline(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateGraphicsPipelines(DeviceHandle device, PipelineCacheHandle cache, uint count, in GraphicsPipelineCreateInfo createInfos, AllocationCallbacksHandle allocator, out PipelineHandle graphicsPipeline);
 	}

@@ -24,7 +24,7 @@ public readonly struct PipelineLayoutCreateInfo : IDisposable
 		Result result = vkCreatePipelineLayout(device.Handle, in this, allocator?.Handle ?? default, out PipelineLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetPipelineLayout(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreatePipelineLayout(DeviceHandle device, in PipelineLayoutCreateInfo createInfo, AllocationCallbacksHandle allocator, out PipelineLayoutHandle pipelineLayout);
 	}

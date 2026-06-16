@@ -15,7 +15,7 @@ public readonly struct FenceCreateInfo
 		Result result = vkCreateFence(device.Handle, in this, allocator?.Handle ?? default, out FenceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetFence(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateFence(DeviceHandle device, in FenceCreateInfo createInfo, AllocationCallbacksHandle allocator, out FenceHandle fence);
 	}

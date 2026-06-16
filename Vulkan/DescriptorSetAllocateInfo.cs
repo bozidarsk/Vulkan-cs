@@ -24,7 +24,7 @@ public readonly struct DescriptorSetAllocateInfo : IDisposable
 		Result result = vkAllocateDescriptorSets(device.Handle, in this, ref MemoryMarshal.GetArrayDataReference(descriptorSetHandles));
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return descriptorSetHandles.Select(x => x.GetDescriptorSet(device, descriptorPool)).ToArray();
+		return descriptorSetHandles.Select(x => new DescriptorSet(x, device, descriptorPool)).ToArray();
 
 		[DllImport(VK_LIB)] static extern Result vkAllocateDescriptorSets(DeviceHandle device, in DescriptorSetAllocateInfo createInfo, ref DescriptorSetHandle pDescriptorSets);
 	}

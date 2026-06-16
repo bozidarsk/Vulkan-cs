@@ -62,7 +62,7 @@ public readonly struct InstanceCreateInfo : IDisposable
 		Result result = vkCreateInstance(in this, allocator?.Handle ?? default, out InstanceHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetInstance(allocator);
+		return new(handle, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateInstance(in InstanceCreateInfo info, AllocationCallbacksHandle allocator, out InstanceHandle instance);
 	}

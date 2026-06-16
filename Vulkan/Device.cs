@@ -36,7 +36,7 @@ public sealed class Device : IDisposable
 	{
 		vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, out QueueHandle queue);
 
-		return queue.GetQueue();
+		return new(queue);
 
 		[DllImport(VK_LIB)] static extern void vkGetDeviceQueue(DeviceHandle device, uint queueFamilyIndex, uint queueIndex, out QueueHandle queue);
 	}

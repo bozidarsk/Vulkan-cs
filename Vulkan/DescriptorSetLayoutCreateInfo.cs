@@ -20,7 +20,7 @@ public readonly struct DescriptorSetLayoutCreateInfo : IDisposable
 		Result result = vkCreateDescriptorSetLayout(device.Handle, in this, allocator?.Handle ?? default, out DescriptorSetLayoutHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetDescriptorSetLayout(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateDescriptorSetLayout(DeviceHandle device, in DescriptorSetLayoutCreateInfo createInfo, AllocationCallbacksHandle allocator, out DescriptorSetLayoutHandle descriptorSetLayout);
 	}

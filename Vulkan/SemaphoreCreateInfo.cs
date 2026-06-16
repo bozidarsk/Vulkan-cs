@@ -15,7 +15,7 @@ public readonly struct SemaphoreCreateInfo
 		Result result = vkCreateSemaphore(device.Handle, in this, allocator?.Handle ?? default, out SemaphoreHandle handle);
 		if (result != Result.Success) throw new VulkanException(result);
 
-		return handle.GetSemaphore(device, allocator);
+		return new(handle, device, allocator);
 
 		[DllImport(VK_LIB)] static extern Result vkCreateSemaphore(DeviceHandle device, in SemaphoreCreateInfo createInfo, AllocationCallbacksHandle allocator, out SemaphoreHandle semaphore);
 	}
