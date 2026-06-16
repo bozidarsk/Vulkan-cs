@@ -22,6 +22,8 @@ public sealed class DebugUtilsMessenger : IDisposable
 		[DllImport(VK_LIB)] static extern nint vkGetInstanceProcAddr(InstanceHandle instance, string name);
 	}
 
+	public override string ToString() => debugUtilsMessenger.ToString();
+
 	internal DebugUtilsMessenger(DebugUtilsMessengerHandle debugUtilsMessenger, Instance instance, AllocationCallbacks? allocator) =>
 		(this.debugUtilsMessenger, this.instance, this.allocator) = (debugUtilsMessenger, instance, allocator)
 	;

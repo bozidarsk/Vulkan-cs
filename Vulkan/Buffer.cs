@@ -31,6 +31,8 @@ public sealed class Buffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyBuffer(DeviceHandle device, BufferHandle buffer, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => buffer.ToString();
+
 	internal Buffer(BufferHandle buffer, Device device, AllocationCallbacks? allocator) =>
 		(this.buffer, this.device, this.allocator) = (buffer, device, allocator)
 	;

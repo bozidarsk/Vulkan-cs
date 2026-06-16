@@ -20,6 +20,8 @@ public sealed class BufferView : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyBufferView(DeviceHandle device, BufferViewHandle bufferView, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => bufferView.ToString();
+
 	internal BufferView(BufferViewHandle bufferView, Device device, AllocationCallbacks? allocator) =>
 		(this.bufferView, this.device, this.allocator) = (bufferView, device, allocator)
 	;

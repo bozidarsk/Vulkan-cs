@@ -54,6 +54,8 @@ public sealed class DeviceMemory : IDisposable
 		[DllImport(VK_LIB)] static extern void vkFreeMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => deviceMemory.ToString();
+
 	internal DeviceMemory(DeviceMemoryHandle deviceMemory, Device device, AllocationCallbacks? allocator) =>
 		(this.deviceMemory, this.device, this.allocator) = (deviceMemory, device, allocator)
 	;

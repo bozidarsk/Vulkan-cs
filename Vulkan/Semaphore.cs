@@ -20,6 +20,8 @@ public sealed class Semaphore : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroySemaphore(DeviceHandle device, SemaphoreHandle semaphore, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => semaphore.ToString();
+
 	internal Semaphore(SemaphoreHandle semaphore, Device device, AllocationCallbacks? allocator) =>
 		(this.semaphore, this.device, this.allocator) = (semaphore, device, allocator)
 	;

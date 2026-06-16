@@ -35,6 +35,8 @@ public sealed class Fence : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyFence(DeviceHandle device, FenceHandle fence, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => fence.ToString();
+
 	internal Fence(FenceHandle fence, Device device, AllocationCallbacks? allocator) =>
 		(this.fence, this.device, this.allocator) = (fence, device, allocator)
 	;

@@ -45,6 +45,8 @@ public sealed class Swapchain : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroySwapchainKHR(DeviceHandle device, SwapchainHandle swapchain, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => swapchain.ToString();
+
 	internal Swapchain(SwapchainHandle swapchain, Device device, AllocationCallbacks? allocator) =>
 		(this.swapchain, this.device, this.allocator) = (swapchain, device, allocator)
 	;

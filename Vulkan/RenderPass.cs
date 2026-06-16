@@ -20,6 +20,8 @@ public sealed class RenderPass : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyRenderPass(DeviceHandle device, RenderPassHandle renderPass, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => renderPass.ToString();
+
 	internal RenderPass(RenderPassHandle renderPass, Device device, AllocationCallbacks? allocator) =>
 		(this.renderPass, this.device, this.allocator) = (renderPass, device, allocator)
 	;

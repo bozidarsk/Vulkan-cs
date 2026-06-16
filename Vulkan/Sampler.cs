@@ -20,6 +20,8 @@ public sealed class Sampler : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroySampler(DeviceHandle device, SamplerHandle sampler, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => sampler.ToString();
+
 	internal Sampler(SamplerHandle sampler, Device device, AllocationCallbacks? allocator) =>
 		(this.sampler, this.device, this.allocator) = (sampler, device, allocator)
 	;

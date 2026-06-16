@@ -20,6 +20,8 @@ public sealed class Pipeline : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyPipeline(DeviceHandle device, PipelineHandle pipeline, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => pipeline.ToString();
+
 	internal Pipeline(PipelineHandle pipeline, Device device, AllocationCallbacks? allocator) =>
 		(this.pipeline, this.device, this.allocator) = (pipeline, device, allocator)
 	;

@@ -31,6 +31,8 @@ public sealed class AllocationCallbacks : IDisposable
 			Marshal.FreeHGlobal(*(nint*)pAllocationCallbacks);
 	}
 
+	public override string ToString() => (allocationCallbacks != default) ? allocationCallbacks.ToString() : "null";
+
 	public unsafe AllocationCallbacks(
 		AllocationFunctionDelegate allocationFunction,
 		ReallocationFunctionDelegate reallocationFunction,

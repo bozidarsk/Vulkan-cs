@@ -75,6 +75,8 @@ public sealed class Surface : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroySurfaceKHR(InstanceHandle instance, SurfaceHandle surface, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => surface.ToString();
+
 	internal Surface(SurfaceHandle surface, Instance instance, AllocationCallbacks? allocator) =>
 		(this.surface, this.instance, this.allocator) = (surface, instance, allocator)
 	;

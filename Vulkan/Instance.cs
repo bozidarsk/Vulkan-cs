@@ -55,6 +55,8 @@ public sealed class Instance : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyInstance(InstanceHandle instance, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => instance.ToString();
+
 	internal Instance(InstanceHandle instance, AllocationCallbacks? allocator) =>
 		(this.instance, this.allocator) = (instance, allocator)
 	;

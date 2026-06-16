@@ -34,5 +34,7 @@ public sealed class Queue
 		[DllImport(VK_LIB)] static extern Result vkQueueWaitIdle(QueueHandle queue);
 	}
 
+	public override string ToString() => queue.ToString();
+
 	internal Queue(QueueHandle queue) => this.queue = queue;
 }

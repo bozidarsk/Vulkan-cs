@@ -84,5 +84,7 @@ public sealed class PhysicalDevice
 		[DllImport(VK_LIB)] static extern Result vkEnumerateDeviceExtensionProperties(PhysicalDeviceHandle physicalDevice, string? layerName, out uint count, ref ExtensionProperties pProperties);
 	}
 
+	public override string ToString() => physicalDevice.ToString();
+
 	internal PhysicalDevice(PhysicalDeviceHandle physicalDevice) => this.physicalDevice = physicalDevice;
 }

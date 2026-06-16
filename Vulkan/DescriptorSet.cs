@@ -20,6 +20,8 @@ public sealed class DescriptorSet : IDisposable
 		[DllImport(VK_LIB)] static extern void vkFreeDescriptorSets(DeviceHandle device, DescriptorPoolHandle descriptorPool, uint count, in DescriptorSetHandle pDescriptorSets);
 	}
 
+	public override string ToString() => descriptorSet.ToString();
+
 	internal DescriptorSet(DescriptorSetHandle descriptorSet, Device device, DescriptorPool descriptorPool) =>
 		(this.descriptorSet, this.device, this.descriptorPool) = (descriptorSet, device, descriptorPool)
 	;

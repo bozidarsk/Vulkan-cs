@@ -6,5 +6,7 @@ public sealed class PipelineCache
 
 	internal PipelineCacheHandle Handle => pipelineCache;
 
+	public override string ToString() => pipelineCache.ToString();
+
 	internal PipelineCache(PipelineCacheHandle pipelineCache) => this.pipelineCache = pipelineCache;
 }

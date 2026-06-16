@@ -20,6 +20,8 @@ public sealed class DescriptorPool : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorPool(DeviceHandle device, DescriptorPoolHandle descriptorPool, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => descriptorPool.ToString();
+
 	internal DescriptorPool(DescriptorPoolHandle descriptorPool, Device device, AllocationCallbacks? allocator) =>
 		(this.descriptorPool, this.device, this.allocator) = (descriptorPool, device, allocator)
 	;

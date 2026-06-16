@@ -20,6 +20,8 @@ public sealed class Framebuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyFramebuffer(DeviceHandle device, FramebufferHandle framebuffer, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => framebuffer.ToString();
+
 	internal Framebuffer(FramebufferHandle framebuffer, Device device, AllocationCallbacks? allocator) =>
 		(this.framebuffer, this.device, this.allocator) = (framebuffer, device, allocator)
 	;

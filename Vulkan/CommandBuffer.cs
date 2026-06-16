@@ -293,6 +293,8 @@ public sealed class CommandBuffer : IDisposable
 
 	public void Dispose() => commandPool.FreeCommandBuffers(this);
 
+	public override string ToString() => commandBuffer.ToString();
+
 	internal CommandBuffer(CommandBufferHandle commandBuffer, Device device, CommandPool commandPool) =>
 		(this.commandBuffer, this.device, this.commandPool) = (commandBuffer, device, commandPool)
 	;

@@ -20,6 +20,8 @@ public sealed class ImageView : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyImageView(DeviceHandle device, ImageViewHandle imageView, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => imageView.ToString();
+
 	internal ImageView(ImageViewHandle imageView, Device device, AllocationCallbacks? allocator) =>
 		(this.imageView, this.device, this.allocator) = (imageView, device, allocator)
 	;

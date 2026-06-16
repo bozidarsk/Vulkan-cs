@@ -31,6 +31,8 @@ public sealed class CommandPool : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyCommandPool(DeviceHandle device, CommandPoolHandle commandPool, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => commandPool.ToString();
+
 	internal CommandPool(CommandPoolHandle commandPool, Device device, AllocationCallbacks? allocator) =>
 		(this.commandPool, this.device, this.allocator) = (commandPool, device, allocator)
 	;

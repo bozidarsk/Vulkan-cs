@@ -20,6 +20,8 @@ public sealed class DescriptorSetLayout : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyDescriptorSetLayout(DeviceHandle device, DescriptorSetLayoutHandle descriptorSetLayout, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => descriptorSetLayout.ToString();
+
 	internal DescriptorSetLayout(DescriptorSetLayoutHandle descriptorSetLayout, Device device, AllocationCallbacks? allocator) =>
 		(this.descriptorSetLayout, this.device, this.allocator) = (descriptorSetLayout, device, allocator)
 	;

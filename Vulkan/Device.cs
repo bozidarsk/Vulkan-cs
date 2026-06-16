@@ -55,6 +55,8 @@ public sealed class Device : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyDevice(DeviceHandle device, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => device.ToString();
+
 	internal Device(DeviceHandle device, AllocationCallbacks? allocator) =>
 		(this.device, this.allocator) = (device, allocator)
 	;

@@ -31,6 +31,8 @@ public sealed class Image : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDestroyImage(DeviceHandle device, ImageHandle image, AllocationCallbacksHandle allocator);
 	}
 
+	public override string ToString() => image.ToString();
+
 	internal Image(ImageHandle image, Device device, AllocationCallbacks? allocator) =>
 		(this.image, this.device, this.allocator) = (image, device, allocator)
 	;
