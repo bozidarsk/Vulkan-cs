@@ -14,64 +14,77 @@ public sealed class CompilerOptions : IDisposable
 
 	internal CompilerOptionsHandle Handle => compilerOptions;
 
-	public IEnumerable<(string, string)> MacroDefinitions
+	public (string name, string value)[] MacroDefinitions
 	{
 		set
 		{
+			if (value == null)
+				throw new ArgumentNullException();
+
+			field = value;
+
 			foreach (var x in value)
-			{
-				(string n, string v) = x;
-				shaderc_compile_options_add_macro_definition(compilerOptions, n, (nuint)n.Length, v, (nuint)v.Length);
-			}
+				shaderc_compile_options_add_macro_definition(compilerOptions, x.name, (nuint)x.name.Length, x.value, (nuint)x.value.Length);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_add_macro_definition(CompilerOptionsHandle compilerOptions, string name, nuint nameLength, string value, nuint valueLength);
 		}
-	}
+		get;
+	} = [];
 
-	public IEnumerable<(Limit, int)> Limits
+	public (Limit limit, int value)[] Limits
 	{
 		set
 		{
-			foreach (var x in value)
-			{
-				(Limit n, int v) = x;
-				shaderc_compile_options_set_target_spirv(compilerOptions, n, v);
-			}
+			if (value == null)
+				throw new ArgumentNullException();
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_spirv(CompilerOptionsHandle compilerOptions, Limit n, int v);
+			field = value;
+
+			foreach (var x in value)
+				shaderc_compile_options_set_target_spirv(compilerOptions, x.limit, x.value);
+
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_spirv(CompilerOptionsHandle compilerOptions, Limit limit, int value);
 		}
-	}
+		get;
+	} = [];
 
 	public ShaderLanguage ShaderLanguage
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_source_language(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_source_language(CompilerOptionsHandle compilerOptions, ShaderLanguage language);
 		}
+		get;
 	}
 
 	public OptimizationLevel OptimizationLevel
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_optimization_level(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptionsHandle compilerOptions, OptimizationLevel level);
 		}
+		get;
 	}
 
-	public (TargetEnvironment, EnvironmentVersion) TargetEnvironment
+	public (TargetEnvironment target, EnvironmentVersion version) Environment
 	{
 		set
 		{
-			(TargetEnvironment target, EnvironmentVersion version) = value;
+			field = value;
 
-			shaderc_compile_options_set_target_env(compilerOptions, target, version);
+			shaderc_compile_options_set_target_env(compilerOptions, value.target, value.version);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_env(CompilerOptionsHandle compilerOptions, TargetEnvironment target, EnvironmentVersion version);
 		}
+		get;
 	}
 
 	// // Sets a descriptor set and binding for an HLSL register in the given stage.
@@ -99,153 +112,198 @@ public sealed class CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_optimization_level(compilerOptions, value);
+			field = value;
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptionsHandle compilerOptions, SPIRVVersion version);
+			shaderc_compile_options_set_target_spirv(compilerOptions, value);
+
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_spirv(CompilerOptionsHandle compilerOptions, SPIRVVersion version);
 		}
+		get;
 	}
 
 	public bool GenerateDebugInfo
 	{
 		set
 		{
+			field = value;
+
 			if (value)
 				shaderc_compile_options_set_generate_debug_info(compilerOptions);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_generate_debug_info(CompilerOptionsHandle compilerOptions);
 		}
+		get;
 	}
 
 	public bool WarningsAsErrors
 	{
 		set
 		{
+			field = value;
+
 			if (value)
 				shaderc_compile_options_set_warnings_as_errors(compilerOptions);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_warnings_as_errors(CompilerOptionsHandle compilerOptions);
 		}
+		get;
 	}
 
 	public bool SuppressWarnings
 	{
 		set
 		{
+			field = value;
+
 			if (value)
 				shaderc_compile_options_set_suppress_warnings(compilerOptions);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_suppress_warnings(CompilerOptionsHandle compilerOptions);
 		}
+		get;
 	}
 
 	public bool AutoBindUniforms
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_auto_bind_uniforms(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_bind_uniforms(CompilerOptionsHandle compilerOptions, bool autoBind);
 		}
+		get;
 	}
 
 	public bool AutoCombinedImageSampler
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_auto_combined_image_sampler(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_combined_image_sampler(CompilerOptionsHandle compilerOptions, bool upgrade);
 		}
+		get;
 	}
 
 	public bool HLSLIOMapping
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_hlsl_io_mapping(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_io_mapping(CompilerOptionsHandle compilerOptions, bool hlslIOMap);
 		}
+		get;
 	}
 
 	public bool HLSLOffsets
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_hlsl_offsets(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_offsets(CompilerOptionsHandle compilerOptions, bool hlslOffsets);
 		}
+		get;
 	}
 
 	public bool PreserveBindings
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_preserve_bindings(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_preserve_bindings(CompilerOptionsHandle compilerOptions, bool preserveBindings);
 		}
+		get;
 	}
 
 	public bool AutoMapLocations
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_auto_map_locations(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_map_locations(CompilerOptionsHandle compilerOptions, bool autoMap);
 		}
+		get;
 	}
 
 	public bool HLSLFunctionality1
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_hlsl_functionality1(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_functionality1(CompilerOptionsHandle compilerOptions, bool enable);
 		}
+		get;
 	}
 
 	public bool HLSL16BitTypes
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_hlsl_16bit_types(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_16bit_types(CompilerOptionsHandle compilerOptions, bool enable);
 		}
+		get;
 	}
 
 	public bool VulkanRulesRelaxed
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_vulkan_rules_relaxed(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_vulkan_rules_relaxed(CompilerOptionsHandle compilerOptions, bool enable);
 		}
+		get;
 	}
 
 	public bool InvertY
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_invert_y(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_invert_y(CompilerOptionsHandle compilerOptions, bool enable);
 		}
+		get;
 	}
 
 	public bool NanClamp
 	{
 		set
 		{
+			field = value;
+
 			shaderc_compile_options_set_nan_clamp(compilerOptions, value);
 
 			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_nan_clamp(CompilerOptionsHandle compilerOptions, bool enable);
 		}
+		get;
 	}
 
 	public string[] IncludeDirectories { set; get; } = [];

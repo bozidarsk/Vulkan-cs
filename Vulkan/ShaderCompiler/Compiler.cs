@@ -138,7 +138,7 @@ public sealed partial class Compiler : IDisposable
 		using var compiler = new Compiler();
 		using var options = new CompilerOptions()
 		{
-			TargetEnvironment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
+			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
 			IncludeDirectories = [SHADER_INCLUDE_DIR],
 			ShaderLanguage = (ShaderLanguage)info.Language!
 		};
