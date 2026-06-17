@@ -8,9 +8,11 @@ using static Vulkan.Constants;
 
 namespace Vulkan.ShaderCompiler;
 
-public readonly struct Compiler : IDisposable
+public sealed partial class Compiler : IDisposable
 {
-	private readonly nint handle;
+	private readonly CompilerHandle compiler;
+
+	internal CompilerHandle Handle => compiler;
 
 	private static Dictionary<string, string> GetShaderProperties(string filename)
 	{
@@ -32,7 +34,7 @@ public readonly struct Compiler : IDisposable
 	{
 		var source = File.ReadAllText(filename);
 
-		using CompilationResult result = shaderc_compile_into_preprocessed_text(compiler, source, (nuint)source.Length, kind, filename, entryPoint, options);
+		using CompilationResult result = new(shaderc_compile_into_preprocessed_text(compiler.Handle, source, (nuint)source.Length, kind, filename, entryPoint, options.Handle));
 
 		if (result.Status != CompilationStatus.Success)
 			throw new VulkanException($"Failed to preprocess shader '{filename}' - {result.Status}.\n{result.ErrorMessage}");
@@ -40,14 +42,14 @@ public readonly struct Compiler : IDisposable
 		return result.Text;
 
 		[DllImport(SHADERC_LIB)]
-		static extern CompilationResult shaderc_compile_into_preprocessed_text(
-			Compiler compiler,
+		static extern CompilationResultHandle shaderc_compile_into_preprocessed_text(
+			CompilerHandle compiler,
 			string source,
 			nuint sourceLength,
 			ShaderKind kind,
 			string filename,
 			string entryPoint,
-			CompilerOptions options
+			CompilerOptionsHandle options
 		);
 	}
 
@@ -144,7 +146,7 @@ public readonly struct Compiler : IDisposable
 		var kind = ((ShaderStage)info.Stage!).GetShaderKind();
 		var source = Preprocess(info.File, kind, info.EntryPoint!, compiler, options);
 
-		using CompilationResult result = shaderc_compile_into_spv(compiler, source, (nuint)source.Length, kind, info.File, info.EntryPoint!, options);
+		using CompilationResult result = new(shaderc_compile_into_spv(compiler.Handle, source, (nuint)source.Length, kind, info.File, info.EntryPoint!, options.Handle));
 
 		if (result.Status != CompilationStatus.Success)
 			throw new VulkanException($"Failed to compile shader '{info.File}'.\n{result.ErrorMessage}");
@@ -152,37 +154,32 @@ public readonly struct Compiler : IDisposable
 		return result.Data;
 
 		[DllImport(SHADERC_LIB)]
-		static extern CompilationResult shaderc_compile_into_spv(
-			Compiler compiler,
+		static extern CompilationResultHandle shaderc_compile_into_spv(
+			CompilerHandle compiler,
 			string source,
 			nuint length,
 			ShaderKind kind,
 			string filename,
 			string entryPoint,
-			CompilerOptions options
+			CompilerOptionsHandle options
 		);
 	}
 
 	public void Dispose()
 	{
-		shaderc_compiler_release(this);
+		shaderc_compiler_release(compiler);
 
-		[DllImport(SHADERC_LIB)] static extern void shaderc_compiler_release(Compiler compiler);
+		[DllImport(SHADERC_LIB)] static extern void shaderc_compiler_release(CompilerHandle compiler);
 	}
 
-	public static bool operator ==(Compiler a, Compiler b) => a.handle == b.handle;
-	public static bool operator !=(Compiler a, Compiler b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is Compiler x) ? x.handle == handle : false;
-
-	public static implicit operator nint(Compiler x) => x.handle;
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
+	public override string ToString() => compiler.ToString();
 
 	public Compiler()
 	{
-		this.handle = shaderc_compiler_initialize();
+		this.compiler = shaderc_compiler_initialize();
 
-		[DllImport(SHADERC_LIB)] static extern Compiler shaderc_compiler_initialize();
+		[DllImport(SHADERC_LIB)] static extern CompilerHandle shaderc_compiler_initialize();
 	}
+
+	internal Compiler(CompilerHandle compiler) => this.compiler = compiler;
 }

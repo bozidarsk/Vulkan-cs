@@ -1,5 +1,3 @@
-#pragma warning disable CS0649
-
 using System;
 using System.Runtime.InteropServices;
 
@@ -7,34 +5,31 @@ using static Vulkan.Constants;
 
 namespace Vulkan.ShaderCompiler;
 
-public readonly struct CompilationResult : IDisposable
+public sealed class CompilationResult : IDisposable
 {
-	private readonly nint handle;
+	private readonly CompilationResultHandle compilationResult;
+
+	internal CompilationResultHandle Handle => compilationResult;
 
 	public unsafe string Text
 	{
 		get
 		{
-			return new((sbyte*)shaderc_result_get_bytes(this), 0, (int)shaderc_result_get_length(this));
+			return new(shaderc_result_get_bytes(compilationResult), 0, (int)shaderc_result_get_length(compilationResult));
 
-			[DllImport(SHADERC_LIB)] static extern nint shaderc_result_get_bytes(CompilationResult result);
-			[DllImport(SHADERC_LIB)] static extern nuint shaderc_result_get_length(CompilationResult result);
+			[DllImport(SHADERC_LIB)] static extern sbyte* shaderc_result_get_bytes(CompilationResultHandle compilationResult);
+			[DllImport(SHADERC_LIB)] static extern nuint shaderc_result_get_length(CompilationResultHandle compilationResult);
 		}
 	}
 
-	public byte[] Data
+	public unsafe byte[] Data
 	{
 		get
 		{
-			int length = (int)shaderc_result_get_length(this);
-			var code = new byte[length];
+			return new Span<byte>(shaderc_result_get_bytes(compilationResult), (int)shaderc_result_get_length(compilationResult)).ToArray();
 
-			Marshal.Copy(shaderc_result_get_bytes(this), code, 0, length);
-
-			return code;
-
-			[DllImport(SHADERC_LIB)] static extern nint shaderc_result_get_bytes(CompilationResult result);
-			[DllImport(SHADERC_LIB)] static extern nuint shaderc_result_get_length(CompilationResult result);
+			[DllImport(SHADERC_LIB)] static extern byte* shaderc_result_get_bytes(CompilationResultHandle compilationResult);
+			[DllImport(SHADERC_LIB)] static extern nuint shaderc_result_get_length(CompilationResultHandle compilationResult);
 		}
 	}
 
@@ -42,9 +37,9 @@ public readonly struct CompilationResult : IDisposable
 	{
 		get
 		{
-			return shaderc_result_get_compilation_status(this);
+			return shaderc_result_get_compilation_status(compilationResult);
 
-			[DllImport(SHADERC_LIB)] static extern CompilationStatus shaderc_result_get_compilation_status(CompilationResult result);
+			[DllImport(SHADERC_LIB)] static extern CompilationStatus shaderc_result_get_compilation_status(CompilationResultHandle compilationResult);
 		}
 	}
 
@@ -52,25 +47,20 @@ public readonly struct CompilationResult : IDisposable
 	{
 		get
 		{
-			return new(shaderc_result_get_error_message(this));
+			return new(shaderc_result_get_error_message(compilationResult));
 
-			[DllImport(SHADERC_LIB)] static extern sbyte* shaderc_result_get_error_message(CompilationResult result);
+			[DllImport(SHADERC_LIB)] static extern sbyte* shaderc_result_get_error_message(CompilationResultHandle compilationResult);
 		}
 	}
 
 	public void Dispose()
 	{
-		shaderc_result_release(this);
+		shaderc_result_release(compilationResult);
 
-		[DllImport(SHADERC_LIB)] static extern void shaderc_result_release(CompilationResult result);
+		[DllImport(SHADERC_LIB)] static extern void shaderc_result_release(CompilationResultHandle compilationResult);
 	}
 
-	public static bool operator ==(CompilationResult a, CompilationResult b) => a.handle == b.handle;
-	public static bool operator !=(CompilationResult a, CompilationResult b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is CompilationResult x) ? x.handle == handle : false;
+	public override string ToString() => compilationResult.ToString();
 
-	public static implicit operator nint(CompilationResult x) => x.handle;
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
+	internal CompilationResult(CompilationResultHandle compilationResult) => this.compilationResult = compilationResult;
 }

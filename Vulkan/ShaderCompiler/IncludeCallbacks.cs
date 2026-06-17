@@ -4,15 +4,15 @@ namespace Vulkan.ShaderCompiler;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate Box<IncludeResult> IncludeResolverDelegate(
-	CompilerOptions options,
-	[MarshalAs(UnmanagedType.LPStr)] string pRequestedSource,
+	CompilerOptionsHandle options,
+	[MarshalAs(UnmanagedType.LPStr)] string requestedSource,
 	IncludeType type,
-	[MarshalAs(UnmanagedType.LPStr)] string pRequestingSource,
+	[MarshalAs(UnmanagedType.LPStr)] string requestingSource,
 	nuint includeDepth
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void IncludeResultReleaserDelegate(
-	CompilerOptions options,
+	CompilerOptionsHandle options,
 	Box<IncludeResult> result
 );

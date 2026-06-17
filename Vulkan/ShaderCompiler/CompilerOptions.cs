@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
+using System.ComponentModel;
 
 namespace Vulkan.ShaderCompiler;
 
-public readonly struct CompilerOptions : IDisposable
+public sealed class CompilerOptions : IDisposable
 {
-	private readonly nint handle;
+	private readonly CompilerOptionsHandle compilerOptions;
+
+	internal CompilerOptionsHandle Handle => compilerOptions;
 
 	public IEnumerable<(string, string)> MacroDefinitions
 	{
@@ -18,10 +21,10 @@ public readonly struct CompilerOptions : IDisposable
 			foreach (var x in value)
 			{
 				(string n, string v) = x;
-				shaderc_compile_options_add_macro_definition(this, n, (nuint)n.Length, v, (nuint)v.Length);
+				shaderc_compile_options_add_macro_definition(compilerOptions, n, (nuint)n.Length, v, (nuint)v.Length);
 			}
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_add_macro_definition(CompilerOptions options, string name, nuint nameLength, string value, nuint valueLength);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_add_macro_definition(CompilerOptionsHandle compilerOptions, string name, nuint nameLength, string value, nuint valueLength);
 		}
 	}
 
@@ -32,10 +35,10 @@ public readonly struct CompilerOptions : IDisposable
 			foreach (var x in value)
 			{
 				(Limit n, int v) = x;
-				shaderc_compile_options_set_target_spirv(this, n, v);
+				shaderc_compile_options_set_target_spirv(compilerOptions, n, v);
 			}
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_spirv(CompilerOptions options, Limit n, int v);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_spirv(CompilerOptionsHandle compilerOptions, Limit n, int v);
 		}
 	}
 
@@ -43,9 +46,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_source_language(this, value);
+			shaderc_compile_options_set_source_language(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_source_language(CompilerOptions options, ShaderLanguage language);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_source_language(CompilerOptionsHandle compilerOptions, ShaderLanguage language);
 		}
 	}
 
@@ -53,9 +56,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_optimization_level(this, value);
+			shaderc_compile_options_set_optimization_level(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptions options, OptimizationLevel level);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptionsHandle compilerOptions, OptimizationLevel level);
 		}
 	}
 
@@ -65,9 +68,9 @@ public readonly struct CompilerOptions : IDisposable
 		{
 			(TargetEnvironment target, EnvironmentVersion version) = value;
 
-			shaderc_compile_options_set_target_env(this, target, version);
+			shaderc_compile_options_set_target_env(compilerOptions, target, version);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_env(CompilerOptions options, TargetEnvironment target, EnvironmentVersion version);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_target_env(CompilerOptionsHandle compilerOptions, TargetEnvironment target, EnvironmentVersion version);
 		}
 	}
 
@@ -96,9 +99,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_optimization_level(this, value);
+			shaderc_compile_options_set_optimization_level(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptions options, SPIRVVersion version);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_optimization_level(CompilerOptionsHandle compilerOptions, SPIRVVersion version);
 		}
 	}
 
@@ -107,9 +110,9 @@ public readonly struct CompilerOptions : IDisposable
 		set
 		{
 			if (value)
-				shaderc_compile_options_set_generate_debug_info(this);
+				shaderc_compile_options_set_generate_debug_info(compilerOptions);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_generate_debug_info(CompilerOptions options);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_generate_debug_info(CompilerOptionsHandle compilerOptions);
 		}
 	}
 
@@ -118,9 +121,9 @@ public readonly struct CompilerOptions : IDisposable
 		set
 		{
 			if (value)
-				shaderc_compile_options_set_warnings_as_errors(this);
+				shaderc_compile_options_set_warnings_as_errors(compilerOptions);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_warnings_as_errors(CompilerOptions options);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_warnings_as_errors(CompilerOptionsHandle compilerOptions);
 		}
 	}
 
@@ -129,9 +132,9 @@ public readonly struct CompilerOptions : IDisposable
 		set
 		{
 			if (value)
-				shaderc_compile_options_set_suppress_warnings(this);
+				shaderc_compile_options_set_suppress_warnings(compilerOptions);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_suppress_warnings(CompilerOptions options);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_suppress_warnings(CompilerOptionsHandle compilerOptions);
 		}
 	}
 
@@ -139,9 +142,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_auto_bind_uniforms(this, value);
+			shaderc_compile_options_set_auto_bind_uniforms(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_bind_uniforms(CompilerOptions options, bool autoBind);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_bind_uniforms(CompilerOptionsHandle compilerOptions, bool autoBind);
 		}
 	}
 
@@ -149,9 +152,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_auto_combined_image_sampler(this, value);
+			shaderc_compile_options_set_auto_combined_image_sampler(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_combined_image_sampler(CompilerOptions options, bool upgrade);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_combined_image_sampler(CompilerOptionsHandle compilerOptions, bool upgrade);
 		}
 	}
 
@@ -159,9 +162,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_hlsl_io_mapping(this, value);
+			shaderc_compile_options_set_hlsl_io_mapping(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_io_mapping(CompilerOptions options, bool hlslIOMap);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_io_mapping(CompilerOptionsHandle compilerOptions, bool hlslIOMap);
 		}
 	}
 
@@ -169,9 +172,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_hlsl_offsets(this, value);
+			shaderc_compile_options_set_hlsl_offsets(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_offsets(CompilerOptions options, bool hlslOffsets);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_offsets(CompilerOptionsHandle compilerOptions, bool hlslOffsets);
 		}
 	}
 
@@ -179,9 +182,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_preserve_bindings(this, value);
+			shaderc_compile_options_set_preserve_bindings(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_preserve_bindings(CompilerOptions options, bool preserveBindings);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_preserve_bindings(CompilerOptionsHandle compilerOptions, bool preserveBindings);
 		}
 	}
 
@@ -189,9 +192,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_auto_map_locations(this, value);
+			shaderc_compile_options_set_auto_map_locations(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_map_locations(CompilerOptions options, bool autoMap);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_auto_map_locations(CompilerOptionsHandle compilerOptions, bool autoMap);
 		}
 	}
 
@@ -199,9 +202,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_hlsl_functionality1(this, value);
+			shaderc_compile_options_set_hlsl_functionality1(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_functionality1(CompilerOptions options, bool enable);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_functionality1(CompilerOptionsHandle compilerOptions, bool enable);
 		}
 	}
 
@@ -209,9 +212,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_hlsl_16bit_types(this, value);
+			shaderc_compile_options_set_hlsl_16bit_types(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_16bit_types(CompilerOptions options, bool enable);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_hlsl_16bit_types(CompilerOptionsHandle compilerOptions, bool enable);
 		}
 	}
 
@@ -219,9 +222,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_vulkan_rules_relaxed(this, value);
+			shaderc_compile_options_set_vulkan_rules_relaxed(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_vulkan_rules_relaxed(CompilerOptions options, bool enable);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_vulkan_rules_relaxed(CompilerOptionsHandle compilerOptions, bool enable);
 		}
 	}
 
@@ -229,9 +232,9 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_invert_y(this, value);
+			shaderc_compile_options_set_invert_y(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_invert_y(CompilerOptions options, bool enable);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_invert_y(CompilerOptionsHandle compilerOptions, bool enable);
 		}
 	}
 
@@ -239,98 +242,75 @@ public readonly struct CompilerOptions : IDisposable
 	{
 		set
 		{
-			shaderc_compile_options_set_nan_clamp(this, value);
+			shaderc_compile_options_set_nan_clamp(compilerOptions, value);
 
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_nan_clamp(CompilerOptions options, bool enable);
+			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_nan_clamp(CompilerOptionsHandle compilerOptions, bool enable);
 		}
 	}
 
-	public string[] IncludeDirectories
-	{
-		set
-		{
-			if (value == null)
-				throw new ArgumentNullException();
-
-			includeDirectoriesMap[this] = value;
-			shaderc_compile_options_set_include_callbacks(this, includeResolver, includeResultReleaser, this);
-
-			[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_include_callbacks(
-				CompilerOptions options,
-				IncludeResolverDelegate resolver,
-				IncludeResultReleaserDelegate resultRelease,
-				CompilerOptions userData
-			);
-		}
-	}
-
-	private static Dictionary<CompilerOptions, string[]> includeDirectoriesMap = new();
-
-	private static readonly IncludeResolverDelegate includeResolver = (options, requestedSource, type, requestingSource, includeDepth) =>
-	{
-		string filename, content;
-
-		switch (type)
-		{
-			case IncludeType.Relative:
-				filename = Path.GetFullPath(Path.Join(Path.GetDirectoryName(requestingSource), requestedSource), requestingSource);
-				content = File.ReadAllText(filename);
-				break;
-			case IncludeType.Standard:
-				foreach (var dir in includeDirectoriesMap[options])
-				{
-					filename = Path.GetFullPath(Path.Join(dir, requestedSource));
-					if (File.Exists(filename))
-					{
-						content = File.ReadAllText(filename);
-						goto ret;
-					}
-				}
-
-				filename = "";
-				content = "Cannot find source";
-				break;
-			default:
-				throw new InvalidOperationException($"Unsupported IncludeType '{type}'.");
-		}
-
-	ret:
-		return new(
-			new IncludeResult(
-				filename: filename,
-				content: content,
-				userData: default
-			)
-		);
-	};
-
-	private static readonly IncludeResultReleaserDelegate includeResultReleaser = (options, result) =>
-	{
-		((IncludeResult)result).Dispose();
-		result.Dispose();
-	};
+	public string[] IncludeDirectories { set; get; } = [];
 
 	public void Dispose()
 	{
-		shaderc_compile_options_release(this);
-		includeDirectoriesMap.Remove(this);
+		shaderc_compile_options_release(compilerOptions);
 
-		[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_release(CompilerOptions options);
+		[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_release(CompilerOptionsHandle compilerOptions);
 	}
 
-	public static bool operator ==(CompilerOptions a, CompilerOptions b) => a.handle == b.handle;
-	public static bool operator !=(CompilerOptions a, CompilerOptions b) => a.handle != b.handle;
-	public override bool Equals(object? other) => (other is CompilerOptions x) ? x.handle == handle : false;
-
-	public static implicit operator nint(CompilerOptions x) => x.handle;
-
-	public override string ToString() => handle.ToString();
-	public override int GetHashCode() => handle.GetHashCode();
+	public override string ToString() => compilerOptions.ToString();
 
 	public CompilerOptions()
 	{
-		this.handle = shaderc_compile_options_initialize();
+		this.compilerOptions = shaderc_compile_options_initialize();
 
-		[DllImport(SHADERC_LIB)] static extern CompilerOptions shaderc_compile_options_initialize();
+		IncludeResolverDelegate includeResolver = (options, requestedSource, type, requestingSource, includeDepth) =>
+		{
+			string filename, content;
+
+			switch (type)
+			{
+				case IncludeType.Relative:
+					filename = Path.GetFullPath(Path.Join(Path.GetDirectoryName(requestingSource), requestedSource), requestingSource);
+					if (File.Exists(filename))
+					{
+						content = File.ReadAllText(filename);
+						return new(new IncludeResult(filename: filename, content: content, userData: default));
+					}
+					break;
+				case IncludeType.Standard:
+					foreach (var dir in IncludeDirectories)
+					{
+						filename = Path.GetFullPath(Path.Join(dir, requestedSource));
+						if (File.Exists(filename))
+						{
+							content = File.ReadAllText(filename);
+							return new(new IncludeResult(filename: filename, content: content, userData: default));
+						}
+					}
+					break;
+				default:
+					throw new InvalidOperationException($"Unsupported include type '{type}'.");
+			}
+
+			return new(new IncludeResult(filename: "", content: "", userData: default));
+		};
+
+		IncludeResultReleaserDelegate includeResultReleaser = (options, result) =>
+		{
+			((IncludeResult)result).Dispose();
+			result.Dispose();
+		};
+
+		shaderc_compile_options_set_include_callbacks(compilerOptions, includeResolver, includeResultReleaser, default);
+
+		[DllImport(SHADERC_LIB)] static extern CompilerOptionsHandle shaderc_compile_options_initialize();
+		[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_include_callbacks(
+			CompilerOptionsHandle options,
+			IncludeResolverDelegate resolver,
+			IncludeResultReleaserDelegate resultRelease,
+			nint userData
+		);
 	}
+
+	internal CompilerOptions(CompilerOptionsHandle compilerOptions) => this.compilerOptions = compilerOptions;
 }
