@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using static Vulkan.Constants;
-using System.ComponentModel;
 
 namespace Vulkan.ShaderCompiler;
 
