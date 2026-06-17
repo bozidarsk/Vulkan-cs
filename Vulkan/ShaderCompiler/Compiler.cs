@@ -8,7 +8,7 @@ using static Vulkan.Constants;
 
 namespace Vulkan.ShaderCompiler;
 
-public sealed partial class Compiler : IDisposable
+public sealed class Compiler : IDisposable
 {
 	private readonly CompilerHandle compiler;
 
