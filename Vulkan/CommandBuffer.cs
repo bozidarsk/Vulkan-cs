@@ -221,6 +221,28 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 	}
 
+	public void SetBlendEnable(int attachment, bool enable)
+	{
+		bool32[] blendEnables = [enable];
+
+		var vkCmdSetColorBlendEnableEXT = Marshal.GetDelegateForFunctionPointer<SetColorBlendEnableDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdSetColorBlendEnableEXT"));
+
+		vkCmdSetColorBlendEnableEXT(commandBuffer, (uint)attachment, 1, ref MemoryMarshal.GetArrayDataReference(blendEnables));
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+	}
+
+	public void SetBlendEquation(int attachment, ColorBlendEquation equation)
+	{
+		ColorBlendEquation[] equations = [equation];
+
+		var vkCmdSetColorBlendEquationEXT = Marshal.GetDelegateForFunctionPointer<SetColorBlendEquationDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdSetColorBlendEquationEXT"));
+
+		vkCmdSetColorBlendEquationEXT(commandBuffer, (uint)attachment, 1, ref MemoryMarshal.GetArrayDataReference(equations));
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+	}
+
 	public void Draw(int vertextCount, int instanceCount = 1, int firstVertex = 0, int firstInstance = 0)
 	{
 		vkCmdDraw(commandBuffer, (uint)vertextCount, (uint)instanceCount, (uint)firstVertex, (uint)firstInstance);

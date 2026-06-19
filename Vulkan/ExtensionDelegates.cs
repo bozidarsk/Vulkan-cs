@@ -30,6 +30,22 @@ internal delegate void SetVertexInputExtensionDelegate(
 );
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate void SetColorBlendEnableDelegate(
+	CommandBufferHandle commandBuffer,
+	uint firstAttachment,
+	uint attachmentCount,
+	ref bool32 colorBlendEnables
+);
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate void SetColorBlendEquationDelegate(
+	CommandBufferHandle commandBuffer,
+	uint firstAttachment,
+	uint attachmentCount,
+	ref ColorBlendEquation colorBlendEquations
+);
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void PushDescriptorSetExtensionDelegate(
 	CommandBufferHandle commandBuffer,
 	PipelineBindPoint bindPoint,

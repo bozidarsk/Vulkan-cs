@@ -1,8 +1,29 @@
-// #pragma stage {Vulkan.ShaderStage} [main|...]
+// pipeline specific options:
+// #pragma stage {Vulkan.ShaderStage} [entryPoint]
 // #pragma cull {Vulkan.CullMode}
 // #pragma frontface {Vulkan.FrontFace}
-// #pragma blend {{disable|off}|{Vulkan.BlendFactor} [Vulkan.BlendOp] {Vulkan.BlendFactor}}
+// #pragma blend {disabled|off}|{{Vulkan.BlendFactor} [Vulkan.BlendOp] {Vulkan.BlendFactor}}
+
+// compiler specific options:
 // #pragma language {glsl|hlsl}
+// #pragma {Vulkan.ShaderCompiler.Limit} {value}
+// #pragma environment {Vulkan.ShaderCompiler.TargetEnvironment} {Vulkan.ShaderCompiler.EnvironmentVersion}
+// #pragma spirv {Vulkan.ShaderCompiler.SPIRVVersion}
+// #pragma optimize {disabled|off}|{Vulkan.ShaderCompiler.OptimizationLevel}
+// #pragma GenerateDebugInfo
+// #pragma WarningsAsErrors
+// #pragma SuppressWarnings
+// #pragma AutoBindUniforms
+// #pragma AutoCombinedImageSampler
+// #pragma HLSLIOMapping
+// #pragma HLSLOffsets
+// #pragma PreserveBindings
+// #pragma AutoMapLocations
+// #pragma HLSLFunctionality1
+// #pragma HLSL16BitTypes
+// #pragma VulkanRulesRelaxed
+// #pragma InvertY
+// #pragma NanClamp
 
 #ifndef COMMON_HLSL
 #define COMMON_HLSL

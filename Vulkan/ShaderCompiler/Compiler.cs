@@ -14,149 +14,232 @@ public sealed class Compiler : IDisposable
 
 	internal CompilerHandle Handle => compiler;
 
-	private static Dictionary<string, string> GetShaderProperties(string filename)
+	private static void GetShaderMetadata(Shader shader, CompilerOptions options)
 	{
-		var properties = new Dictionary<string, string>();
+		int lineIndex = 0;
 
-		foreach (var line in File.ReadAllLines(filename))
+		List<(Limit, int)> limits = new();
+
+		if (Enum.TryParse<ShaderLanguage>(Path.GetExtension(shader.File).TrimStart('.').ToUpper(), out ShaderLanguage language))
+			options.ShaderLanguage = language;
+
+		foreach (var line in File.ReadAllLines(shader.File))
 		{
 			if (!line.TrimStart().StartsWith("#pragma"))
 				continue;
 
-			var tokens = line.Split(' ').Where(x => !string.IsNullOrEmpty(x));
-			properties[tokens.ElementAt(1).ToLower()] = tokens.Skip(2).Aggregate((current, next) => $"{current} {next}").ToLower();
+			var tokens = line.Split(' ').Where(x => !string.IsNullOrEmpty(x) && !string.IsNullOrWhiteSpace(x)).ToArray();
+
+			string name = tokens[1];
+			var values = new Span<string>(tokens, 2, tokens.Length - 2);
+
+			switch (name.ToLower())
+			{
+				case "stage":
+					if ((values.Length != 1 && values.Length != 2) || !Enum.TryParse<ShaderStage>(values[0], true, out ShaderStage stage))
+						goto default;
+
+					if (values.Length == 2)
+						shader.EntryPoint = values[1];
+
+					shader.Stage = stage;
+					break;
+				case "language":
+					if (values.Length != 1 || !Enum.TryParse<ShaderLanguage>(values[0], true, out language))
+						goto default;
+
+					options.ShaderLanguage = language;
+					break;
+				case "cull":
+					if (values.Length != 1 || !Enum.TryParse<CullMode>(values[0], true, out CullMode cull))
+						goto default;
+
+					shader.CullMode = cull;
+					break;
+				case "frontface":
+					if (values.Length != 1 || !Enum.TryParse<FrontFace>(values[0], true, out FrontFace frontFace))
+						goto default;
+
+					shader.FrontFace = frontFace;
+					break;
+				case "blend":
+					if (values.Length == 3)
+					{
+						BlendFactor factor;
+
+						if (Enum.TryParse<BlendFactor>(values[0], true, out factor))
+							shader.SourceBlendFactor = factor;
+						else goto default;
+
+						if (Enum.TryParse<BlendOp>(values[1], true, out BlendOp op))
+							shader.BlendOp = op;
+						else goto default;
+
+						if (Enum.TryParse<BlendFactor>(values[2], true, out factor))
+							shader.DestinationBlendFactor = factor;
+						else goto default;
+					}
+					else if (values.Length == 2)
+					{
+						BlendFactor factor;
+
+						if (Enum.TryParse<BlendFactor>(values[0], true, out factor))
+							shader.SourceBlendFactor = factor;
+						else goto default;
+
+						if (Enum.TryParse<BlendFactor>(values[1], true, out factor))
+							shader.DestinationBlendFactor = factor;
+						else goto default;
+					}
+					else if (values.Length == 1)
+					{
+						if (values[0].ToLower() == "disabled" || values[0].ToLower() == "off")
+							shader.DisableBlending = true;
+						else goto default;
+					}
+					else goto default;
+					break;
+				case "environment":
+					if (values.Length != 2 || !Enum.TryParse<TargetEnvironment>(values[0], true, out TargetEnvironment target) || !Enum.TryParse<EnvironmentVersion>(values[0], true, out EnvironmentVersion version))
+						goto default;
+
+					options.Environment = (target, version);
+					break;
+				case "spirv":
+					if (values.Length != 1 || !Enum.TryParse<SPIRVVersion>(values[0], true, out SPIRVVersion spirv))
+						goto default;
+
+					options.SPIRVVersion = spirv;
+					break;
+				case "optimization":
+					if (values.Length == 1 && (values[0].ToLower() == "disabled" || values[0].ToLower() == "off"))
+					{
+						options.OptimizationLevel = OptimizationLevel.Zero;
+						break;
+					}
+
+					if (values.Length != 1 || !Enum.TryParse<OptimizationLevel>(values[0], true, out OptimizationLevel optimization))
+						goto default;
+
+					options.OptimizationLevel = optimization;
+					break;
+				case "generatedebuginfo":
+					options.GenerateDebugInfo = true;
+					break;
+				case "warningsaserrors":
+					options.WarningsAsErrors = true;
+					break;
+				case "suppresswarnings":
+					options.SuppressWarnings = true;
+					break;
+				case "autobinduniforms":
+					options.AutoBindUniforms = true;
+					break;
+				case "autocombinedimagesampler":
+					options.AutoCombinedImageSampler = true;
+					break;
+				case "hlsliomapping":
+					options.HLSLIOMapping = true;
+					break;
+				case "hlsloffsets":
+					options.HLSLOffsets = true;
+					break;
+				case "preservebindings":
+					options.PreserveBindings = true;
+					break;
+				case "automaplocations":
+					options.AutoMapLocations = true;
+					break;
+				case "hlslfunctionality1":
+					options.HLSLFunctionality1 = true;
+					break;
+				case "hlsl16bittypes":
+					options.HLSL16BitTypes = true;
+					break;
+				case "vulkanrulesrelaxed":
+					options.VulkanRulesRelaxed = true;
+					break;
+				case "inverty":
+					options.InvertY = true;
+					break;
+				case "nanclamp":
+					options.NanClamp = true;
+					break;
+				default:
+					throw new VulkanException($"Failed to process shader properties in '{shader.File}'. (#pragma '{name}' at line {lineIndex})");
+			}
+
+			if (values.Length == 1 && Enum.TryParse<Limit>(name, true, out Limit limit) && int.TryParse(values[0], out int limitValue))
+				limits.Add((limit, limitValue));
+
+			lineIndex++;
 		}
 
-		return properties;
+		options.Limits = limits.ToArray();
 	}
 
-	private static string Preprocess(string filename, ShaderKind kind, string entryPoint, Compiler compiler, CompilerOptions options)
+	public Shader Compile(string filename, CompilerOptions? options = null)
 	{
-		var source = File.ReadAllText(filename);
+		if (filename == null)
+			throw new ArgumentNullException();
 
-		using CompilationResult result = new(shaderc_compile_into_preprocessed_text(compiler.Handle, source, (nuint)source.Length, kind, filename, entryPoint, options.Handle));
+		bool disposeOptions = options == null;
+		options ??= new CompilerOptions()
+		{
+			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan14),
+			SPIRVVersion = SPIRVVersion.Version14,
+			IncludeDirectories = [SHADER_INCLUDE_DIR],
+		};
 
-		if (result.Status != CompilationStatus.Success)
-			throw new VulkanException($"Failed to preprocess shader '{filename}' - {result.Status}.\n{result.ErrorMessage}");
+		byte[] source;
 
-		return result.Text;
+		var shader = new Shader() { File = Path.GetFullPath(filename) };
+
+		GetShaderMetadata(shader, options);
+
+		source = File.ReadAllBytes(shader.File);
+		using CompilationResult preprocessingResult = new(shaderc_compile_into_preprocessed_text(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", options.Handle));
+
+		if (preprocessingResult.Status != CompilationStatus.Success)
+		{
+			if (disposeOptions)
+				options.Dispose();
+
+			throw new VulkanException($"Failed to preprocess shader '{shader.File}' - {preprocessingResult.Status}.\n{preprocessingResult.ErrorMessage}");
+		}
+
+		source = preprocessingResult.Data;
+		using CompilationResult compilationResult = new(shaderc_compile_into_spv(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", options.Handle));
+
+		if (compilationResult.Status != CompilationStatus.Success)
+		{
+			if (disposeOptions)
+				options.Dispose();
+
+			throw new VulkanException($"Failed to compile shader '{shader.File}'.\n{compilationResult.ErrorMessage}");
+		}
+
+		if (disposeOptions)
+			options.Dispose();
+
+		shader.Code = compilationResult.Data;
+		return shader;
 
 		[DllImport(SHADERC_LIB)]
 		static extern CompilationResultHandle shaderc_compile_into_preprocessed_text(
 			CompilerHandle compiler,
-			string source,
+			ref byte source,
 			nuint sourceLength,
 			ShaderKind kind,
 			string filename,
 			string entryPoint,
 			CompilerOptionsHandle options
 		);
-	}
-
-	public static byte[] Compile(ref ShaderInfo info)
-	{
-		if (info == null || info.File == null)
-			throw new ArgumentNullException();
-
-		if (Enum.TryParse<ShaderLanguage>(Path.GetExtension(info.File).TrimStart('.').ToUpper(), out ShaderLanguage language))
-			info.Language = language;
-
-		foreach (var x in GetShaderProperties(info.File))
-		{
-			switch (x.Key)
-			{
-				case "stage":
-					var tokens = x.Value.Split(' ');
-
-					if ((tokens.Length != 1 && tokens.Length != 2) || !Enum.TryParse<ShaderStage>(tokens[0], true, out ShaderStage stage))
-						goto case null;
-
-					info.Stage = stage;
-					info.EntryPoint = (tokens.Length == 2) ? tokens[1] : "main";
-					break;
-				case "language":
-					if (!Enum.TryParse<ShaderLanguage>(x.Value, true, out language))
-						goto case null;
-
-					info.Language = language;
-					break;
-				case "cull":
-					if (!Enum.TryParse<CullMode>(x.Value, true, out CullMode cullMode))
-						goto case null;
-
-					info.CullMode = cullMode;
-					break;
-				case "frontface":
-					if (!Enum.TryParse<FrontFace>(x.Value, true, out FrontFace frontFace))
-						goto case null;
-
-					info.FrontFace = frontFace;
-					break;
-				case "blend":
-					var factors = x.Value.Split(' ');
-					if (factors.Length == 3)
-					{
-						BlendFactor factor;
-
-						if (Enum.TryParse<BlendFactor>(factors[0], true, out factor))
-							info.SourceBlendFactor = factor;
-						else goto case null;
-
-						if (Enum.TryParse<BlendOp>(factors[1], true, out BlendOp op))
-							info.BlendOp = op;
-						else goto case null;
-
-						if (Enum.TryParse<BlendFactor>(factors[2], true, out factor))
-							info.DestinationBlendFactor = factor;
-						else goto case null;
-					}
-					else if (factors.Length == 2)
-					{
-						BlendFactor factor;
-
-						if (Enum.TryParse<BlendFactor>(factors[0], true, out factor))
-							info.SourceBlendFactor = factor;
-						else goto case null;
-
-						if (Enum.TryParse<BlendFactor>(factors[1], true, out factor))
-							info.DestinationBlendFactor = factor;
-						else goto case null;
-					}
-					else if (factors.Length == 1)
-					{
-						if (factors[0] == "disable" || factors[0] == "off" || factors[0] == "none")
-							info.DisableBlending = true;
-						else goto case null;
-					}
-					else goto case null;
-					break;
-				case null:
-					throw new VulkanException($"Failed to process shader properties in '{info.File}'. (#pragma {x.Key} {x.Value})");
-			}
-		}
-
-		using var compiler = new Compiler();
-		using var options = new CompilerOptions()
-		{
-			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan10),
-			IncludeDirectories = [SHADER_INCLUDE_DIR],
-			ShaderLanguage = (ShaderLanguage)info.Language!
-		};
-
-		var kind = ((ShaderStage)info.Stage!).GetShaderKind();
-		var source = Preprocess(info.File, kind, info.EntryPoint!, compiler, options);
-
-		using CompilationResult result = new(shaderc_compile_into_spv(compiler.Handle, source, (nuint)source.Length, kind, info.File, info.EntryPoint!, options.Handle));
-
-		if (result.Status != CompilationStatus.Success)
-			throw new VulkanException($"Failed to compile shader '{info.File}'.\n{result.ErrorMessage}");
-
-		return result.Data;
 
 		[DllImport(SHADERC_LIB)]
 		static extern CompilationResultHandle shaderc_compile_into_spv(
 			CompilerHandle compiler,
-			string source,
+			ref byte source,
 			nuint length,
 			ShaderKind kind,
 			string filename,
