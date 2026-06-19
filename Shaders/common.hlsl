@@ -48,13 +48,13 @@ cbuffer GlobalUniforms : register(b0)
 {
 	float4x4 VIEW;
 	float4x4 PROJECTION;
+	float3 CAMERA_POSITION;
 }
 
 [[vk::push_constant]]
 cbuffer PushConstants
 {
 	float4x4 MODEL;
-	float3 CAMERA_POSITION;
 	uint ID;
 }
 
