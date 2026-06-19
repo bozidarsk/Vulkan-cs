@@ -28,7 +28,7 @@ internal unsafe readonly struct Box<T> : IDisposable where T : struct
 
 	public void Dispose() => Marshal.FreeHGlobal((nint)pointer);
 
-	public override string ToString() => $"0x{(nint)pointer:x16}";
+	public override string ToString() => $"0x{(nint)pointer:x}";
 
 	private Box(int length) => this.pointer = (length > 0) ? (T*)Marshal.AllocHGlobal(sizeof(T) * length) : default;
 
