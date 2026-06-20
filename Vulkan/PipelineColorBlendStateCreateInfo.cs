@@ -2,7 +2,7 @@ using System;
 
 namespace Vulkan;
 
-public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
+public unsafe struct PipelineColorBlendStateCreateInfo : IDisposable
 {
 	public readonly StructureType Type = StructureType.PipelineColorBlendStateCreateInfo;
 	public readonly nint Next;
@@ -11,9 +11,10 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 	public readonly LogicOp LogicOp;
 	private readonly uint attachmentCount;
 	private readonly Box<PipelineColorBlendAttachmentState> attachments;
-	public readonly Color BlendConstants;
+	private fixed float blendConstants[4];
 
 	public PipelineColorBlendAttachmentState[]? Attachments => attachments.ToArray(attachmentCount);
+	public (float r, float g, float b, float a) BlendConstants => (blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
 
 	public void Dispose()
 	{
@@ -26,14 +27,15 @@ public readonly struct PipelineColorBlendStateCreateInfo : IDisposable
 		bool logicOpEnable,
 		LogicOp logicOp,
 		PipelineColorBlendAttachmentState[] attachments,
-		Color blendConstants
+		(float r, float g, float b, float a) blendConstants
 	)
 	{
 		this.Next = next;
 		this.Flags = flags;
 		this.LogicOpEnable = logicOpEnable;
 		this.LogicOp = logicOp;
-		this.BlendConstants = blendConstants;
+
+		(this.blendConstants[0], this.blendConstants[1], this.blendConstants[2], this.blendConstants[3]) = blendConstants;
 
 		this.attachmentCount = (uint)(attachments?.Length ?? 0);
 		this.attachments = new(attachments);

@@ -4,14 +4,15 @@ using System;
 
 namespace Vulkan;
 
-public readonly struct DebugUtilsLabel : IDisposable
+public unsafe struct DebugUtilsLabel : IDisposable
 {
 	public readonly StructureType Type = StructureType.DebugUtilsLabelExt;
 	public readonly nint Next;
 	private readonly cstring labelName;
-	public readonly Color Color;
+	private fixed float color[4];
 
 	public string? LabelName => labelName;
+	public (float r, float g, float b, float a) Color => (color[0], color[1], color[2], color[3]);
 
 	public override string? ToString() => LabelName;
 
@@ -20,10 +21,11 @@ public readonly struct DebugUtilsLabel : IDisposable
 		labelName.Dispose();
 	}
 
-	public DebugUtilsLabel(nint next, string? labelName, Color color)
+	public DebugUtilsLabel(nint next, string? labelName, (float r, float g, float b, float a) color)
 	{
 		this.Next = next;
 		this.labelName = labelName;
-		this.Color = color;
+
+		(this.color[0], this.color[1], this.color[2], this.color[3]) = color;
 	}
 }
