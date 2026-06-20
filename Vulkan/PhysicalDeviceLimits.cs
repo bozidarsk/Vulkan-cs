@@ -1,6 +1,6 @@
 namespace Vulkan;
 
-public readonly struct PhysicalDeviceLimits
+public unsafe struct PhysicalDeviceLimits
 {
 	public readonly uint MaxImageDimension1D;
 	public readonly uint MaxImageDimension2D;
@@ -54,9 +54,9 @@ public readonly struct PhysicalDeviceLimits
 	public readonly uint MaxFragmentDualSrcAttachments;
 	public readonly uint MaxFragmentCombinedOutputResources;
 	public readonly uint MaxComputeSharedMemorySize;
-	public readonly Vector3Int MaxComputeWorkGroupCount;
+	private fixed uint maxComputeWorkGroupCount[3];
 	public readonly uint MaxComputeWorkGroupInvocations;
-	public readonly Vector3Int MaxComputeWorkGroupSize;
+	private fixed uint maxComputeWorkGroupSize[3];
 	public readonly uint SubPixelPrecisionBits;
 	public readonly uint SubTexelPrecisionBits;
 	public readonly uint MipmapPrecisionBits;
@@ -65,8 +65,8 @@ public readonly struct PhysicalDeviceLimits
 	public readonly float MaxSamplerLodBias;
 	public readonly float MaxSamplerAnisotropy;
 	public readonly uint MaxViewports;
-	public readonly Vector2Int MaxViewportDimensions;
-	public readonly Vector2 ViewportBoundsRange;
+	private fixed uint maxViewportDimensions[2];
+	private fixed float viewportBoundsRange[2];
 	public readonly uint ViewportSubPixelBits;
 	public readonly nuint MinMemoryMapAlignment;
 	public readonly DeviceSize MinTexelBufferOffsetAlignment;
@@ -99,8 +99,8 @@ public readonly struct PhysicalDeviceLimits
 	public readonly uint MaxCullDistances;
 	public readonly uint MaxCombinedClipAndCullDistances;
 	public readonly uint DiscreteQueuePriorities;
-	public readonly Vector2 PointSizeRange;
-	public readonly Vector2 LineWidthRange;
+	private fixed float pointSizeRange[2];
+	private fixed float lineWidthRange[2];
 	public readonly float PointSizeGranularity;
 	public readonly float LineWidthGranularity;
 	public readonly bool32 StrictLines;
@@ -108,4 +108,11 @@ public readonly struct PhysicalDeviceLimits
 	public readonly DeviceSize OptimalBufferCopyOffsetAlignment;
 	public readonly DeviceSize OptimalBufferCopyRowPitchAlignment;
 	public readonly DeviceSize NonCoherentAtomSize;
+
+	public (uint x, uint y, uint z) MaxComputeWorkGroupCount => (maxComputeWorkGroupCount[0], maxComputeWorkGroupCount[1], maxComputeWorkGroupCount[2]);
+	public (uint x, uint y, uint z) MaxComputeWorkGroupSize => (maxComputeWorkGroupSize[0], maxComputeWorkGroupSize[1], maxComputeWorkGroupSize[2]);
+	public (uint x, uint y) MaxViewportDimensions => (maxViewportDimensions[0], maxViewportDimensions[1]);
+	public (float x, float y) ViewportBoundsRange => (viewportBoundsRange[0], viewportBoundsRange[1]);
+	public (float x, float y) PointSizeRange => (pointSizeRange[0], pointSizeRange[1]);
+	public (float x, float y) LineWidthRange => (lineWidthRange[0], lineWidthRange[1]);
 }
