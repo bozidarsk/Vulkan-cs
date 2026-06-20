@@ -36,6 +36,6 @@ internal readonly struct Handle<T> where T : class
 	public static bool operator !=(Handle<T> a, Handle<T> b) => a.value != b.value;
 	public override bool Equals(object? other) => (other is Handle<T> x) ? x.value == value : false;
 
-	public override string ToString() => $"0x{value:x16}";
+	public override string ToString() => $"0x{value:x}";
 	public override int GetHashCode() => value.GetHashCode();
 }
