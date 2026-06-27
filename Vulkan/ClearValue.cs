@@ -1,9 +1,13 @@
+using System.Runtime.InteropServices;
+
 namespace Vulkan;
 
+[StructLayout(LayoutKind.Explicit)]
 public readonly struct ClearValue
 {
-	public readonly ClearColorValue Color;
-	public readonly ClearDepthStencilValue DepthStencil;
+	[FieldOffset(0)] public readonly ClearColorValue Color;
+	[FieldOffset(0)] public readonly ClearDepthStencilValue DepthStencil;
 
-	public ClearValue(ClearColorValue color, ClearDepthStencilValue depthStencil) => (this.Color, this.DepthStencil) = (color, depthStencil);
+	public ClearValue(ClearColorValue color) => this.Color = color;
+	public ClearValue(ClearDepthStencilValue depthStencil) => this.DepthStencil = depthStencil;
 }
