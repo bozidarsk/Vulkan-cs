@@ -79,7 +79,7 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 		PipelineColorBlendStateCreateInfo? colorBlendState,
 		PipelineDynamicStateCreateInfo? dynamicState,
 		PipelineLayout layout,
-		RenderPass renderPass,
+		RenderPass? renderPass,
 		uint subpass,
 		Pipeline? basePipeline,
 		int basePipelineIndex
@@ -102,7 +102,7 @@ public readonly struct GraphicsPipelineCreateInfo : IDisposable
 		this.dynamicState = (dynamicState is PipelineDynamicStateCreateInfo i) ? new(i) : default;
 
 		this.layout = layout.Handle;
-		this.renderPass = renderPass.Handle;
+		this.renderPass = renderPass?.Handle ?? default;
 		this.Subpass = subpass;
 
 		this.basePipeline = (basePipeline != null) ? basePipeline.Handle : default;

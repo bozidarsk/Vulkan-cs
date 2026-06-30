@@ -158,6 +158,20 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdEndRenderPass(CommandBufferHandle commandBuffer);
 	}
 
+	public void BeginRendering(RenderingInfo renderingInfo)
+	{
+		vkCmdBeginRendering(commandBuffer, in renderingInfo);
+
+		[DllImport(VK_LIB)] static extern void vkCmdBeginRendering(CommandBufferHandle commandBuffer, in RenderingInfo renderingInfo);
+	}
+
+	public void EndRendering()
+	{
+		vkCmdEndRendering(commandBuffer);
+
+		[DllImport(VK_LIB)] static extern void vkCmdEndRendering(CommandBufferHandle commandBuffer);
+	}
+
 	public void BindPipeline(Pipeline pipeline, PipelineBindPoint bindPoint)
 	{
 		vkCmdBindPipeline(commandBuffer, bindPoint, pipeline.Handle);
@@ -311,6 +325,13 @@ public sealed class CommandBuffer : IDisposable
 			uint imageMemoryBarrierCount,
 			ref ImageMemoryBarrier pImageMemoryBarriers
 		);
+	}
+
+	public void PipelineBarrier2(DependencyInfo dependencyInfo)
+	{
+		vkCmdPipelineBarrier2(commandBuffer, in dependencyInfo);
+
+		[DllImport(VK_LIB)] static extern void vkCmdPipelineBarrier2(CommandBufferHandle commandBuffer, in DependencyInfo dependencyInfo);
 	}
 
 	public void Dispose() => commandPool.FreeCommandBuffers(this);
