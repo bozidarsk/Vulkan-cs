@@ -1,7 +1,6 @@
 #pragma warning disable CS0169
 
 using System;
-using System.Reflection;
 
 namespace Vulkan;
 
@@ -66,84 +65,91 @@ internal readonly struct PhysicalDeviceFeaturesStruct
 	public static implicit operator PhysicalDeviceFeatures(PhysicalDeviceFeaturesStruct x) => x.Value;
 	public static implicit operator PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures x) => new(x);
 
-	public PhysicalDeviceFeatures Value
+	private unsafe PhysicalDeviceFeatures Value
 	{
 		get
 		{
-			PhysicalDeviceFeatures value = default;
+			fixed (PhysicalDeviceFeaturesStruct* pThis = &this)
+			{
+				ulong value = default;
+				var span = new Span<uint>(pThis, sizeof(PhysicalDeviceFeaturesStruct) / sizeof(uint));
 
-			foreach (FieldInfo x in this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField))
-				if ((uint)(x.GetValue(this)!) == 1)
-					value |= Enum.Parse<PhysicalDeviceFeatures>(x.Name);
+				for (int i = 0; i < span.Length; i++)
+					value |= (ulong)span[i] << i;
 
-			return value;
+				return (PhysicalDeviceFeatures)value;
+			}
 		}
 	}
 
-	public PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures value)
+	private unsafe PhysicalDeviceFeaturesStruct(PhysicalDeviceFeatures value)
 	{
-		foreach (FieldInfo x in this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField))
-			if (value.HasFlag(Enum.Parse<PhysicalDeviceFeatures>(x.Name)))
-				x.SetValue(this, (uint)1);
+		fixed (PhysicalDeviceFeaturesStruct* pThis = &this)
+		{
+			var span = new Span<uint>(pThis, sizeof(PhysicalDeviceFeaturesStruct) / sizeof(uint));
+
+			for (int i = 0; i < span.Length; i++)
+				span[i] = (uint)((ulong)value >> i) & 1;
+		}
 	}
 }
 
 [Flags]
-public enum PhysicalDeviceFeatures
+public enum PhysicalDeviceFeatures : ulong
 {
-	RobustBufferAccess = 1 << 1,
-	FullDrawIndexUint32 = 1 << 2,
-	ImageCubeArray = 1 << 3,
-	IndependentBlend = 1 << 4,
-	GeometryShader = 1 << 5,
-	TessellationShader = 1 << 6,
-	SampleRateShading = 1 << 7,
-	DualSrcBlend = 1 << 8,
-	LogicOp = 1 << 9,
-	MultiDrawIndirect = 1 << 10,
-	DrawIndirectFirstInstance = 1 << 11,
-	DepthClamp = 1 << 12,
-	DepthBiasClamp = 1 << 13,
-	FillModeNonSolid = 1 << 14,
-	DepthBounds = 1 << 15,
-	WideLines = 1 << 16,
-	LargePoints = 1 << 17,
-	AlphaToOne = 1 << 18,
-	MultiViewport = 1 << 19,
-	SamplerAnisotropy = 1 << 20,
-	TextureCompressionETC2 = 1 << 21,
-	TextureCompressionASTC_LDR = 1 << 22,
-	TextureCompressionBC = 1 << 23,
-	OcclusionQueryPrecise = 1 << 24,
-	PipelineStatisticsQuery = 1 << 25,
-	VertexPipelineStoresAndAtomics = 1 << 26,
-	FragmentStoresAndAtomics = 1 << 27,
-	ShaderTessellationAndGeometryPointSize = 1 << 28,
-	ShaderImageGatherExtended = 1 << 29,
-	ShaderStorageImageExtendedFormats = 1 << 30,
-	ShaderStorageImageMultisample = 1 << 31,
-	ShaderStorageImageReadWithoutFormat = 1 << 32,
-	ShaderStorageImageWriteWithoutFormat = 1 << 33,
-	ShaderUniformBufferArrayDynamicIndexing = 1 << 34,
-	ShaderSampledImageArrayDynamicIndexing = 1 << 35,
-	ShaderStorageBufferArrayDynamicIndexing = 1 << 36,
-	ShaderStorageImageArrayDynamicIndexing = 1 << 37,
-	ShaderClipDistance = 1 << 38,
-	ShaderCullDistance = 1 << 39,
-	ShaderFloat64 = 1 << 40,
-	ShaderInt64 = 1 << 41,
-	ShaderInt16 = 1 << 42,
-	ShaderResourceResidency = 1 << 43,
-	ShaderResourceMinLod = 1 << 44,
-	SparseBinding = 1 << 45,
-	SparseResidencyBuffer = 1 << 46,
-	SparseResidencyImage2D = 1 << 47,
-	SparseResidencyImage3D = 1 << 48,
-	SparseResidency2Samples = 1 << 49,
-	SparseResidency4Samples = 1 << 50,
-	SparseResidency8Samples = 1 << 51,
-	SparseResidency16Samples = 1 << 52,
-	SparseResidencyAliased = 1 << 53,
-	VariableMultisampleRate = 1 << 54,
-	InheritedQueries = 1 << 56,
+	RobustBufferAccess = 1ul << 0,
+	FullDrawIndexUint32 = 1ul << 1,
+	ImageCubeArray = 1ul << 2,
+	IndependentBlend = 1ul << 3,
+	GeometryShader = 1ul << 4,
+	TessellationShader = 1ul << 5,
+	SampleRateShading = 1ul << 6,
+	DualSrcBlend = 1ul << 7,
+	LogicOp = 1ul << 8,
+	MultiDrawIndirect = 1ul << 9,
+	DrawIndirectFirstInstance = 1ul << 10,
+	DepthClamp = 1ul << 11,
+	DepthBiasClamp = 1ul << 12,
+	FillModeNonSolid = 1ul << 13,
+	DepthBounds = 1ul << 14,
+	WideLines = 1ul << 15,
+	LargePoints = 1ul << 16,
+	AlphaToOne = 1ul << 17,
+	MultiViewport = 1ul << 18,
+	SamplerAnisotropy = 1ul << 19,
+	TextureCompressionETC2 = 1ul << 20,
+	TextureCompressionASTC_LDR = 1ul << 21,
+	TextureCompressionBC = 1ul << 22,
+	OcclusionQueryPrecise = 1ul << 23,
+	PipelineStatisticsQuery = 1ul << 24,
+	VertexPipelineStoresAndAtomics = 1ul << 25,
+	FragmentStoresAndAtomics = 1ul << 26,
+	ShaderTessellationAndGeometryPointSize = 1ul << 27,
+	ShaderImageGatherExtended = 1ul << 28,
+	ShaderStorageImageExtendedFormats = 1ul << 29,
+	ShaderStorageImageMultisample = 1ul << 30,
+	ShaderStorageImageReadWithoutFormat = 1ul << 31,
+	ShaderStorageImageWriteWithoutFormat = 1ul << 32,
+	ShaderUniformBufferArrayDynamicIndexing = 1ul << 33,
+	ShaderSampledImageArrayDynamicIndexing = 1ul << 34,
+	ShaderStorageBufferArrayDynamicIndexing = 1ul << 35,
+	ShaderStorageImageArrayDynamicIndexing = 1ul << 36,
+	ShaderClipDistance = 1ul << 37,
+	ShaderCullDistance = 1ul << 38,
+	ShaderFloat64 = 1ul << 39,
+	ShaderInt64 = 1ul << 40,
+	ShaderInt16 = 1ul << 41,
+	ShaderResourceResidency = 1ul << 42,
+	ShaderResourceMinLod = 1ul << 43,
+	SparseBinding = 1ul << 44,
+	SparseResidencyBuffer = 1ul << 45,
+	SparseResidencyImage2D = 1ul << 46,
+	SparseResidencyImage3D = 1ul << 47,
+	SparseResidency2Samples = 1ul << 48,
+	SparseResidency4Samples = 1ul << 49,
+	SparseResidency8Samples = 1ul << 50,
+	SparseResidency16Samples = 1ul << 51,
+	SparseResidencyAliased = 1ul << 52,
+	VariableMultisampleRate = 1ul << 53,
+	InheritedQueries = 1ul << 54,
 }
