@@ -334,6 +334,31 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdPipelineBarrier2(CommandBufferHandle commandBuffer, in DependencyInfo dependencyInfo);
 	}
 
+	public void WriteTimestamp(PipelineStage pipelineStage, QueryPool queryPool, uint query)
+	{
+		vkCmdWriteTimestamp(commandBuffer, pipelineStage, queryPool.Handle, query);
+
+		[DllImport(VK_LIB)] static extern void vkCmdWriteTimestamp(CommandBufferHandle commandBuffer, PipelineStage pipelineStage, QueryPoolHandle queryPool, uint query);
+	}
+
+	public void BeginDebugUtilsLabel(DebugUtilsLabel label)
+	{
+		var vkCmdBeginDebugUtilsLabelEXT = Marshal.GetDelegateForFunctionPointer<BeginDebugUtilsLabelDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdBeginDebugUtilsLabelEXT"));
+
+		vkCmdBeginDebugUtilsLabelEXT(commandBuffer, in label);
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+	}
+
+	public void EndDebugUtilsLabel()
+	{
+		var vkCmdEndDebugUtilsLabelEXT = Marshal.GetDelegateForFunctionPointer<EndDebugUtilsLabelDelegate>(vkGetDeviceProcAddr(device.Handle, "vkCmdEndDebugUtilsLabelEXT"));
+
+		vkCmdEndDebugUtilsLabelEXT(commandBuffer);
+
+		[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+	}
+
 	public string Name
 	{
 		set

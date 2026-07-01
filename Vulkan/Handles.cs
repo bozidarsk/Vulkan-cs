@@ -25,6 +25,7 @@ global using SemaphoreHandle = Vulkan.Handle<Vulkan.Semaphore>;
 global using ShaderModuleHandle = Vulkan.Handle<Vulkan.ShaderModule>;
 global using SurfaceHandle = Vulkan.Handle<Vulkan.Surface>;
 global using SwapchainHandle = Vulkan.Handle<Vulkan.Swapchain>;
+global using QueryPoolHandle = Vulkan.Handle<Vulkan.QueryPool>;
 
 namespace Vulkan;
 
