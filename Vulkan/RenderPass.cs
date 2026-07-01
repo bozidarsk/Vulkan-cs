@@ -13,6 +13,26 @@ public sealed class RenderPass : IDisposable
 
 	internal RenderPassHandle Handle => renderPass;
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.RenderPass,
+				objectHandle: (ulong)(nint)renderPass,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose()
 	{
 		vkDestroyRenderPass(device.Handle, renderPass, allocator?.Handle ?? default);

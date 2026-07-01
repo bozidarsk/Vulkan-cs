@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 using static Vulkan.Constants;
 
@@ -21,6 +22,26 @@ public sealed class Image : IDisposable
 			return requirements;
 
 			[DllImport(VK_LIB)] static extern void vkGetImageMemoryRequirements(DeviceHandle device, ImageHandle image, out MemoryRequirements requirements);
+		}
+	}
+
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.Image,
+				objectHandle: (ulong)(nint)image,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
 		}
 	}
 

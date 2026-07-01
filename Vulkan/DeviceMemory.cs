@@ -47,6 +47,26 @@ public sealed class DeviceMemory : IDisposable
 		[DllImport(VK_LIB)] static extern Result vkUnmapMemory(DeviceHandle device, DeviceMemoryHandle deviceMemory);
 	}
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.DeviceMemory,
+				objectHandle: (ulong)(nint)deviceMemory,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose()
 	{
 		vkFreeMemory(device.Handle, deviceMemory, allocator?.Handle ?? default);

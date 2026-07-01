@@ -48,6 +48,26 @@ public sealed class Device : IDisposable
 		[DllImport(VK_LIB)] static extern void vkDeviceWaitIdle(DeviceHandle device);
 	}
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.Device,
+				objectHandle: (ulong)(nint)device,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose()
 	{
 		vkDestroyDevice(device, allocator?.Handle ?? default);

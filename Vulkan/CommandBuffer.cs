@@ -334,6 +334,26 @@ public sealed class CommandBuffer : IDisposable
 		[DllImport(VK_LIB)] static extern void vkCmdPipelineBarrier2(CommandBufferHandle commandBuffer, in DependencyInfo dependencyInfo);
 	}
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.CommandBuffer,
+				objectHandle: (ulong)(nint)commandBuffer,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose() => commandPool.FreeCommandBuffers(this);
 
 	public override string ToString() => commandBuffer.ToString();

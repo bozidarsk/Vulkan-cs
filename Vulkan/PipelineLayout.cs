@@ -13,6 +13,26 @@ public sealed class PipelineLayout : IDisposable
 
 	internal PipelineLayoutHandle Handle => pipelineLayout;
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.PipelineLayout,
+				objectHandle: (ulong)(nint)pipelineLayout,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose()
 	{
 		vkDestroyPipelineLayout(device.Handle, pipelineLayout, allocator?.Handle ?? default);

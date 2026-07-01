@@ -6,6 +6,12 @@ using System.Runtime.InteropServices;
 namespace Vulkan;
 
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate Result SetDebugUtilsObjectNameDelegate(
+	DeviceHandle device,
+	in DebugUtilsObjectNameInfo nameInfo
+);
+
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate Result CreateDebugUtilsMessengerExtensionDelegate(
 	InstanceHandle instance,
 	in DebugUtilsMessengerCreateInfo createInfo,

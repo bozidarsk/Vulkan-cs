@@ -24,6 +24,26 @@ public sealed class CommandPool : IDisposable
 		[DllImport(VK_LIB)] static extern void vkFreeCommandBuffers(DeviceHandle device, CommandPoolHandle commandPool, uint bufferCount, ref CommandBufferHandle pBuffers);
 	}
 
+	public string Name
+	{
+		set
+		{
+			var vkSetDebugUtilsObjectNameEXT = Marshal.GetDelegateForFunctionPointer<SetDebugUtilsObjectNameDelegate>(vkGetDeviceProcAddr(device.Handle, "vkSetDebugUtilsObjectNameEXT"));
+
+			using var nameInfo = new DebugUtilsObjectNameInfo(
+				next: default,
+				objectType: ObjectType.CommandPool,
+				objectHandle: (ulong)(nint)commandPool,
+				objectName: value ?? throw new ArgumentNullException()
+			);
+
+			Result result = vkSetDebugUtilsObjectNameEXT(device.Handle, in nameInfo);
+			if (result != Result.Success) throw new VulkanException(result);
+
+			[DllImport(VK_LIB)] static extern nint vkGetDeviceProcAddr(DeviceHandle device, string name);
+		}
+	}
+
 	public void Dispose()
 	{
 		vkDestroyCommandPool(device.Handle, commandPool, allocator?.Handle ?? default);
