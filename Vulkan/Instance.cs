@@ -38,7 +38,7 @@ public sealed class Instance : IDisposable
 
 	public void CreateSurface(GLFW.Window window)
 	{
-		Result result = glfwCreateWindowSurface(instance, window, allocator?.Handle ?? default, out SurfaceHandle surface);
+		Result result = glfwCreateWindowSurface(instance, window.NativeHandle, allocator?.Handle ?? default, out SurfaceHandle surface);
 		if (result != Result.Success) throw new VulkanException(result);
 
 		this.Surface = new(surface, this, allocator);
