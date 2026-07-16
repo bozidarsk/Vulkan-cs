@@ -189,6 +189,7 @@ public sealed class Compiler : IDisposable
 			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan14),
 			SPIRVVersion = SPIRVVersion.Version14,
 			IncludeDirectories = [SHADER_INCLUDE_DIR],
+			InvertY = true,
 		};
 
 		byte[] source;
