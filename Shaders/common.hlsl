@@ -39,6 +39,7 @@ struct Vertex
 struct Fragment
 {
 	float4 position : SV_POSITION;
+	float3 worldPosition;
 	float3 normal;
 	float2 uv;
 	float4 color;
