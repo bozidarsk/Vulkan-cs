@@ -1,5 +1,5 @@
 #pragma stage fragment
-#pragma cull none
+#pragma cull back
 
 #include <common.hlsl>
 
