@@ -1,0 +1,74 @@
+namespace Vulkan;
+
+public readonly struct PhysicalDeviceDescriptorIndexingFeatures
+{
+	public readonly StructureType Type = StructureType.PhysicalDeviceDescriptorIndexingFeatures;
+	public readonly nint Next;
+	public readonly bool32 ShaderInputAttachmentArrayDynamicIndexing;
+	public readonly bool32 ShaderUniformTexelBufferArrayDynamicIndexing;
+	public readonly bool32 ShaderStorageTexelBufferArrayDynamicIndexing;
+	public readonly bool32 ShaderUniformBufferArrayNonUniformIndexing;
+	public readonly bool32 ShaderSampledImageArrayNonUniformIndexing;
+	public readonly bool32 ShaderStorageBufferArrayNonUniformIndexing;
+	public readonly bool32 ShaderStorageImageArrayNonUniformIndexing;
+	public readonly bool32 ShaderInputAttachmentArrayNonUniformIndexing;
+	public readonly bool32 ShaderUniformTexelBufferArrayNonUniformIndexing;
+	public readonly bool32 ShaderStorageTexelBufferArrayNonUniformIndexing;
+	public readonly bool32 DescriptorBindingUniformBufferUpdateAfterBind;
+	public readonly bool32 DescriptorBindingSampledImageUpdateAfterBind;
+	public readonly bool32 DescriptorBindingStorageImageUpdateAfterBind;
+	public readonly bool32 DescriptorBindingStorageBufferUpdateAfterBind;
+	public readonly bool32 DescriptorBindingUniformTexelBufferUpdateAfterBind;
+	public readonly bool32 DescriptorBindingStorageTexelBufferUpdateAfterBind;
+	public readonly bool32 DescriptorBindingUpdateUnusedWhilePending;
+	public readonly bool32 DescriptorBindingPartiallyBound;
+	public readonly bool32 DescriptorBindingVariableDescriptorCount;
+	public readonly bool32 RuntimeDescriptorArray;
+
+	public PhysicalDeviceDescriptorIndexingFeatures(
+		nint next,
+		bool shaderInputAttachmentArrayDynamicIndexing,
+		bool shaderUniformTexelBufferArrayDynamicIndexing,
+		bool shaderStorageTexelBufferArrayDynamicIndexing,
+		bool shaderUniformBufferArrayNonUniformIndexing,
+		bool shaderSampledImageArrayNonUniformIndexing,
+		bool shaderStorageBufferArrayNonUniformIndexing,
+		bool shaderStorageImageArrayNonUniformIndexing,
+		bool shaderInputAttachmentArrayNonUniformIndexing,
+		bool shaderUniformTexelBufferArrayNonUniformIndexing,
+		bool shaderStorageTexelBufferArrayNonUniformIndexing,
+		bool descriptorBindingUniformBufferUpdateAfterBind,
+		bool descriptorBindingSampledImageUpdateAfterBind,
+		bool descriptorBindingStorageImageUpdateAfterBind,
+		bool descriptorBindingStorageBufferUpdateAfterBind,
+		bool descriptorBindingUniformTexelBufferUpdateAfterBind,
+		bool descriptorBindingStorageTexelBufferUpdateAfterBind,
+		bool descriptorBindingUpdateUnusedWhilePending,
+		bool descriptorBindingPartiallyBound,
+		bool descriptorBindingVariableDescriptorCount,
+		bool runtimeDescriptorArray
+	)
+	{
+		this.Next = next;
+		this.ShaderInputAttachmentArrayDynamicIndexing = shaderInputAttachmentArrayDynamicIndexing;
+		this.ShaderUniformTexelBufferArrayDynamicIndexing = shaderUniformTexelBufferArrayDynamicIndexing;
+		this.ShaderStorageTexelBufferArrayDynamicIndexing = shaderStorageTexelBufferArrayDynamicIndexing;
+		this.ShaderUniformBufferArrayNonUniformIndexing = shaderUniformBufferArrayNonUniformIndexing;
+		this.ShaderSampledImageArrayNonUniformIndexing = shaderSampledImageArrayNonUniformIndexing;
+		this.ShaderStorageBufferArrayNonUniformIndexing = shaderStorageBufferArrayNonUniformIndexing;
+		this.ShaderStorageImageArrayNonUniformIndexing = shaderStorageImageArrayNonUniformIndexing;
+		this.ShaderInputAttachmentArrayNonUniformIndexing = shaderInputAttachmentArrayNonUniformIndexing;
+		this.ShaderUniformTexelBufferArrayNonUniformIndexing = shaderUniformTexelBufferArrayNonUniformIndexing;
+		this.ShaderStorageTexelBufferArrayNonUniformIndexing = shaderStorageTexelBufferArrayNonUniformIndexing;
+		this.DescriptorBindingUniformBufferUpdateAfterBind = descriptorBindingUniformBufferUpdateAfterBind;
+		this.DescriptorBindingSampledImageUpdateAfterBind = descriptorBindingSampledImageUpdateAfterBind;
+		this.DescriptorBindingStorageImageUpdateAfterBind = descriptorBindingStorageImageUpdateAfterBind;
+		this.DescriptorBindingStorageBufferUpdateAfterBind = descriptorBindingStorageBufferUpdateAfterBind;
+		this.DescriptorBindingUniformTexelBufferUpdateAfterBind = descriptorBindingUniformTexelBufferUpdateAfterBind;
+		this.DescriptorBindingStorageTexelBufferUpdateAfterBind = descriptorBindingStorageTexelBufferUpdateAfterBind;
+		this.DescriptorBindingUpdateUnusedWhilePending = descriptorBindingUpdateUnusedWhilePending;
+		this.DescriptorBindingPartiallyBound = descriptorBindingPartiallyBound;
+		this.DescriptorBindingVariableDescriptorCount = descriptorBindingVariableDescriptorCount;
+		this.RuntimeDescriptorArray = runtimeDescriptorArray;
+	}
+}
