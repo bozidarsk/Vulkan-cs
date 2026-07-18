@@ -1,20 +1,7 @@
-using System.IO;
-using System.Runtime.CompilerServices;
-
 namespace Vulkan;
 
 internal static class Constants
 {
-	public static string SHADER_INCLUDE_DIR
-	{
-		get
-		{
-			return Path.GetRelativePath(Directory.GetCurrentDirectory(), Path.Join(Path.GetDirectoryName(getPath()), "../Shaders"));
-
-			static string getPath([CallerFilePath] string path = "") => path;
-		}
-	}
-
 	public const string VK_LIB =
 #if WINDOWS
 #error Not implemented. (WINDOWS)
@@ -28,7 +15,7 @@ internal static class Constants
 	;
 
 	public const string GLFW_LIB =
-	#if WINDOWS
+#if WINDOWS
 	"glfw3"
 #elif LINUX
 	"glfw"
@@ -40,7 +27,7 @@ internal static class Constants
 	;
 
 	public const string SHADERC_LIB =
-	#if WINDOWS
+#if WINDOWS
 #error Not implemented. (WINDOWS)
 #elif LINUX
 	"shaderc_shared"

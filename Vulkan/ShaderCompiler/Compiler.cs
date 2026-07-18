@@ -191,9 +191,8 @@ public sealed class Compiler : IDisposable
 		bool disposeOptions = options == null;
 		options ??= new CompilerOptions()
 		{
-			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan14),
-			SPIRVVersion = SPIRVVersion.Version14,
-			IncludeDirectories = [SHADER_INCLUDE_DIR],
+			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan13),
+			SPIRVVersion = SPIRVVersion.Version16,
 			InvertY = true,
 		};
 
