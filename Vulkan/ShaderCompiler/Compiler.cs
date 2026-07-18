@@ -188,8 +188,7 @@ public sealed class Compiler : IDisposable
 		if (filename == null)
 			throw new ArgumentNullException();
 
-		bool disposeOptions = options == null;
-		options ??= new CompilerOptions()
+		using var optionsCopy = (options != null) ? new CompilerOptions(options) : new CompilerOptions()
 		{
 			Environment = (TargetEnvironment.Vulkan, EnvironmentVersion.Vulkan13),
 			SPIRVVersion = SPIRVVersion.Version16,
@@ -200,32 +199,19 @@ public sealed class Compiler : IDisposable
 
 		var shader = new Shader() { File = Path.GetFullPath(filename) };
 
-		GetShaderMetadata(shader, options);
+		GetShaderMetadata(shader, optionsCopy);
 
 		source = File.ReadAllBytes(shader.File);
-		using CompilationResult preprocessingResult = new(shaderc_compile_into_preprocessed_text(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", options.Handle));
+		using CompilationResult preprocessingResult = new(shaderc_compile_into_preprocessed_text(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", optionsCopy.Handle));
 
 		if (preprocessingResult.Status != CompilationStatus.Success)
-		{
-			if (disposeOptions)
-				options.Dispose();
-
 			throw new VulkanException($"Failed to preprocess shader '{shader.File}' - {preprocessingResult.Status}.\n{preprocessingResult.ErrorMessage}");
-		}
 
 		source = preprocessingResult.Data;
-		using CompilationResult compilationResult = new(shaderc_compile_into_spv(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", options.Handle));
+		using CompilationResult compilationResult = new(shaderc_compile_into_spv(compiler, ref MemoryMarshal.GetArrayDataReference(source), (nuint)source.Length, shader.Stage.GetShaderKind(), shader.File, shader.EntryPoint ?? "main", optionsCopy.Handle));
 
 		if (compilationResult.Status != CompilationStatus.Success)
-		{
-			if (disposeOptions)
-				options.Dispose();
-
 			throw new VulkanException($"Failed to compile shader '{shader.File}'.\n{compilationResult.ErrorMessage}");
-		}
-
-		if (disposeOptions)
-			options.Dispose();
 
 		shader.Code = compilationResult.Data;
 		return shader;

@@ -316,10 +316,8 @@ public sealed class CompilerOptions : IDisposable
 
 	public override string ToString() => compilerOptions.ToString();
 
-	public CompilerOptions()
+	private void SetIncludeCallbacks()
 	{
-		this.compilerOptions = shaderc_compile_options_initialize();
-
 		IncludeResolverDelegate includeResolver = (options, requestedSource, type, requestingSource, includeDepth) =>
 		{
 			string filename, content;
@@ -360,13 +358,55 @@ public sealed class CompilerOptions : IDisposable
 
 		shaderc_compile_options_set_include_callbacks(compilerOptions, includeResolver, includeResultReleaser, default);
 
-		[DllImport(SHADERC_LIB)] static extern CompilerOptionsHandle shaderc_compile_options_initialize();
 		[DllImport(SHADERC_LIB)] static extern void shaderc_compile_options_set_include_callbacks(
 			CompilerOptionsHandle options,
 			IncludeResolverDelegate resolver,
 			IncludeResultReleaserDelegate resultRelease,
 			nint userData
 		);
+	}
+
+	public CompilerOptions()
+	{
+		this.compilerOptions = shaderc_compile_options_initialize();
+
+		SetIncludeCallbacks();
+
+		[DllImport(SHADERC_LIB)] static extern CompilerOptionsHandle shaderc_compile_options_initialize();
+	}
+
+	public CompilerOptions(CompilerOptions other)
+	{
+		if (other == null)
+			throw new ArgumentNullException();
+
+		this.compilerOptions = shaderc_compile_options_initialize();
+
+		this.MacroDefinitions = other.MacroDefinitions;
+		this.Limits = other.Limits;
+		this.ShaderLanguage = other.ShaderLanguage;
+		this.OptimizationLevel = other.OptimizationLevel;
+		this.Environment = other.Environment;
+		this.SPIRVVersion = other.SPIRVVersion;
+		this.GenerateDebugInfo = other.GenerateDebugInfo;
+		this.WarningsAsErrors = other.WarningsAsErrors;
+		this.SuppressWarnings = other.SuppressWarnings;
+		this.AutoBindUniforms = other.AutoBindUniforms;
+		this.AutoCombinedImageSampler = other.AutoCombinedImageSampler;
+		this.HLSLIOMapping = other.HLSLIOMapping;
+		this.HLSLOffsets = other.HLSLOffsets;
+		this.PreserveBindings = other.PreserveBindings;
+		this.AutoMapLocations = other.AutoMapLocations;
+		this.HLSLFunctionality1 = other.HLSLFunctionality1;
+		this.HLSL16BitTypes = other.HLSL16BitTypes;
+		this.VulkanRulesRelaxed = other.VulkanRulesRelaxed;
+		this.InvertY = other.InvertY;
+		this.NanClamp = other.NanClamp;
+		this.IncludeDirectories = other.IncludeDirectories;
+
+		SetIncludeCallbacks();
+
+		[DllImport(SHADERC_LIB)] static extern CompilerOptionsHandle shaderc_compile_options_initialize();
 	}
 
 	internal CompilerOptions(CompilerOptionsHandle compilerOptions) => this.compilerOptions = compilerOptions;
