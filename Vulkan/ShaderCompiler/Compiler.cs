@@ -33,6 +33,14 @@ public sealed class Compiler : IDisposable
 			string name = tokens[1];
 			var values = new Span<string>(tokens, 2, tokens.Length - 2);
 
+			if (values.Length == 1 && Enum.TryParse<Limit>(name, true, out Limit limit) && int.TryParse(values[0], out int limitValue))
+			{
+				limits.Add((limit, limitValue));
+
+				lineIndex++;
+				continue;
+			}
+
 			switch (name.ToLower())
 			{
 				case "stage":
@@ -168,9 +176,6 @@ public sealed class Compiler : IDisposable
 				default:
 					throw new VulkanException($"Failed to process shader properties in '{shader.File}'. (#pragma '{name}' at line {lineIndex})");
 			}
-
-			if (values.Length == 1 && Enum.TryParse<Limit>(name, true, out Limit limit) && int.TryParse(values[0], out int limitValue))
-				limits.Add((limit, limitValue));
 
 			lineIndex++;
 		}
