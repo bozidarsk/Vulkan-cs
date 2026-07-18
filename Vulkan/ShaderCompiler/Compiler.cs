@@ -132,46 +132,46 @@ public sealed class Compiler : IDisposable
 					options.OptimizationLevel = optimization;
 					break;
 				case "generatedebuginfo":
-					options.GenerateDebugInfo = true;
+					options.GenerateDebugInfo = (values.Length == 1 && bool.TryParse(values[0], out var generateDebugInfo)) ? generateDebugInfo : true;
 					break;
 				case "warningsaserrors":
-					options.WarningsAsErrors = true;
+					options.WarningsAsErrors = (values.Length == 1 && bool.TryParse(values[0], out var warningsAsErrors)) ? warningsAsErrors : true;
 					break;
 				case "suppresswarnings":
-					options.SuppressWarnings = true;
+					options.SuppressWarnings = (values.Length == 1 && bool.TryParse(values[0], out var suppressWarnings)) ? suppressWarnings : true;
 					break;
 				case "autobinduniforms":
-					options.AutoBindUniforms = true;
+					options.AutoBindUniforms = (values.Length == 1 && bool.TryParse(values[0], out var autoBindUniforms)) ? autoBindUniforms : true;
 					break;
 				case "autocombinedimagesampler":
-					options.AutoCombinedImageSampler = true;
+					options.AutoCombinedImageSampler = (values.Length == 1 && bool.TryParse(values[0], out var autoCombinedImageSampler)) ? autoCombinedImageSampler : true;
 					break;
 				case "hlsliomapping":
-					options.HLSLIOMapping = true;
+					options.HLSLIOMapping = (values.Length == 1 && bool.TryParse(values[0], out var hlslIOMapping)) ? hlslIOMapping : true;
 					break;
 				case "hlsloffsets":
-					options.HLSLOffsets = true;
+					options.HLSLOffsets = (values.Length == 1 && bool.TryParse(values[0], out var hlslOffsets)) ? hlslOffsets : true;
 					break;
 				case "preservebindings":
-					options.PreserveBindings = true;
+					options.PreserveBindings = (values.Length == 1 && bool.TryParse(values[0], out var preserveBindings)) ? preserveBindings : true;
 					break;
 				case "automaplocations":
-					options.AutoMapLocations = true;
+					options.AutoMapLocations = (values.Length == 1 && bool.TryParse(values[0], out var autoMapLocations)) ? autoMapLocations : true;
 					break;
 				case "hlslfunctionality1":
-					options.HLSLFunctionality1 = true;
+					options.HLSLFunctionality1 = (values.Length == 1 && bool.TryParse(values[0], out var hlslFunctionality1)) ? hlslFunctionality1 : true;
 					break;
 				case "hlsl16bittypes":
-					options.HLSL16BitTypes = true;
+					options.HLSL16BitTypes = (values.Length == 1 && bool.TryParse(values[0], out var hlsl16BitTypes)) ? hlsl16BitTypes : true;
 					break;
 				case "vulkanrulesrelaxed":
-					options.VulkanRulesRelaxed = true;
+					options.VulkanRulesRelaxed = (values.Length == 1 && bool.TryParse(values[0], out var vulkanRulesRelaxed)) ? vulkanRulesRelaxed : true;
 					break;
 				case "inverty":
-					options.InvertY = true;
+					options.InvertY = (values.Length == 1 && bool.TryParse(values[0], out var invertY)) ? invertY : true;
 					break;
 				case "nanclamp":
-					options.NanClamp = true;
+					options.NanClamp = (values.Length == 1 && bool.TryParse(values[0], out var nanClamp)) ? nanClamp : true;
 					break;
 				default:
 					throw new VulkanException($"Failed to process shader properties in '{shader.File}'. (#pragma '{name}' at line {lineIndex})");
